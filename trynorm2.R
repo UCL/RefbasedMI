@@ -1,4 +1,4 @@
-#########################################
+############################################################################
 # R program to mimic stata program mimix
 # ie reference based imputation 
 # Note 1st part is to set up a summary table - mimix_group
