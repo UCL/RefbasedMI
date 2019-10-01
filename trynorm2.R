@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-=======
-############################################################################
-# R program to mimic stata program mimix
-# ie reference based imputation 
-# Note 1st part is to set up a summary table - mimix_group
-# reflects the pattern and treatment group configuration of the raw data
-# then acts as a looping mechanism 
-# norm2 is used as MCMC multivariate normal  
-#########################################
-
-set.seed(101) #so can reproduce results
-# initial program reads stata data files 
->>>>>>> d3e0afdab5029779bd6de53d5e58c674d63aab14
 library(haven)
 
 preimputemvn1 <- read_dta("preimputemvn1.dta")
