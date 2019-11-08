@@ -128,12 +128,14 @@ S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
 #  S22 <- mcmcResult1$param$sigma[c_mata_miss,c_mata_miss]
 
 ###################### MNAR IMPUTATION ################
+# need insert routine when ALL missing values
+# else
+###################### MNAR IMPUTATION ################
+
 
 
 m1 <- mata_means[c_mata_nonmiss]
 m2 <- mata_means[c_mata_miss]
-
-
 
 
 #then mata_obs is the sequential selection of rows according to the mimix_group variable X1 values
@@ -160,7 +162,52 @@ mata_raw <- mata_Obs[c(startrow:stoprow),]
 print("mata_raw = ")
 print(mata_raw)
 
+#}
+# to here seems ok 8/11/19 
+#J2r uses Sigma derived from refernce group
+library(sparseinv) 
+#t=cholsolve(S11,S12)
+#cholsolve(A, B) solves AX=B and returns X for symmetric (Hermitian), positive-definite A.  cholsolve() returns a matrix of missing values if A is not positive definite or if A is singular.
+# so want solve S11X=S12
+
+
+  t_mimix =cholsolve(Q=S11,y=S12)   
+  conds <-  S22-t(S12)%*%t_mimix
+  # perhaps below should be checked? 
+  meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+  U <- chol(conds)
+  # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
+  miss_count=rowSums(mata_miss)
+  Z<-qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+  
+  print(Z) 
+ 
+  mata_y1 = meanval+Z%*%t(U)
+  
+  #define new matrix from observed,  id column  (the last)
+  mata_new <- mata_obs
+ 
+  # assigning the columns where the missing values  
+  mata_new[,c_mata_miss] <- mata_y1
+  # if(length(c_mata_miss)!=0 )
+  #if(length(c_mata_miss)==0 ) { mata_new <- mata_obs[,c(1:nct)]}
+  
+  #assuming this ture from Stata if "`interim'"==""{
+  # SNO just id col
+  SNO <- mata_obs[,ncol(mata_obs)]
+  # GI treatment grp column 1 (here),II imputation number col, mata_new matrix then SNO is id col.
+  GI <- array(data=mg[i,1],dim=c(mg[i,"X1"],1))
+  #II  no imputations 
+  II <- array(data=imp,dim=c(mg[i,"X1"],1))
+  
+  #doesnt need SNO, as id already in
+  #mata_new<-cbind(GI,II,mata_new,SNO)
+  mata_new<-cbind(GI,II,mata_new)
+  mata_all_new<-rbind(mata_all_new,mata_new)
+  #stata equilv \ is row bind NOt cbind!!?
 }
+
+
 
 print("mata_means = ")
 print(mata_means) 
