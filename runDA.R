@@ -4,10 +4,10 @@
 # by looping thru ntreat
 #
 
+# pick up from test<-preprodata("fev","treat","id","time","base")
 library(norm2)
+library(sparseinv) 
 
-ntreat<-test[[3]]
-finaldatS<-test[[2]]
 
 for (val in t(ntreat)) {
   print(paste0("prenormdat",val))
@@ -20,6 +20,7 @@ for (val in t(ntreat)) {
 # use the ntime var  
 
 mi_impute <-function(idvar,timevar,depvar,covar) {
+  #preprodata(depvar,treatvar,idvar,timevar,covar)
    tst<-pivot_wider(mxdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
    # add ont covariates and add on to resp list
    respvars<-c(names(tst[,-1]),covar)
@@ -31,12 +32,23 @@ tst2 <- mi_impute("id","time","fev","base")
 tst3<-paste(tst2,collapse = ",")
 
 
-#try formula
-fmla <- as.formula(paste(tst2,collapse=","))
-
-#try putting a matrix instead of a formula?
+#try putting a matrix instead of a formula seems ok
 #seems to work
-M<-2
+M<-1
+##CHECK WITH STATA , MULTIPLE DOESNT KINCK IN YET!!1? 
+
+#*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA 	
+# just an empty row but take dimensions and col types fron mata_obs
+#mata_all_new<-array(data=1,dim=c(1,2+ncol(mata_Obs)))
+GI<-c(0)
+II<-c(0)
+SNO <-mata_Obs[1,1]
+dropid<-c("id")
+mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)] 
+mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
+mata_all_new[ mata_all_new>=0] <-NA 
+
+
 for(m in 1:M) {
 for (val in t(ntreat)) {
  #prnormobj <- subset(prenormdat2, select=c(tst2))
@@ -55,7 +67,9 @@ for (val in t(ntreat)) {
 # need to use look up file to process pattern (by treatment)
 # mimix_group<- test[[5]]
 # need define missing pattern vector within look-up table
-mg<-test[[5]]
+ 
+
+
 for ( i in  1:nrow(mg)) 
   {
   #define mata_miss as vector of 1's denoting missing using col names ending i ".1"
@@ -87,6 +101,23 @@ for ( i in  1:nrow(mg))
   # refer col is just a constant , might be better than this method 
   refer <- 2 # change this to  input argument!
   # try to mcmcrEsult as 2 matrices  
+ 
+  # multiple  simulations start here #########  
+for ( m in  1:M)  { 
+  #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
+			#if `pat' == 0{ 
+  if(length(c_mata_miss)==0 ) {
+          st<-mg[i,"X1cum"]-mg[i,"X1"]+1
+          en <-mg[i,"X1cum"]
+          SNO<-mata_Obs[c(st:en),1]
+          mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
+          GI <- array(data=mg[i,"treat"],dim=c(mg[i,"X1"],1))
+         #II  no imputations 
+          II <- array(data=m,dim=c(mg[i,"X1"],1))
+          mata_new=cbind(GI,II,mata_new,SNO)
+          #names(mata_all_new)<-names(mata_new)
+          mata_all_new=rbind(mata_all_new,mata_new)
+  } else {
   
 #} 
 #for mimix_group
@@ -158,14 +189,16 @@ print("startrow stoprow = ")
 print(startrow)
 print(stoprow)
 
-mata_raw <- mata_Obs[c(startrow:stoprow),]
+#raw1 <- mata_obs[, c_mata_nonmiss]
+preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
+raw1 <- preraw[,c_mata_nonmiss]
 print("mata_raw = ")
-print(mata_raw)
+print(raw1)
 
 #}
 # to here seems ok 8/11/19 
 #J2r uses Sigma derived from refernce group
-library(sparseinv) 
+
 #t=cholsolve(S11,S12)
 #cholsolve(A, B) solves AX=B and returns X for symmetric (Hermitian), positive-definite A.  cholsolve() returns a matrix of missing values if A is not positive definite or if A is singular.
 # so want solve S11X=S12
@@ -185,30 +218,37 @@ library(sparseinv)
   mata_y1 = meanval+Z%*%t(U)
   
   #define new matrix from observed,  id column  (the last)
-  mata_new <- mata_obs
+  mata_new <- preraw
  
   # assigning the columns where the missing values  
+  if(length(c_mata_miss)==0 ) { mata_new <- mata_Obs[,c(2:nct+1)]
+  }else {
   mata_new[,c_mata_miss] <- mata_y1
+  }
   # if(length(c_mata_miss)!=0 )
-  #if(length(c_mata_miss)==0 ) { mata_new <- mata_obs[,c(1:nct)]}
+  
   
   #assuming this ture from Stata if "`interim'"==""{
   # SNO just id col
-  SNO <- mata_obs[,ncol(mata_obs)]
+  SNO <- mata_Obs[c(startrow:stoprow),1]
+  #SNO <- mata_ObsX[,ncol(mata_Obs)]
   # GI treatment grp column 1 (here),II imputation number col, mata_new matrix then SNO is id col.
   GI <- array(data=mg[i,1],dim=c(mg[i,"X1"],1))
   #II  no imputations 
-  II <- array(data=imp,dim=c(mg[i,"X1"],1))
+  II <- array(data=m,dim=c(mg[i,"X1"],1))
   
   #doesnt need SNO, as id already in
   #mata_new<-cbind(GI,II,mata_new,SNO)
-  mata_new<-cbind(GI,II,mata_new)
+  mata_new<-cbind(GI,II,mata_new,SNO)
   mata_all_new<-rbind(mata_all_new,mata_new)
   #stata equilv \ is row bind NOt cbind!!?
+  }
+    
 }
+} #for M
 
-
-
+mata_all_new_rmna <- na.omit(mata_all_new) 
+  
 print("mata_means = ")
 print(mata_means) 
 

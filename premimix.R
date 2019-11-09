@@ -34,7 +34,7 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar)  {
   sts4<-pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix="fev",values_from=depvar)
   #sts4 is just response data, can join later treat and covar cols from finaldat 
   #assumes no NA for these vars should add in checking routines !!
-  uniqdat<-unique(mxdata[c(idvar,treatvar,covar)])
+  uniqdat<-unique(mxdata[c(idvar,covar,treatvar)])
   
  #uniqdat<- uniqdat[order(treatvar),]
   #uniq to merge onto the wide data set sql joinon idjoin R
@@ -80,8 +80,8 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar)  {
   
   # consistent with Stata to get right orderdrop id and treat cols
   drops <-c(idvar,treatvar)
-  finaldatS<-finaldatS[,!(names(mata_raw) %in% drops)] 
-  mata_Obs[order(mata_Obs$treat,mata_Obs$patt),]
+ # finaldatS<-finaldatS[,!(names(sts4Dpatt) %in% drops)] 
+  #mata_Obs[order(mata_Obs$treat,mata_Obs$patt),]
   #finaldat3[with(finaldat3,order(treatvar)),]
   #return(finaldatS)
   
@@ -134,20 +134,25 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar)  {
 # Question is should the wide data be sorted for analysis or just ordered in fact, selecting out treatmet and rbinding? to provide analysis data set.   
 # answer is should be sorted by patt as in Stata!
 # therefore just select on treat when looping thru ntreat 
-testb<-preprodata()
-test<-preprodata("fev","treat","id","time","base")
 
+test<-preprodata("fev","treat","id","time","base")
+ntreat<-test[[4]]
+finaldatS<-test[[2]]
+mg<-test[[5]]
 # vital to get the mata_obs correctly sorted! so corresponds with mimix_group lookup 
 # to be consistent with Stata move the base col after the fevs!
 mata_Obs <- test[[2]]
-mata_OBS <- mata_Obs[order(mata_Obs$treat,mata_Obs$patt),]  
+mata_ObsX <-test[[3]]
+
+#below already done above
+#mata_OBS <- mata_Obs[order(mata_Obs$treat,mata_Obs$patt),]  
 
 # consistent with Stata is fev1-4 ,base so drop id (,1) and treat cols
 
 #So test[[5]] is the lookup table equiv to !
 
 
-test[[1]]$id <- as.numeric(test[[1]]$id)
+#test[[1]]$id <- as.numeric(test[[1]]$id)
 finaldat2<-join(test[[1]],test[[2]], by=id)
 test<-preprodata("fev","treat","id","time","base")
 head(test[[2]])
