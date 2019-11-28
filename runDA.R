@@ -7,7 +7,7 @@
 # pick up from test<-preprodata("fev","treat","id","time","base")
 library(norm2)
 library(sparseinv) 
-
+#M<-1
 
 for (val in t(ntreat)) {
   print(paste0("prenormdat",val))
@@ -29,12 +29,13 @@ mi_impute <-function(idvar,timevar,depvar,covar) {
 
 # so tsts2 is th equiv to mi_impute so try to put in norm2
 tst2 <- mi_impute("id","time","fev","base")
+# put commas in
 tst3<-paste(tst2,collapse = ",")
 
 
 #try putting a matrix instead of a formula seems ok
-#seems to work
-M<-1
+#seems to works
+
 ##CHECK WITH STATA , MULTIPLE DOESNT KINCK IN YET!!1? 
 
 #*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA 	
@@ -48,29 +49,72 @@ mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)]
 mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
 mata_all_new[ mata_all_new>=0] <-NA 
 
-
-for(m in 1:M) {
+#try
+#for (val in t(ntreat)) {
+#  for(m in 1:M) {
+#    #prnormobj <- subset(prenormdat2, select=c(tst2))
+#    kmvar=get(paste0("prenormdat",val))
+#    testprnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
+#    emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
+#    mcmcResultT<- mcmcNorm(emResultT,iter=1000,multicycle = 100)
+#    assign(paste0("mcmcResultT",val,m),mcmcResultT)
+#    assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
+#    assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
+#    print(paste0("parambeta",val,m))
+#}                                 
+#}
+library(tictoc)
+#M<-1000
+tic("total")
+M<-1000
 for (val in t(ntreat)) {
- #prnormobj <- subset(prenormdat2, select=c(tst2))
-  kmvar=get(paste0("prenormdat",val))
-  testprnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
- emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
- mcmcResultT<- mcmcNorm(emResultT,iter=5000,multicycle = 100)
- assign(paste0("mcmcResultT",val,m),mcmcResultT)
- assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
- assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
- print(paste0("parambeta",val,m))
- }                                 
+    #prnormobj <- subset(prenormdat2, select=c(tst2))
+    kmvar=get(paste0("prenormdat",val))
+    testprnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
+  for(m in 1:M) {  
+    #emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
+    emResultT<-emNorm(testprnormobj,prior = "jeffreys")
+    mcmcResultT<- mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys")
+    assign(paste0("mcmcResultT",val,m),mcmcResultT)
+    assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
+    assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
+    print(paste0("parambeta",val,m))
+  }                                 
 }
+toc()
+
+
+## these are now refrenced so can use in below imputation loop
+
+
   
 # now go to the START main analysis bit
 # need to use look up file to process pattern (by treatment)
 # mimix_group<- test[[5]]
 # need define missing pattern vector within look-up table
  
+#*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA 	
+# just an empty row but take dimensions and col types fron mata_obs
+#mata_all_new<-array(data=1,dim=c(1,2+ncol(mata_Obs)))
+GI<-c(0)
+II<-c(0)
+SNO <-mata_Obs[1,1]
+dropid<-c("id")
+mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)] 
+mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
+mata_all_new[ mata_all_new>=0] <-NA 
 
+#testing
+SigmaRefer11_new = matrix(,nrow=5,ncol=5)
+S12_pat11_new =matrix(,nrow=2,ncol=3)
 
-for ( i in  1:nrow(mg)) 
+# loop over pattern lookup
+#   for ( i in  1:nrow(mg)) 
+#testingloop over last pattern  
+#for  (i in nrow(mg):nrow(mg))
+
+meth <- 'MAR' 
+for (i in 1:nrow(mg))
   {
   #define mata_miss as vector of 1's denoting missing using col names ending i ".1"
   mata_miss <- mg[i,grep("*..1",colnames(mg)),drop=F]
@@ -100,8 +144,10 @@ for ( i in  1:nrow(mg))
   # reference grp
   # refer col is just a constant , might be better than this method 
   refer <- 2 # change this to  input argument!
+  # see what chanfe refer makes!!
+  #refer <-3 doesnt improve the ests
   # try to mcmcrEsult as 2 matrices  
- 
+
   # multiple  simulations start here #########  
 for ( m in  1:M)  { 
   #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
@@ -118,7 +164,7 @@ for ( m in  1:M)  {
           #names(mata_all_new)<-names(mata_new)
           mata_all_new=rbind(mata_all_new,mata_new)
   } else {
-  
+    #*FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES  
 #} 
 #for mimix_group
 
@@ -127,9 +173,31 @@ for ( m in  1:M)  {
 # want the treatment grp means and where missing overwrite with refer grp (when differs!)     
 #mata_means_trt <-mat_Betas[trt_gp,] 
 #mata_means_ref <-mat_Betas[refer,]
+print(paste("trtgp= ",trtgp))
+print(paste("refer= ",refer))    
+  
 
-mata_means_trt <- get(paste0("parambeta",trtgp)) 
-mata_means_ref <- get(paste0("parambeta",refer))
+mata_means_trt <- get(paste0("parambeta",trtgp,m)) 
+mata_means_ref <- get(paste0("parambeta",refer,m))
+
+Sigmatrt <- get(paste0("paramsigma",trtgp,m))
+
+if (meth== 'MAR')  {
+  
+   mata_Means <- mata_means_trt 
+   mata_means<-mata_Means[rep(seq(nrow(mata_Means)),each=mg$X1[i]),]
+  
+   
+   
+   S11 <-Sigmatrt[c_mata_nonmiss,c_mata_nonmiss]
+   S12 <-Sigmatrt[c_mata_nonmiss,c_mata_miss]
+   S22 <-Sigmatrt[c_mata_miss,c_mata_miss]
+   
+
+}
+else if (meth == 'J2R') { 
+ 
+
 #one way is to element multiply (because 1,0) then add 
 mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
 mata_means_r <- unlist(mata_means_ref)*mata_miss
@@ -145,18 +213,82 @@ mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
 #SigmaRef <- Reduce(rbind,mat_Sigma[1]) 
 # this could be the error was list[1] rather than m! , mkaes a bit of difference, still discrepancy with stata 
 
-SigmaRefer <- get(paste0("paramsigma",refer))
-print(paste0("paramsigma",refer))
+
+# do we ever  use SigmaTrt !!?? in j2r? 
+SigmaRefer <- get(paste0("paramsigma",refer,m))
+# when reading in Stata sigmas
+# needs to to ths as tibble will fail in cholesky
+#SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
+
+print(paste0("paramsigma",refer,m))
 #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
 
 S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
 S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
 S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
 
+}
+else if (meth=='CR') {
+  mata_means_ref <- get(paste0("parambeta",refer,m))
+  mata_means_r <- unlist(mata_means_ref)*1
+  #mata_means_r <- unlist(mata_means_ref)*mata_miss
+  #mata_means <- mata_means_r
+  # and preserve names   
+  #colnames(mata_means) <- colnames(mata_means_trt)
+  #replicate to number of rows defined by X1 
+  mata_means <- mata_means_r
+  colnames(mata_means) <- colnames(mata_means_ref)
+  mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
+  
+  SigmaRefer <- get(paste0("paramsigma",refer,m))
+  S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
+  S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
+  S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
+}
+else if (meth=='CIR') {
+  # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp 
+  
+  #mata_means_trt <- get(paste0("parambeta",trtgp,m)) 
+  #mata_means_ref <- get(paste0("parambeta",refer,m))
+  
+  # put equiv to mimix 
+  mata_Means <-  mata_means_trt
+  MeansC <- mata_means_ref
+  
+  #might be better to copy mimix algol
+  
+  mata_means<-CIR_loop(c_mata_miss,mata_Means,MeansC)
+  #returns mata_means as single row
+  # then duplicate over patt rows
+  #replicate to number of rows defined by X1 
+  mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
+  
+  SigmaRefer <- get(paste0("paramsigma",refer,m))
+  # when reading in Stata sigmas
+  # needs to to ths as tibble will fail in cholesky
+  #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
+  
+  print(paste0("paramsigma",refer,m))
+  #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
+  
+  S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
+  S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
+  S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
+ }  
+  else if (meth=='LMCF') { 
+    mata_Means <-  mata_means_trt
+    # no ref MeansC <- mata_means_ref
+    mata_means<-LMCF_loop(c_mata_miss,mata_Means)
+    Sigmatrt <- get(paste0("paramsigma",trtgrp,m))
+    # when reading in Stata sigmas
+    S11 <-Sigmatrt[c_mata_nonmiss,c_mata_nonmiss]
+    S12 <-Sigmatrt[c_mata_nonmiss,c_mata_miss]
+    S22 <-Sigmatrt[c_mata_miss,c_mata_miss]
+ }
 
-#  S11 <- mcmcResult1$param$sigma[c_mata_nonmiss,c_mata_nonmiss]
-#  S12 <- mcmcResult1$param$sigma[c_mata_nonmiss,c_mata_miss]
-#  S22 <- mcmcResult1$param$sigma[c_mata_miss,c_mata_miss]
+
+  
+
 
 ###################### MNAR IMPUTATION ################
 # need insert routine when ALL missing values
@@ -181,7 +313,7 @@ m2 <- mata_means[c_mata_miss]
 #for ( i in  1:nrow(mimix_group))  {
 #print(i)
 j <- mg[i,"X1"]
-print(j)
+print(paste0(" count in patt = ", j))
 k <- mg[i,"X1cum"]
 startrow <-(k-j+1)  
 stoprow  <-(k)
@@ -193,7 +325,7 @@ print(stoprow)
 preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
 raw1 <- preraw[,c_mata_nonmiss]
 print("mata_raw = ")
-print(raw1)
+#print(raw1)
 
 #}
 # to here seems ok 8/11/19 
@@ -206,14 +338,16 @@ print(raw1)
 
   t_mimix =cholsolve(Q=S11,y=S12)   
   conds <-  S22-t(S12)%*%t_mimix
-  # perhaps below should be checked? 
-  meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+  #  
+  #meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+  # below for CR but may not work with J2R
+  meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
   U <- chol(conds)
   # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
   miss_count=rowSums(mata_miss)
   Z<-qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
-  
-  print(Z) 
+  # check same input parameters for inverse norm gen as in stata 
+  print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
  
   mata_y1 = meanval+Z%*%t(U)
   
@@ -227,8 +361,19 @@ print(raw1)
   }
   # if(length(c_mata_miss)!=0 )
   
+  #save U,Z for imp(m) and patt(i)
+  # this worked for Z
   
-  #assuming this ture from Stata if "`interim'"==""{
+  #assign(paste0("Z11",i,"_imp",m),subset(Z))
+  #assign(paste0("U11",i,"_imp",m),subset(U))
+  assign(paste0("S12",i,"_imp",m),S12)
+  assign(paste0("S22",i,"_imp",m),S22)
+  assign(paste0("mata_y1_11",i,"_imp",m),mata_y1)
+  assign(paste0("conds11",i,"_imp",m),conds) 
+  # no idea why below cuases error!
+  assign(paste0("t_mimix11",i,"_imp",m),t_mimix)
+  
+  #assuming this  from Stata if "`interim'"==""{
   # SNO just id col
   SNO <- mata_Obs[c(startrow:stoprow),1]
   #SNO <- mata_ObsX[,ncol(mata_Obs)]
@@ -245,14 +390,35 @@ print(raw1)
   }
     
 }
-} #for M
+} #for M StOP HERE!!
 
-mata_all_new_rmna <- na.omit(mata_all_new) 
+mata_all_new_rmnaMAR <- na.omit(mata_all_new)
+mata_all_new_rmnaCIR <- na.omit(mata_all_new)
+mata_all_new_rmnaStataSig <- na.omit(mata_all_new) 
+# to save the results file
+mata_all_new_rmna1k <- na.omit(mata_all_new) 
+save (mata_all_new_rmna,file = "kmmata_all_new_rmna181119noiter.RData")
+save (mata_all_new_rmnaStataSig,file = "kmmata_all_new_rmna191119Stata.RData")
   
+#from ttest.r
+#5333 is 1st 3 fields missing, treat=2  
+mata_all_new_rmna5333 <- filter(mata_all_new_rmna1k,SNO == "5333")
+mata_all_new_rmnaJeff5456 <- filter(mata_all_new_rmna1kJeff,SNO == "5456")
+mata_all_new_rmna5333 <- filter(mata_all_new_rmna,SNO == "5333") 
+mata_all_new_rmnaref35456 <- filter(mata_all_new_rmnarefer3,SNO == "5456") 
+
+mata_all_new_rmnaStataSig5456 <- filter(mata_all_new_rmnaStataSig,SNO == "5456")
+
+mata_all_new_rmnaCIR5456 <- filter(mata_all_new_rmnaCIR,SNO == "5456") 
+mata_all_new_rmnaMAR5456 <- filter(mata_all_new_rmnaMAR,SNO == "5456")
+round(stat.desc(mata_all_new_rmnaMAR5456[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),]
 print("mata_means = ")
 print(mata_means) 
 
-
+library(pastecs)
+for ( val in c("fev2","fev4","fev8","fev12") ) { 
+  print(round(stat.desc(mata_all_new_rmnaJeff5456[,val]),3 )[c(1,9,13,4,8,5)])
+}
                                        
 #prnormobj <- subset(prenormdat2, select=c(base,fev2,fev4,fev8,fev12))
 #this not work, but take out the "'s does work, have to use cbind
