@@ -481,6 +481,8 @@ if "`iref'"!="" {
 				}
 			}
 		}
+		
+		
 	}
 qui save `my_treat'
 local nct = `ntime'	
@@ -707,6 +709,11 @@ mkmat `mimix_treat' `mimix_refgroupvar' `mimix_method' `pattern' mimix_count, ma
 local matrixcols = colsof(mimix_group)
 local burninM = `burnin' + ((`m'-1)*`burnbetween')
 
+
+*km edit
+*describe `mimix_d2'
+
+
 * RUN MI IMPUTE MVN
 return scalar M = `m'
 forvalues i = 1/`ntreat'{
@@ -735,22 +742,46 @@ forvalues i = 1/`ntreat'{
 	}
 	qui mi register imputed `mi_impute'
     display as text "Performing imputation procedure for group " as result "`i'" as text " of " as result "`ntreat'" as text "..."
-	
+*km
+ save "C:\Users\rmjlkm0\Documents\mimix\preimputemvn`i'.dta" ,replace	
+*km
+*km  mcmconly specifies no imputation !!, just DA performed 
+di "burnin(burninM = " `burninM'	
 	qui mi impute mvn `mi_impute' ,  mcmconly burnin(`burninM')  prior(jeffreys) initmcmc(em, iter(1000)) saveptrace(`mimix_parms_a`i'', replace)
+
+*km  
+*km  NO not this!! these are not Stata data sets need use mi ptrace  save "C:\Users\rmjlkm0\Documents\mimix\mimix_parms_a`i'.dta" ,replace 
+ *  mi ptrace describe  `mimix_parms_a`i''
     
 	local N_miss`i' = r(N_mis_em)
 	local N_iter`i' = r(niter_em)
 	local lpobs_em`i' = r(lpobs_em)
 	local conv`i' = r(converged_em)
 	
+*km load and convert to stataformat	
+   *preserve
+	*mi ptrace use `mimix_parms_a`i'', clear
+ 
+    *restore
+	
 	mi ptrace use `mimix_parms_a`i'', clear
+	*save "C:\Users\rmjlkm0\Documents\mimix\mimix_parms_a`i'.dta" ,replace		
 	local burn = `burnin' - 1
 	qui drop in 1/`burn'
 	qui keep if !mod(_n-1,`burnbetween')
 	qui generate `mimix_treat' = `i'
 	drop m iter		
 	capture mata: mata drop mimix_all
-	mata: mimix_all= st_data( ., .)		
+ *km
+   save "C:\Users\rmjlkm0\Documents\mimix\mimix_all_stdata`i'.dta" ,replace	
+  
+	mata: mimix_all= st_data(., .)	
+ *km 
+ 
+   di "need to check mimix_all more than 1 line if m>1, it has same no. distinct lines as no. imputations, mimix_all"
+   * mata:mimix_all has m lines of param data
+	
+	di "m= " `m', "nct = " `nct'
 	forvalues k=1/`m' {						
 		mata: mean_group`i'_imp`k' = mimix_all[`k',1..`nct']
 		mata: mata_VAR_group`i'_imp`k'=J(`nct',`nct',0)
@@ -759,13 +790,20 @@ forvalues i = 1/`ntreat'{
 			forvalues j = 1/`nct'{ 
 				if `j' <= `r' {
 					mata: mata_VAR_group`i'_imp`k'[`r', `j'] = mimix_all[`k', `step']
+						*di "i= " `i', "k = " `k' "r= " `r' "j= " `j'
+						*mata:mata_VAR_group`i'_imp`k'[`r', `j']
 					local step = `step' + 1
 				}
 			}
 		}
 		mata: mata_VAR_group`i'_imp`k' = makesymmetric(mata_VAR_group`i'_imp`k')
+		*km useful!! below
+		*mata: mean_group`i'_imp`k'
+		*mata: mata_VAR_group`i'_imp`k'
 	}	 
 }
+
+*km save params, 
 
 matrix define r2 = J(1,`ntreat',0)
 matrix define r3 = J(1,`ntreat',0)
@@ -788,7 +826,8 @@ return matrix niter_em = r5
 return matrix lpobs_em = r6
 return matrix conv_em = r7
 
-qui {	
+*km qui
+   {	
     *CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA 	
 	*IF interim IS USED, SET THIS MATRIX SO THAT IT HAS AN EXTRA `nct' COLUMNS FOR MAR IMPUTATIONS
     local nct2 = `nct' + 2
@@ -799,12 +838,28 @@ qui {
 	}
 	if "`interim'"==""  {
 		mata: mata_all_new = J(1, `nct3',.)
+		*km hard code for patt 11 1 row 3 col , .
+		*mata: mata_U_new =J(1, 3,.)
+		*mata: mata_Z_new =J(1, 3,.)
 	}
     local rstart = 1
     *FOR EACH TREATMENT GROUP AND MISSING DATA PATTERN COMPUTE 1) APPROPRIATE JOINT DISITRBUTION 2) IMPLIED CONDITIONAL DISTRIBUTION 
     *3) DRAW MISSING DATA FROM (2) `m' TIMES
-
+ *km
+ *km 11/11/19 for Z fo rfinal patt
+ * hard code Z_new
+   mata:Z_new = J(3,3,.)
+   mata:U_new = J(3,3,.)
+   *mata:conds_new = J(3,3,.)
+   *mata:S12_new= J(2,3,.)
+   *mata:S22_new=J(3,3,.)
+   mata:Sigma_new=J(5,5,.)
+   mata:mimix_group_i=J(5,1,.)
+   di "mata_all_new"
+     *mata:mata_all_new
     forvalues i = 1/`max_indicator'{
+	*km change 11/11/19 loop to 1 indicator ,make it the last , ie patt=11   	
+	* forvalues i = `max_indicator'/`max_indicator' {
 		if `matrixcols' == 5 {
 			local trt_grp= mimix_group[`i',1]
 			local meth= mimix_group[`i',3]
@@ -838,7 +893,13 @@ qui {
 		}									
 		mata: st_matrix("stata_miss", mata_miss)
 		mata: st_matrix("stata_nonmiss", mata_nonmiss)
-
+     *km 
+	   di "mata_miss = mata_nonmiss ="
+	  * mata:mata_miss
+	  * mata:mata_nonmiss
+		*di "max_indicator= " `i' `max_indicator'
+		*di "counter= " `counter'
+		
 		local list_required = ""
 		local nct_m1 = `nct'-1
 		local nonmiss_count = 0					
@@ -898,6 +959,12 @@ qui {
 			order  `inter1', last
 		}
 		mata: mata_obs= st_data( . , .)
+		
+		*km
+		di "mata_obs = "
+		*mata:mata_obs
+		*kmtry }
+		*} dont think so!
 		*Note: SO IF INTERIM IS USED mata_obs CONTAINS intern1 indicator & mata_all_new HAS SPACE FOR IT AS ALREADY DECLARED
 		forvalues imp = 1/`m'{
         *FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
@@ -1024,7 +1091,13 @@ qui {
 				if `meth' == 2 {
 					*CR 
 					mata: mata_Means= J(`counter', 1, mean_group`refer'_imp`imp')
+					*km
+					di "mata_Means =" 
+					*mata:mata_Means
+					
 					mata: Sigma = mata_VAR_group`refer'_imp`imp'
+					*km
+					*mata:Sigma
 					if "`list_required'" != "" {
 						mata: S11 = mata_VAR_group`refer'_imp`imp'[mata_S_nonmiss, mata_S_nonmiss]
 						mata: S12 = mata_VAR_group`refer'_imp`imp'[mata_S_nonmiss, mata_S_miss]
@@ -1039,45 +1112,97 @@ qui {
 					mata: cc = mata_S_miss'
 					mata: cc=sort(cc, 1)
 					mata: cc = cc'
+					*km
+					di "miss_count = " `miss_count'
+					di "counter = " `counter'
 					forvalues b=1/`miss_count'{
 						forvalues c=1/`counter' {
 							mata: mata_Means[`c', cc[1,`b']] = MeansC[`c', cc[1,`b']]
-						}
+					        *km
+							*di "mata_Means ="
+							*mata:mata_Means
+							*di "MeansC = "
+							*mata:MeansC
+					    }
 					}
 					mata: Sigma = mata_VAR_group`refer'_imp`imp'
+					*km
+					di "list required = " `list_required'
 					if "`list_required'" != "" {
 						mata: S11 = Sigma[mata_S_nonmiss, mata_S_nonmiss]
 						mata: S12 = Sigma[mata_S_nonmiss, mata_S_miss]
 						mata: S22 = Sigma[mata_S_miss, mata_S_miss]		
-					}	
+					}
+					*km
+					*di "meth = j2r matrices  and refer = "  `refer' 
+					*di "S11"
+					*mata:S11
+					di "S12"
+					*mata:S12
+					di "S22"
+					*mata:S22
+					di "Sigma"
+					*mata:Sigma
+					di "mata_Means"
+					*mata:mata_Means
 				}
 				
 				if `meth' == 4	{
 					*CIR 
 					mata: mata_Means= J(`counter', 1, mean_group`trt_grp'_imp`imp')
+				*km
+				*di "counter trt_grp imp = " 
+				*di `counter'
+				*di `trt_grp'
+				*di `imp'
+				*di "mata_Means = "
+				*mata:mata_Means
 					mata: MeansC= J(`counter', 1, mean_group`refer'_imp`imp')
+				*km
+				* di "MeansC = "
+				 *mata:MeansC
 					mata: cc = mata_S_miss'
+				*di "mata_S_miss = "
+				 *mata:mata_S_miss
 					mata: cc=sort(cc, 1)
+				*di "km cc= "
+				*mata: cc
 					mata: cc = cc'
 					mata: st_matrix("cc", cc)
+				*di " before the miss count loop ,miss_count = " `miss_count'	
+				
 					forvalues b=1/`miss_count'{
+					*km if 1st col in mean matrix (ie row) then no need to look before it
 						if cc[1, `b']==1 {
 							forvalues c=1/`counter' {
+							*di "MeansC = "
+							*mata:MeansC
 								mata: mata_Means[`c', `b'] = MeansC[`c', `b']													
 							}
 						}
 						else {
+					*km for cols after 1st, need to read previous col value if missing value	
 							forvalues c=1/`counter' {	
-								mata: mata_Means[`c', cc[1,`b']] = mata_Means[`c',cc[1,`b']-1]+ MeansC[`c', cc[1,`b']]- MeansC[`c', cc[1,`b']-1]									
+							*km di "mata_Means[`c',cc[1,`b']-1] MeansC[`c', cc[1,`b']] MeansC[`c', cc[1,`b']-1]"
+							*mata:mata_Means[`c',cc[1,`b']-1]
+							*mata:MeansC[`c', cc[1,`b']]
+							*mata:MeansC[`c', cc[1,`b']-1]
+					*km note when trt_grp is the ref_grp then the mata_Means and MeansC are same so 2 terms on the RHS knock each other out.   		
+							mata: mata_Means[`c', cc[1,`b']] = mata_Means[`c',cc[1,`b']-1]+ MeansC[`c', cc[1,`b']]- MeansC[`c', cc[1,`b']-1]									
 							}
 						}
 					}
+					
 					mata: Sigma = mata_VAR_group`refer'_imp`imp'	
 					if "`list_required'" != "" {
 						mata: S11 = Sigma[mata_S_nonmiss, mata_S_nonmiss]
 						mata: S12 = Sigma[mata_S_nonmiss, mata_S_miss]
 						mata: S22 = Sigma[mata_S_miss, mata_S_miss]
-					}		
+					}
+					*km
+					di " mata_Means Sigma = "
+					*mata:mata_Means
+					*mata:Sigma
 				}
 
 				if `meth' == 5 	{
@@ -1129,20 +1254,85 @@ qui {
 					mata: m2=mata_Means[., mata_S_miss]
 					mata: raw1=mata_obs[., mata_S_nonmiss]
 					mata: t=cholsolve(S11,S12)
+					*km
+					di "mata_S_nonmiss="
+					mata:mata_S_nonmiss
+					di "m1 m2 t raw1"
+					*mata:m1
+					*mata:m2
+					*mata:t
+					*mata:raw1
+					*mata uniform returns counter by miss_count matrix elemnts are uniform distribute rvs between(0-1) 
+				
+				* test conds using R value
+				*mata ??
+					
+					mata: raw1=mata_obs[., mata_S_nonmiss]
+					mata: t=cholsolve(S11,S12)
 					mata: conds=S22-(S12')*t
 					mata: meanval = m2 + (raw1 - m1)*t
 					mata: U = cholesky(conds)
+				*km check counter, miss_count same as R
+				    di  "checking counter ,miss_count for inverse norm gen = " `counter' " " `miss_count'
 					mata: Z = invnormal(uniform(`counter',`miss_count'))
 					mata: mata_y1 = meanval + Z*U'
+					
+					*km saving Z,U just for final patt
+                    *mata: Z_new = (Z_new \Z)
+					*mata:U_new =(U_new\U)
+					* saving to read sigma and betas into R
+					*mata:conds_new = (conds_new\conds)
+					*mata:S12_new =(S12_new\S12)
+					*mata:S22_new =(S22_new\S22)
+					mata:Sigma_new=(Sigma_new\Sigma)
+					* need to add iteration row no in matrix from mimix_group so can input to R corrseponding sigma matrices
+				
+					
+					*di  "counter miss_count = " `counter' `miss_count'
+					di "miss_count = " `miss_count'
+					di  "t conds mata_y1 meanval Z U ="
+	               * mata:t			
+				    *mata:conds
+					*mata:mata_y1
+					*mata:meanval
+					*mata:Z
+					*mata:U
+					
 					mata: mata_new =J(`counter', `nct',.)
 					mata: mata_new[.,mata_S_nonmiss] = mata_obs[.,mata_S_nonmiss]
+					*km
+					di "mata_S_nonmiss"
+					*mata:mata_S_nonmiss
+					
+					di "mata_obs"
+					*mata:mata_obs
+					
+					* assign the mssing cols 
 					mata: mata_new[.,mata_S_miss] = mata_y1[.,.]
+					*km
+					di "mata_new"
+					*mata:mata_new
+					
 					mata: GI=J(`counter',1,`trt_grp')
 					mata: II=J(`counter',1, `imp')
+					di "interim= "
+					di `interim'
 					if "`interim'"==""{
 						mata: SNO = mata_obs[.,cols(mata_obs)]
 						mata: mata_new= ( GI, II, mata_new, SNO)
 						mata: mata_all_new = (mata_all_new \ mata_new)
+					*km 
+					di "SNO GI II mata_new mata_all_new"
+					* try these for patt =11, for test
+					    * mata: mata_U_new = (mata_U_new\U)
+						* mata:mata_Z_new = (mata_Z_new\Z)
+					*mata:SNO
+					*mata:GI
+					*mata:II
+					*mata:mata_new
+					*mata:mata_all_new
+					
+					
 					}
 					*SET SEED SAME HERE AS FOR MNAR GENERATION ABOVE
 					if "`interim'"!=""{
@@ -1170,6 +1360,8 @@ qui {
 		local rstart = `rend'+1
     }
     drop _all
+	
+	
     mata: st_addobs(rows(mata_all_new))																							
     mata: varidx = st_addvar("double", st_tempname(cols(mata_all_new)))
     mata: st_store(., varidx, mata_all_new)
@@ -1253,6 +1445,34 @@ qui {
 	order `order' _mj
 	save `int_out', replace
 }
+*mata:st_matrix("mata_U_new")
+*getmata varU* = mata_U_new ,force
+*save "C:\Users\rmjlkm0\Documents\mimix\mata_U_new.dta"  ,replace
+*mata:st_matrix("mata_Z_new")
+*getmata varZ* = mata_Z_new ,force
+*save "C:\Users\rmjlkm0\Documents\mimix\mata_Z_new.dta"  ,replace
+
+
+*km  save final data set just replicaes 
+* so save mata data matrix into stata data set and goto testanalysis program to get summary stats  
+mata:st_matrix("mata_all_new") 
+clear
+ * fev* is prefix of names  getmata exports mata to stata
+getmata (trt imp fev2 fev4 fev8 fev12 base id) = mata_all_new ,force
+keep if id==5456
+univar fev2 fev4 fev8 fev12 base, dec(3)
+
+*getmata fev* = mata_all_new ,force
+preserve 
+keep if id==5456
+univar fev2 fev4 fev8 fev12 base, dec(3)
+restore
+save "C:\Users\rmjlkm0\Documents\mimix\mata_all_new10000m.dta"  ,replace
+*save "C:\Users\rmjlkm0\Documents\mimix\mata_all_newpost11.dta"  ,replace
+ }
+ 
+/* allnew4 is equilv to fev2  , analyse id 5456
+ kAm 17/0919 cmt out below	
 
 *MI SET THE NEW IMPUTED DATA SET
 qui mi import flong, m(_mj) id(`time' `id' ) clear 
@@ -1281,6 +1501,8 @@ if "`mixed'" == "mixed" {
 				local key4 = "`time'##c.`cov`i''"
 				local cov_by_time `cov_by_time' `key4'
 			}
+			
+
 			local includer =""
 			cap confirm numeric variable `treat'
 			if `c(rc)'==0 {
@@ -1428,8 +1650,9 @@ qui {
 	capture mata: mata drop MeansC
 	capture mata: mata drop INTER MAR_S11 MAR_S12 MAR_S22 MAR_Sigma dummy m1I m2I  mata_MAR_Means mata_newI raw1I 
 	
-	
-}
 
+}
+*/	
+}
 end
 exit
