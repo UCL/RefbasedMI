@@ -1,27 +1,14 @@
 
 
-
-library(tidyr)
-#pivot_wider
-library(dplyr)
-#for select
-library(plyr)
-#read data
-# need haven
-library(haven)
-library(pastecs)
-library(norm2)
-library(sparseinv) 
 # trying to write a subroutine for this part of data preprocessing
 A <- function(x) {  ifelse(!is.na(x),0,1) }
 
 
 # this section to convert from long to wide data format
-preprodata<- function(pathdata,depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
+preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #extract relevant vars
-  #mxdata <-read.csv("./asthma.csv")
-  csvdata <-read.csv(pathdata)
-  fevdata<-select(csvdata,idvar,depvar,timevar)
+ 
+  fevdata<-select(mxdata,idvar,depvar,timevar)
   # only want to widen the dose var, ie fev, so take the other variables
   #reshape to wide and assign new names 
   # prefix must be supplied from input argument rather than hard coded, this canbe hard coded
@@ -122,6 +109,7 @@ mi_impute <-function(idvar,timevar,depvar,covar) {
 analse <- function(meth,no)  {
   assign( paste0("mata_all_new_rmna",meth), na.omit(mata_all_new))
   assign( paste0("mata_all_new_rmna",meth,no) , filter(get(paste0("mata_all_new_rmna",meth)),SNO == no))
+  print(paste0("method= ",meth,"SNO = ",SNO))
   t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 }
 
@@ -168,3 +156,13 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
   }
   return(mata_means)
 }
+
+
+#works
+testread <-function(pathdat) {
+  #mxdata <-read.csv("./asthma.csv")
+  txdata <-read.csv(pathdat)
+}
+ txdata <-testread("asthma.csv")
+
+

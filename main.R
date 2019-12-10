@@ -1,8 +1,27 @@
+install.packages(c("tidyr","dplyr","plyr","haven","pastecs","norm2","sparseinv"))
+library(tidyr)
+#pivot_wider
+
+#for select
+library(dplyr)
+library(plyr)
+#read data
+# need haven
+library(haven)
+library(pastecs)
+library(norm2)
+library(sparseinv) 
+
 # need also input refer
+
 refer <-2
+getwd()
+source("N:/Documents/GitHub/mimix/mimixR/functions.R")
 
-testlist<-preprodata("asthma.csv","fev","treat","id","time","base",1000,2,"MAR")
-
+# 
+source("functions.R")
+mxdata <-read.csv("./asthma.csv")
+testlist<-preprodata("fev","treat","id","time","base",1000,2,"CIR")
 
 # returns list from preprodata function
 ntreat<-testlist[[4]]
@@ -38,13 +57,10 @@ mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)]
 mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
 mata_all_new[ mata_all_new>=0] <-NA 
 
+#Warning message:
+#In Ops.factor(left, right) : ‘>=’ not meaningful for factors
 
 
-
-# so tsts2 is th equiv to mi_impute so try to put in norm2
-tst2 <- mi_impute("id","time","fev","base")
-# put commas in
-tst3<-paste(tst2,collapse = ",")
 
 for (val in t(ntreat)) {
   print(paste0("prenormdat",val))
@@ -64,13 +80,14 @@ for (val in t(ntreat)) {
     #assign(paste0("mcmcResultT",val,m),mcmcResultT)
     assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
     assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
-    print(paste0("mcmcNorm finished"))
+   
     #print(paste0("parambeta",val,m))
     #return(list(paste0("parambeta",val,m),paste0("paramsigma",val,m)))
-  }                                 
+  }  
+  print(paste0("mcmcNorm finished"))
 }
 
-
+# can repeat interactively from here
 # now loop over the lookup table mg, looping over every pattern
 for (i in 1:nrow(mg))
 {
@@ -185,8 +202,8 @@ for ( m in  1:M)  {
   #mata_means_ref <- get(paste0("parambeta",refer,m))
   
             # put equiv to mimix 
-              mata_Means <-  mata_means_trt
-              MeansC <- mata_means_ref
+              mata_Means <-  get(paste0("parambeta",trtgp,m))
+              MeansC <-  get(paste0("parambeta",refer,m))
   
   #might be better to copy mimix algol
   
@@ -329,12 +346,13 @@ for ( m in  1:M)  {
 } #for M StOP HERE!!
 
 analse(meth,"5456")
-pttestf(1000,1000,1.621,0.289,1.657,0.388)
+pttestf(1000,1000,1.306,0.379,1.211,0.311)
 
 
 analse <- function(meth,no)  {
  assign( paste0("mata_all_new_rmna",meth), na.omit(mata_all_new))
  assign( paste0("mata_all_new_rmna",meth,no) , filter(get(paste0("mata_all_new_rmna",meth)),SNO == no))
+ print(paste("method= ",meth,"SNO = ",SNO))
  t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 }
 
