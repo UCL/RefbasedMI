@@ -109,7 +109,7 @@ mi_impute <-function(idvar,timevar,depvar,covar) {
 analse <- function(meth,no)  {
   assign( paste0("mata_all_new_rmna",meth), na.omit(mata_all_new))
   assign( paste0("mata_all_new_rmna",meth,no) , filter(get(paste0("mata_all_new_rmna",meth)),SNO == no))
-  print(paste0("method= ",meth,"SNO = ",SNO))
+  print(paste0("method= ",meth,"SNO = ",no))
   t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 }
 
@@ -131,10 +131,11 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
       #for each patt_count (from mimix_group) 
       #test purposes
       #count<-2
-      
-      mata_means[b] <- MeansC[b] 
+      # MeansC is list so use [[1]]
+      mata_means[b] <- MeansC[[1]][b] 
     } else  {
-      mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[(c_mata_miss[b])]- MeansC[(c_mata_miss[b])-1]
+      #filling in column at a time
+      mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]
     } 
   }
   return(mata_means)

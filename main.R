@@ -24,7 +24,7 @@ source("functions.R")
 mxdata <-read.csv("./asthma.csv")
 # empyty R environmet?
 
-testlist<-preprodata("fev","treat","id","time","base",10,2,"J2R")
+testlist<-preprodata("fev","treat","id","time","base",1000,2,"MAR")
 
 # returns list from preprodata function
 ntreat<-testlist[[4]]
@@ -92,7 +92,7 @@ for (val in t(ntreat)) {
     #print(paste0("parambeta",val,m))
     #return(list(paste0("parambeta",val,m),paste0("paramsigma",val,m)))
   }  
-  print(paste0("mcmcNorm Loop finished"))
+  print(paste0("mcmcNorm Loop finished, m = ",M))
 }
 
 # can repeat interactively from here
@@ -142,14 +142,16 @@ for ( m in  1:M)  {
 
         if (meth== 'MAR')  {
   
-               mata_means <- get(paste0("parambeta",trtgp,m))  
+               mata_means <- get(paste0("param",trtgp,m))[1]  
   # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
+               # convert from list element to matrix
+               mata_means <- mata_means[[1]]
+            
   
-  
-               Sigmatrt <- get(paste0("paramsigma",trtgp,m))
-               S11 <-Sigmatrt[c_mata_nonmiss,c_mata_nonmiss]
-               S12 <-Sigmatrt[c_mata_nonmiss,c_mata_miss]
-               S22 <-Sigmatrt[c_mata_miss,c_mata_miss]
+               Sigmatrt <- get(paste0("param",trtgp,m))[2]
+               S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
+               S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+               S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
   
   
         }
@@ -197,7 +199,9 @@ for ( m in  1:M)  {
   
           }
               else if (meth=='CR') {
-              mata_means <- get(paste0("parambeta",refer,m))
+              mata_means <- get(paste0("param",refer,m))[1]
+              # convert from list to matrix
+              mata_means <- mata_means[[1]]
   #mata_means_r <- unlist(mata_means_ref)*1
   #mata_means_r <- unlist(mata_means_ref)*mata_miss
   #mata_means <- mata_means_r
@@ -209,10 +213,10 @@ for ( m in  1:M)  {
   
   #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
   
-                SigmaRefer <- get(paste0("paramsigma",refer,m))
-                S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
-                S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
-                S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
+                SigmaRefer <- get(paste0("param",refer,m))[2]
+                S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+                S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+                S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
          }
            else if (meth=='CIR') {
   # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp 
@@ -221,8 +225,11 @@ for ( m in  1:M)  {
   #mata_means_ref <- get(paste0("parambeta",refer,m))
   
             # put equiv to mimix 
-              mata_Means <-  get(paste0("parambeta",trtgp,m))
-              MeansC <-  get(paste0("parambeta",refer,m))
+             mata_Means <- get(paste0("param",trtgp,m))[1]
+            # convert from list to matrix
+             mata_Means <- mata_Means[[1]]
+              #mata_Means <-  get(paste0("parambeta",trtgp,m))
+              MeansC <-  get(paste0("param",refer,m))[1]
   
   #might be better to copy mimix algol
   
@@ -232,30 +239,34 @@ for ( m in  1:M)  {
   #replicate to number of rows defined by X1 
   # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
   
-             SigmaRefer <- get(paste0("paramsigma",refer,m))
+             #SigmaRefer <- get(paste0("paramsigma",refer,m))
+             SigmaRefer <- get(paste0("param",refer,m))[2] 
   # when reading in Stata sigmas
   # needs to to ths as tibble will fail in cholesky
   #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
   
-             print(paste0("paramsigma",refer,m))
+             #print(paste0("paramsigma",refer,m))
   #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
   
-             S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
-             S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
-             S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
+             S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+             S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
             }  
               else if (meth=='LMCF') { 
                 
-              mata_Means <-  get(paste0("parambeta",trtgp,m))
+              mata_Means <-  get(paste0("param",trtgp,m))[1]
+              # convert from list to matrix
+              mata_Means <- mata_Means[[1]]
               # no ref MeansC <- mata_means_ref
                mata_means<-LMCF_loop(c_mata_miss,mata_Means)
               #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
   
-             Sigmatrt <- get(paste0("paramsigma",trtgp,m))
+              
+             Sigmatrt <- get(paste0("param",trtgp,m))[2]
                  # when reading in Stata sigmas
-              S11 <-Sigmatrt[c_mata_nonmiss,c_mata_nonmiss]
-              S12 <-Sigmatrt[c_mata_nonmiss,c_mata_miss]
-              S22 <-Sigmatrt[c_mata_miss,c_mata_miss]
+              S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
+              S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+              S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
      }  #if meth
       
    
@@ -309,9 +320,13 @@ for ( m in  1:M)  {
 #  
      #meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)     
      # below for CR but need checks work with J2R
-     # need edit m2 as errormsg "data frame with 0 columns and 1 row"     
-     meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
-     U <- chol(conds)
+     # need edit m2 as errormsg "data frame with 0 columns and 1 row"
+    if (meth=='J2R') {
+         meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+    } else  {
+      meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+    } 
+              U <- chol(conds)
       # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
     miss_count=rowSums(mata_miss)
     # gen erate inverse normal
@@ -366,7 +381,7 @@ for ( m in  1:M)  {
 } #for M StOP HERE!!
 
 analse(meth,"5456")
-pttestf(1000,1000,1.820,0.423,1.837,0.417)
+pttestf(1000,1000,1.652,0.430,1.674,0.414)
 
 
 analse <- function(meth,no)  {
