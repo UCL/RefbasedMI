@@ -19,9 +19,12 @@ getwd()
 source("N:/Documents/GitHub/mimix/mimixR/functions.R")
 
 # 
+rm(list = ls())
 source("functions.R")
 mxdata <-read.csv("./asthma.csv")
-testlist<-preprodata("fev","treat","id","time","base",1000,2,"CIR")
+# empyty R environmet?
+
+testlist<-preprodata("fev","treat","id","time","base",10,2,"J2R")
 
 # returns list from preprodata function
 ntreat<-testlist[[4]]
@@ -77,14 +80,19 @@ for (val in t(ntreat)) {
     #emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
     emResultT<-emNorm(prnormobj,prior = "jeffreys")
     mcmcResultT<- mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys")
-    #assign(paste0("mcmcResultT",val,m),mcmcResultT)
-    assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
-    assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
+
+    
+    #try to make this more efficient by saving just result 
+   #assign(paste0("mcmcResultT",val,m),mcmcResultT)
+    # above not wprk later so tr saving param
+    assign(paste0("param",val,m),mcmcResultT$param)
+    #assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
+    #assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
    
     #print(paste0("parambeta",val,m))
     #return(list(paste0("parambeta",val,m),paste0("paramsigma",val,m)))
   }  
-  print(paste0("mcmcNorm finished"))
+  print(paste0("mcmcNorm Loop finished"))
 }
 
 # can repeat interactively from here
@@ -110,6 +118,7 @@ for (i in 1:nrow(mg))
   # treatment grp
   trtgp<- mg$treat[i]
   cat("trtgp = ", trtgp)
+  cat("multiple  simulations start here within the pattern loop")
   
 # multiple  simulations start here within the pattern loop #########  
 for ( m in  1:M)  { 
@@ -145,10 +154,15 @@ for ( m in  1:M)  {
   
         }
      else if (meth == 'J2R') { 
-               mata_means_trt <- get(paste0("parambeta",trtgp,m)) 
-               mata_means_ref <- get(paste0("parambeta",refer,m))
        
-               mata_means <- get(paste0("parambeta",trtgp,m))
+             # changed saving the result into  just the param file ,list of 2 so can use list index here
+                                
+               mata_means_trt <- get(paste0("param",trtgp,m))[1]
+               mata_means_ref <- get(paste0("param",refer,m))[1]
+               #mata_means_trt <- get(paste0("mcmcResultT",trtgp,m,"$param$beta")) 
+               #mata_means_ref <- get(paste0("mcmcResultT",refer,m,"$param$beta"))
+       
+               #mata_means <- get(paste0("parambeta",trtgp,m))
                #one way is to element multiply (because 1,0) then add 
                mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
                mata_means_r <- unlist(mata_means_ref)*mata_miss
@@ -164,17 +178,22 @@ for ( m in  1:M)  {
   
   
            # do we ever  use SigmaTrt !!?? in j2r? 
-            SigmaRefer <- get(paste0("paramsigma",refer,m))
+               
+            SigmaRefer <- get(paste0("param",refer,m))[2] 
+          
+                # get(paste0("mcmcResultT",refer,m,"$param$sigma"))
   # when reading in Stata sigmas
   # needs to to ths as tibble will fail in cholesky
   #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
   
-            print(paste0("paramsigma",refer,m))
+            #print(paste0("paramsigma",refer,m))
+            print(paste0("refer,m = ",refer," ",m))   
   #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
   
-            S11 <-SigmaRefer[c_mata_nonmiss,c_mata_nonmiss]
-            S12 <-SigmaRefer[c_mata_nonmiss,c_mata_miss]
-            S22 <-SigmaRefer[c_mata_miss,c_mata_miss]
+            # note use of [[1]] as is matrix rathe than list
+            S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+            S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+            S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
   
           }
               else if (meth=='CR') {
@@ -289,8 +308,9 @@ for ( m in  1:M)  {
     conds <-  S22-t(S12)%*%t_mimix
 #  
      #meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)     
-     # below for CR but checks work with J2R
-     meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+     # below for CR but need checks work with J2R
+     # need edit m2 as errormsg "data frame with 0 columns and 1 row"     
+     meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
      U <- chol(conds)
       # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
     miss_count=rowSums(mata_miss)
@@ -346,7 +366,7 @@ for ( m in  1:M)  {
 } #for M StOP HERE!!
 
 analse(meth,"5456")
-pttestf(1000,1000,1.306,0.379,1.211,0.311)
+pttestf(1000,1000,1.820,0.423,1.837,0.417)
 
 
 analse <- function(meth,no)  {
@@ -369,14 +389,14 @@ analysemeth <- function(meth,no) {
     # return(datana)
 }
  
-analyseSNO <- function()    
+analyseSNO <- function()  {  
      #datanaSNO<-assign(paste0(datana,no), filter(datana,SNO == no))
      #datana<-assign(paste0(data,"na",meth), na.omit(data))
      return(datana)
     }
 analyse(meth,5456)     
      
-     
+{
      datanaSNO<-assign(paste0("mata_all_new_rmnaJ2R","5456"), filter(mata_all_new_rmnaJ2R,SNO == 5456))
      descstats<- t(round(stat.desc(datanaSNO[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
      return(descstats)
