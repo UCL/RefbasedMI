@@ -30,7 +30,7 @@ mxdata <-read.csv("./asthma.csv")
 set.seed(301)
 
 # call preprocesssing 
-testlist<-preprodata("fev","treat","id","time","base",1000,2,"J2R")
+testlist<-preprodata("fev","treat","id","time","base",10000,2,"J2R")
 
 
 
@@ -67,7 +67,7 @@ dropid<-c("id")
 mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)] 
 mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
 mata_all_new[ mata_all_new>=0] <-NA 
-
+mata_all_newlist <- vector('list',M*nrow(mg))
 #Warning message:
 #In Ops.factor(left, right) : ‘>=’ not meaningful for factors
 
@@ -86,6 +86,7 @@ for (val in t(ntreat)) {
 
 #create  emptylist for each treat and multiple m's
 paramBiglist <- vector('list',length(ntreat)*M)
+#create 
 
 #paramMatrixT<-matrix(,nrow=2,ncol=M)
 start_time <- proc.time()
@@ -148,6 +149,8 @@ for (val in t(ntreat)) {
 
 # can repeat interactively from here
 # now loop over the lookup table mg, looping over every pattern
+# declare iterate for saving data
+m_mg_iter<-0
 for (i in 1:nrow(mg))
 {
   #define mata_miss as vector of 1's denoting missing using col names ending i ".1"
@@ -182,6 +185,7 @@ for (i in 1:nrow(mg))
   for ( m in  1:M)  { 
     #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
     #if `pat' == 0{ 
+    m_mg_iter<-m_mg_iter+1
     if(length(c_mata_miss)==0 ) {
       st<-mg[i,"X1cum"]-mg[i,"X1"]+1
       en <-mg[i,"X1cum"]
@@ -192,7 +196,8 @@ for (i in 1:nrow(mg))
       II <- array(data=m,dim=c(mg[i,"X1"],1))
       mata_new=cbind(GI,II,mata_new,SNO)
       #names(mata_all_new)<-names(mata_new)
-      mata_all_new=rbind(mata_all_new,mata_new)
+      mata_all_newlist[[m_mg_iter]]=mata_new
+     # mata_all_new=rbind(mata_all_new,mata_new)
     } else {
       
       #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES  
@@ -433,8 +438,13 @@ for (i in 1:nrow(mg))
       
       #doesnt need SNO, as id already in
       #mata_new<-cbind(GI,II,mata_new,SNO)
+      
+      #this works but bette to pre initialise data structure outsidr loop
       mata_new<-cbind(GI,II,mata_new,SNO)
-      mata_all_new<-rbind(mata_all_new,mata_new)
+    
+      mata_all_newlist[[m_mg_iter]]=mata_new
+      #mata_all_new<-rbind(mata_all_new,mata_new)
+      #mata_all_new<- na.omit(mata_all_new)
       #stata equilv \ is row bind NOt cbind!!?
       
     } #if patt ==0r
@@ -458,8 +468,19 @@ analse <- function(meth,no)  {
  t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 }
 
+#not wprk
+#mata_all_new_unlist <- unlist(mata_all_newlist)
+lapply(mata_all_newlist,mean)
+#tr y a loop
+subSNOx <- head(mata_all_newlist[[1]],1) 
+subSNOx[subSNOx>=0] <-NA
+for (i in 1:(M*nrow(mg)))  {
+   subSNO<- subset((mata_all_newlist[[i]]),SNO=="5456")
+   subSNOx<- rbind(subSNOx,subSNO)
+   subSNOx<-na.omit(subSNOx)
+}
+t(round(stat.desc(get(paste0("subSNOx",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 
-    
 
 mata_all_new_rmnaJ2R <- na.omit(mata_all_new)
 mata_all_new_rmnaJ2R5456 <- filter(mata_all_new_rmnaJ2R,SNO == "5456")
