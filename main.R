@@ -14,6 +14,8 @@ library(pastecs)
 library(norm2)
 library(sparseinv) 
 
+#be nice to plot the patt?
+
 # need also input refer
 
 refer <-2
@@ -27,7 +29,7 @@ source("functions.R")
 #mxdata <-read.csv(paste0("./",data))
 mxdata <-read.csv("./asthma.csv")
 # empyty R environmet?
-set.seed(301)
+set.seed(201)
 
 # call preprocesssing 
 testlist<-preprodata("fev","treat","id","time","base",10000,2,"J2R")
@@ -36,6 +38,7 @@ testlist<-preprodata("fev","treat","id","time","base",10000,2,"J2R")
 
 # returns list from preprodata function
 ntreat<-unlist(testlist[[4]])
+#stopifnot()
 finaldatS<-testlist[[2]]
 mg<-testlist[[5]]
 # vital to get the mata_obs correctly sorted! so corresponds with mimix_group lookup 
@@ -43,6 +46,7 @@ mg<-testlist[[5]]
 mata_Obs <- testlist[[2]]
 M <- testlist[[11]]
 refer <- testlist[[12]]
+stopifnot(refer %in% ntreat)
 meth <- testlist[[13]]
 
 # so tsts2 is th equiv to mi_impute so try to put in norm2
@@ -50,6 +54,7 @@ tst2 <- mi_impute("id","time","fev","base")
 # put commas in
 tst3<-paste(tst2,collapse = ",")
 
+#create input data sets for each tment from which to model 
 for (val in t(ntreat)) {
   print(paste0("prenormdat",val))
   assign(paste0("prenormdat",val),subset(finaldatS,treat==val))
@@ -73,11 +78,6 @@ mata_all_newlist <- vector('list',M*nrow(mg))
 
 
 
-for (val in t(ntreat)) {
-  print(paste0("prenormdat",val))
-  assign(paste0("prenormdat",val),subset(finaldatS,treat==val))
-}  
-
 # run the mcmc simulations over the treatment grps 
 # create a matrix for param files, a beta  and sigma matrices
 #paramMatrix<-matrix(1:(nrow(ntreat)*M),nrow=M,dimnames=list(c(1:M),c(1:nrow(ntreat))))
@@ -96,6 +96,9 @@ start_time <- proc.time()
 iter<-0
 system.time(
 
+  #try ser up as many Result data files as treatments instead of one big file?.
+  
+  
 for (val in t(ntreat)) {
   #prnormobj <- subset(prenormdat2, select=c(tst2))
   #prnormobj <- assign(paste0("prenormdat",val),subset(finaldatS,treat==val))
@@ -118,6 +121,8 @@ for (val in t(ntreat)) {
      iter<-iter+1    
      paramBiglist[[iter]] <- mcmcResultT$param
      
+   
+     
      #this bit trying matrix
      #if (m==1) { 
      #paramBetaMatrixT = as.matrix(mcmcResultT$param)[,1][[1]]   
@@ -137,10 +142,10 @@ for (val in t(ntreat)) {
     #print(paste0("parambeta",val,m))
     #return(list(paste0("parambeta",val,m),paste0("paramsigma",val,m)))
   }  
-  print(paste0("mcmcNorm Loop finished, m = ",M))
-}
 
+}
 ) # system.time 
+print(paste0("mcmcNorm Loop finished, m = ",M))
 
 # try and use lappy instead of loop for M
 
@@ -171,8 +176,8 @@ for (i in 1:nrow(mg))
   
   # treatment grp
   trtgp<- mg$treat[i]
-  cat("trtgp = ", trtgp)
-  cat("multiple  simulations start here within the pattern loop")
+  cat("\ntrtgp = ", trtgp)
+  cat("\n Looping within each pattern,no patients = ", cnt)
 
   #need to convert (relate) treatment group to position in ntreat (create Pindex vector) 
   #something like
@@ -205,13 +210,15 @@ for (i in 1:nrow(mg))
       
       if (meth== 'MAR')  {
         
-        mata_means <- get(paste0("param",trtgp,m))[1]  
+        #mata_means <- get(paste0("param",trtgp,m))[1]  
+        mata_means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
         # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
         # convert from list element to matrix
         mata_means <- mata_means[[1]]
         
         
-        Sigmatrt <- get(paste0("param",trtgp,m))[2]
+        #Sigmatrt <- get(paste0("param",trtgp,m))[2]
+        Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
         S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
         S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
         S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
@@ -256,7 +263,7 @@ for (i in 1:nrow(mg))
         #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
         
         #print(paste0("paramsigma",refer,m))
-        print(paste0("refer,m = ",refer," ",m))   
+       # print(paste0("refer,m = ",refer," ",m))   
         #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
         
         # note use of [[1]] as is matrix rathe than list
@@ -266,7 +273,8 @@ for (i in 1:nrow(mg))
         
       }
       else if (meth=='CR') {
-        mata_means <- get(paste0("param",refer,m))[1]
+        mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
+        #mata_means <- get(paste0("param",refer,m))[1]
         # convert from list to matrix
         mata_means <- mata_means[[1]]
         #mata_means_r <- unlist(mata_means_ref)*1
@@ -280,7 +288,8 @@ for (i in 1:nrow(mg))
         
         #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
         
-        SigmaRefer <- get(paste0("param",refer,m))[2]
+        #SigmaRefer <- get(paste0("param",refer,m))[2]
+        SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
         S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
         S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
         S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
@@ -292,11 +301,13 @@ for (i in 1:nrow(mg))
         #mata_means_ref <- get(paste0("parambeta",refer,m))
         
         # put equiv to mimix 
-        mata_Means <- get(paste0("param",trtgp,m))[1]
+        #mata_Means <- get(paste0("param",trtgp,m))[1]
+        mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
         # convert from list to matrix
         mata_Means <- mata_Means[[1]]
         #mata_Means <-  get(paste0("parambeta",trtgp,m))
-        MeansC <-  get(paste0("param",refer,m))[1]
+        #MeansC <-  get(paste0("param",refer,m))[1]
+        MeansC <-  paramBiglist[[M*(referindex-1)+m]][1]
         
         #might be better to copy mimix algol
         
@@ -307,7 +318,9 @@ for (i in 1:nrow(mg))
         # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
         
         #SigmaRefer <- get(paste0("paramsigma",refer,m))
-        SigmaRefer <- get(paste0("param",refer,m))[2] 
+        
+        #SigmaRefer <- get(paste0("param",refer,m))[2] 
+        SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
         # when reading in Stata sigmas
         # needs to to ths as tibble will fail in cholesky
         #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
@@ -321,7 +334,8 @@ for (i in 1:nrow(mg))
       }  
       else if (meth=='LMCF') { 
         
-        mata_Means <-  get(paste0("param",trtgp,m))[1]
+        #mata_Means <-  get(paste0("param",trtgp,m))[1]
+        mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
         # convert from list to matrix
         mata_Means <- mata_Means[[1]]
         # no ref MeansC <- mata_means_ref
@@ -329,7 +343,8 @@ for (i in 1:nrow(mg))
         #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
         
         
-        Sigmatrt <- get(paste0("param",trtgp,m))[2]
+        #Sigmatrt <- get(paste0("param",trtgp,m))[2]
+        Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
         # when reading in Stata sigmas
         S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
         S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
@@ -368,18 +383,26 @@ for (i in 1:nrow(mg))
       
       
       j <- mg[i,"X1"]
-      print(paste0(" count in patt = ", j))
+      
+    #for debug  
+    #  print(paste0(" count in patt = ", j))
+     
       k <- mg[i,"X1cum"]
       startrow <-(k-j+1)  
       stoprow  <-(k)
-      print("startrow stoprow = ")
-      print(startrow)
-      print(stoprow)
+      
+    # for debug
+    #  print("startrow stoprow = ")
+    #  print(startrow)
+    #  print(stoprow)
       
       #raw1 <- mata_obs[, c_mata_nonmiss]
       preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
       raw1 <- preraw[,c_mata_nonmiss]
-      print("mata_raw = ")
+  
+    # for debug    
+      
+    # print("mata_raw = ")
       
       
       t_mimix =cholsolve(Q=S11,y=S12)   
@@ -399,7 +422,9 @@ for (i in 1:nrow(mg))
       # gen erate inverse normal
       Z<-qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
       # check same input parameters for inverse norm gen as in stata 
-      print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
+     
+    #for debug   
+    #  print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
       
       mata_y1 = meanval+Z%*%t(U)
       
@@ -452,13 +477,17 @@ for (i in 1:nrow(mg))
  
 } #for M StOP HERE!!
 
+print(mg)
 
 end_time <- proc.time()
 time_taken <- end_time - start_time
 print(paste("Time taken:", time_taken[1]))
-analse(meth,"5456")  
+
+system.time(analselist("5137")) 
+
+analselist(meth,"5456") 
   
-pttestf(1000,1000,1.673,0.403,1.690,0.389)
+pttestf(10000,10000,1.040,0.385,1.048,0.336)
 
 
 analse <- function(meth,no)  {
@@ -468,10 +497,49 @@ analse <- function(meth,no)  {
  t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
 }
 
-#not wprk
+# to handle muliple data sets see
+#https://rdrr.io/cran/norm2/man/miInference.html
+# but instead of mcmcResult$imp.list just create new list from the saved list output
+# mata_all_newlist ?
+
+mata_all_newlist[[10]]
+mata_all_newData10 <- do.call(rbind,mata_all_newlist)
+# then sort into M data sets and maybe split into M lists !?
+testkm<-mata_all_newData10[order(mata_all_newData10$II,mata_all_newData10$SNO),]
+# to get the list
+testkmlist <- split(testkm,testkm$II)
+# so has M elemets in list
+est.list <- as.list(NULL)
+std.err.list <- as.list( NULL )
+for( m in 1:M ){
+  yimp <- testkmlist[[m]]  # one imputed dataset
+  diff <- yimp[,"fev2"] 
+  est.list[[m]] <- mean(diff)
+  std.err.list[[m]] <- sqrt( var(diff) / length(diff) ) }
+## combine the results by rules of Barnard and Rubin (1999)
+## with df.complete = 27, because a paired t-test in a dataset with
+## N=28 cases has 27 degrees of freedom
+miResult <- miInference(est.list, std.err.list, df.complete=182)
+#miResult <- miInference(est.list, std.err.list, confidence=0.95)
+print(miResult)
+
+
+
+#can observe list of list elements by 
+#mata_all_newlist[[101]]
+#collapse list into large data set 
+#do call obtains a list rather than list of lists, rbind handles elements on list to create a matrix
+#then need to sort by imputation to group into M data sets 
+mata_all_newData <- do.call(rbind,mata_all_newlist)
+
+df <-mata_all_newData[order(mata_all_newData$II,mata_all_newData$SNO),]
+J2r5456<- subset((do.call(rbind,mata_all_newlist)),SNO==5456)
+t(round(stat.desc(J2r5456)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
+
+#not work
 #mata_all_new_unlist <- unlist(mata_all_newlist)
 lapply(mata_all_newlist,mean)
-#tr y a loop
+#try a loop
 subSNOx <- head(mata_all_newlist[[1]],1) 
 subSNOx[subSNOx>=0] <-NA
 for (i in 1:(M*nrow(mg)))  {
@@ -479,7 +547,12 @@ for (i in 1:(M*nrow(mg)))  {
    subSNOx<- rbind(subSNOx,subSNO)
    subSNOx<-na.omit(subSNOx)
 }
+t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
 t(round(stat.desc(get(paste0("subSNOx",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
+
+# try and combine list elements into data set 
+# when m =100, then list 1001..1100 is 3 patients 100 imputation data set
+
 
 
 mata_all_new_rmnaJ2R <- na.omit(mata_all_new)
