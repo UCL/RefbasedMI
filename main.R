@@ -22,25 +22,33 @@ refer <-2
 getwd()
 source("N:/Documents/GitHub/mimix/mimixR/functions.R")
 
-kmargs <- list("fev","treat","id","time","base",100,2,"J2R")
+kmargs <- list("fev","treat","id","time","base",100,2,"J2R",301)
 mata_all_newlist=do.call('Runmimix', kmargs)
 
 mxdata<- readdata("asthma.csv")
 Runmimix("fev","treat","id","time","base","J2R",10000,2)
 Runmimix(kmargs)
 
-#ry without seed
-Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL) {
-# 
+
 rm(list = ls())
 source("functions.R")
+#ry with seed
+# read data set in before running main prog
+mxdata<- readdata("asthma.csv")
+Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,seedval=101) {
+# 
+ # rm(list = ls())
+  source("functions.R")
 #mxdata <-read.csv(paste0("./",data))
 #mxdata <-read.csv("./asthma.csv")
 # empyty R environmet?
 #set.seed(101)
  
+ set.seed(seedval)
+ #set.seed(unlist(tail(kmargs,n=1)))
 
-set.seed(301)
+#mxdata<- readdata(data)
+
 #set.seed(seedval)
 # call preprocesssing with variable names from data set
 #testlist<-preprodata("fev","treat","id","time","base",10000,2,"J2R")
@@ -49,7 +57,8 @@ set.seed(301)
 #try repack arguments for call to prepro
 #testlist<- preprodata(unlist(kmargs))
 
- testlist = do.call( preprodata,kmargs)
+ #do not read in last elemnt LAST otherwise get an unused argument error msg
+ testlist = do.call( preprodata,kmargs[-length(kmargs)])
 
 
 # returns list from preprodata function
