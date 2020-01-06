@@ -32,21 +32,21 @@ mxdata<- readdata("asthma.csv")
 
 
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",100,2,"J2R",301)
+kmargs <- list("fev","treat","id","time","base",10000,2,"J2R",301)
 
 # run main program outputting list containing the M imputed data sets  
 
 mimix_outputlist=do.call('Runmimix', kmargs)
 
+# for program timings
+system.time(do.call('Runmimix', kmargs))
+
 # list of imputed data
 mata_all_newlist <- mimix_outputlist[1]
-
 # pattern matching
 mg <- (mimix_outputlist[2])
-
 # Number of imputations
 M <- unlist(mimix_outputlist[3])
-
 #method chosen
 meth <- unlist(mimix_outputlist[4])
 
@@ -59,7 +59,7 @@ meth <- unlist(mimix_outputlist[4])
 # produce summary for individual
 analselist(meth,"5456")
 
-
+system.time(analselist(meth,"5456"))
 
 # to handle and combine the outputted muliple data sets see for example
 #https://rdrr.io/cran/norm2/man/miInference.html
@@ -104,10 +104,11 @@ combined.results<-mi.meld(q=b.out,se=se.out)
 #write.amelia(obj=mata_all_newData1k,file.stem = "outdata",format = "dta")
 print(combined.results)
 
+# sign tests compard with Stata
+pttestf(10000,10000,1.040,0.385,1.051,0.341)
 
 
-
-
+#for program timings
 end_time <- proc.time()
 time_taken <- end_time - start_time
 print(paste("Time taken:", time_taken[1]))
@@ -116,7 +117,7 @@ system.time(analselist("5137"))
 
  
   
-pttestf(10000,10000,1.040,0.385,1.051,0.341)
+
 
 
 
