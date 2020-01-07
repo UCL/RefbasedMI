@@ -4,7 +4,7 @@
 # ie reference based imputation 
 # Note 1st part is to set up a summary table based on missing data pattern- mimix_group
 # reflects the pattern and treatment group configuration of the raw data
-# then acts as a looping mechanism 
+# then acts as a lookup table to provide the looping mechanism 
 # norm2 is used as MCMC multivariate normal  
 # this version 6/1/2020
 # v0.2
