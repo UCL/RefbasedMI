@@ -21,8 +21,8 @@ rm(list = ls())
 
 # file refers to functions called from main program  
 source("functions.R")
-
-#read the data file - in csv format
+ 
+#read the data file - in csv format  and long data format, one record for each time point per individual 
 mxdata<- readdata("asthma.csv")
 
 # either save Stata data file dirertory into csv format or use
