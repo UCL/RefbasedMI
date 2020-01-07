@@ -4,19 +4,6 @@
 A <- function(x) {  ifelse(!is.na(x),0,1) }
 
 
-#try put these into a function
-#check_args <- function(M,refer,meth)  {
-#  meth_valid_values<- c("MAR", "J2R","CIR","CR","LMCF")
-#  stopifnot(is.numeric(refer))
-#  stopifnot(is.numeric(M))
-  #more informative in error msg to use this
-#  stopifnot( meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF")
-  #stopifnot(any(meth_valid_values==meth))
-  
-#}
-
-# this section to convert from long to wide data format
-#be nice to plot the patt? a data sumary?
   
 #readdata
 readdata <-function(data) {
@@ -127,12 +114,6 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   ex1s<-ex1id[order(ex1id$exid),]
   
  
- # for (val in t(ntreat)) {
- #    print(paste0("prenormMC",val))
-    #assign(paste0("prenorm2",val),subset(finaldat,treat==val))
- #  } 
-  
-  
   #error chk
   stopifnot(refer %in% t(ntreat))
   print("summary missing pattern")
@@ -140,7 +121,7 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
 }
 # Question is should the wide data be sorted for analysis or just ordered in fact, selecting out treatmet and rbinding? to provide analysis data set.   
-# answer is should be sorted by patt as in Stata!
+# answer is should be sorted by patt as in Stata
 # therefore just select on treat when looping thru ntreat 
 
 
@@ -183,9 +164,6 @@ t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),
 
 
 
-
-# now changed to mata_all_newlist
-#for (i in 1:M)
 
 
 # mata_S_miss something like [2 3 4] ,so is cc
