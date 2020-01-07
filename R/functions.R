@@ -217,7 +217,7 @@ testread <-function(pathdat) {
   #mxdata <-read.csv("./asthma.csv")
   txdata <-read.csv(pathdat)
 }
- txdata <-testread("asthma.csv")
+# txdata <-testread("asthma.csv")
  
 # Main function 
 Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,seedval=101) {
