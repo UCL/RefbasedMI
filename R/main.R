@@ -39,7 +39,7 @@ kmargs <- list("fev","treat","id","time","base",10000,2,"J2R",301)
 mimix_outputlist=do.call('Runmimix', kmargs)
 
 # for program timings
-system.time(do.call('Runmimix', kmargs))
+#system.time(do.call('Runmimix', kmargs))
 
 # list of imputed data
 mata_all_newlist <- mimix_outputlist[1]
