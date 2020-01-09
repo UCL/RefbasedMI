@@ -1,17 +1,24 @@
 
-# for select function
-install.packages("dplyr")
+
+
+
+#for select
 library(dplyr)
 
-# for pivot_wider function
-install.packages("tidyr")
+#pivot_wider
 library(tidyr)
 
-# for emNorm
-
-install.packages("norm2")
+#emnorm
 library(norm2)
 
-# for cholsolve
-install.packages("sparseinv")
-library("sparseinv")
+#cholsolve
+library(sparseinv) 
+
+#stat.desc
+library(pastecs)
+
+#library(plyr)
+#read data
+# need haven
+#library(haven)
+

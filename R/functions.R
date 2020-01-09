@@ -11,16 +11,12 @@ readdata <-function(data) {
   #path_to_my_data <- file.path("directory","path","to","NIRData.csv")
    # Check if file exists at that path
   stopifnot(file.exists(paste0("./",data)))
-  mxdata <-read.csv(paste0("./",data))
+  mxdata <-read.csv(paste0("./",data),fileEncoding = "UTF-8-BOM")
   return(mxdata)
 }
-#csvdata<-"asthma.csv"
-#readdata(csvdata)
 
-#readdata("asthma.csv")
 
 # this section to find mg, the missing  pattern group and also converts from long to wide data format
-
 preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #extract relevant vars
  
