@@ -19,7 +19,7 @@ readdata <-function(data) {
 
 #readdata("asthma.csv")
 
-# this section to convert from long to wide data format
+# this section to find mg, the missing  pattern group and also converts from long to wide data format
 
 preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #extract relevant vars
