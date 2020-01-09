@@ -1,14 +1,18 @@
-#####################################################################################
-# Rmimix.R
-# R program to mimic stata program mimix
-# ie reference based imputation 
-# Note 1st part is to set up a summary table based on missing data pattern- mimix_group
-# reflects the pattern and treatment group configuration of the raw data
-# then acts as a looping mechanism 
-# norm2 is used as MCMC multivariate normal  
-# this version 6/1/2020
-# v0.2
-# Author : Kevin McGrath
+#####################################################################################  
+# Rmimix.R                                                                          #
+# R program to mimic stata program mimix                                            #
+# ie reference based imputation                                                     #
+# Note 1st part is to set up a summary table based on missing data pattern-         #
+# mg  mimix_group                                                                   #
+# reflects the pattern and treatment group configuration of the raw data            #
+# then acts as a looping mechanism                                                  #
+# norm2 is used as MCMC multivariate normal                                         #
+# this version 6/1/2020                                                             #
+# calls functions listed in functions.R file                                        #
+# function preprodata prepares data and and finds mg (the mimix group)              # 
+# function Runmimix  performs major analysis                                        #
+# v0.2                                                                              #
+# Author : Kevin McGrath                                                            #
 #####################################################################################
 
 
@@ -41,13 +45,13 @@ mimix_outputlist=do.call('Runmimix', kmargs)
 # for program timings
 #system.time(do.call('Runmimix', kmargs))
 
-# save list of imputed data
+# list of imputed data
 mata_all_newlist <- mimix_outputlist[1]
-# save pattern matching
+# pattern matching
 mg <- (mimix_outputlist[2])
-# save Number of imputations
+# Number of imputations
 M <- unlist(mimix_outputlist[3])
-# save method chosen
+#method chosen
 meth <- unlist(mimix_outputlist[4])
 
 

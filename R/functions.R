@@ -19,9 +19,8 @@ readdata <-function(data) {
 
 #readdata("asthma.csv")
 
-
 # this section to convert from long to wide data format
-# be nice to plot the patt? a data summary?
+
 preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #extract relevant vars
  
