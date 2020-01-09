@@ -9,7 +9,7 @@ Reference-based sensitivity analysis via multiple imputation for longitudinal tr
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
-The 5 methods available for sensitivy analysis are
+The 5 methods available for sensitivity analysis are
  
 |  Method         | option cmd             | reference group required |
 | --------------- | --------------- | --------------------  |
