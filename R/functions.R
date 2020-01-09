@@ -4,19 +4,6 @@
 A <- function(x) {  ifelse(!is.na(x),0,1) }
 
 
-#try put these into a function
-#check_args <- function(M,refer,meth)  {
-#  meth_valid_values<- c("MAR", "J2R","CIR","CR","LMCF")
-#  stopifnot(is.numeric(refer))
-#  stopifnot(is.numeric(M))
-  #more informative in error msg to use this
-#  stopifnot( meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF")
-  #stopifnot(any(meth_valid_values==meth))
-  
-#}
-
-# this section to convert from long to wide data format
-#be nice to plot the patt? a data sumary?
   
 #readdata
 readdata <-function(data) {
@@ -32,6 +19,9 @@ readdata <-function(data) {
 
 #readdata("asthma.csv")
 
+
+# this section to convert from long to wide data format
+# be nice to plot the patt? a data summary?
 preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #extract relevant vars
  
