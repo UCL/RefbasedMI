@@ -11,7 +11,7 @@
 # calls functions listed in functions.R file                                        #
 # function preprodata prepares data and and finds mg (the mimix group)              # 
 # function Runmimix  performs major analysis                                        #
-# the required packages as listed in utilities file                                 #   
+# the  packages required are as listed in the utilities file                                 #   
 # v0.2                                                                              #
 # Author : Kevin McGrath                                                            #
 #####################################################################################
