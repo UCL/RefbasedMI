@@ -41,13 +41,13 @@ mimix_outputlist=do.call('Runmimix', kmargs)
 # for program timings
 #system.time(do.call('Runmimix', kmargs))
 
-# list of imputed data
+# save list of imputed data
 mata_all_newlist <- mimix_outputlist[1]
-# pattern matching
+# save pattern matching
 mg <- (mimix_outputlist[2])
-# Number of imputations
+# save Number of imputations
 M <- unlist(mimix_outputlist[3])
-#method chosen
+# save method chosen
 meth <- unlist(mimix_outputlist[4])
 
 
