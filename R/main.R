@@ -7,11 +7,12 @@
 # reflects the pattern and treatment group configuration of the raw data            #
 # then acts as a looping mechanism                                                  #
 # norm2 is used as MCMC multivariate normal                                         #
-# this version 6/1/2020                                                             #
+#                                                                                   #
 # calls functions listed in functions.R file                                        #
 # function preprodata prepares data and and finds mg (the mimix group)              # 
 # function Runmimix  performs major analysis                                        #
-# the  packages required are as listed in the utilities file                                 #   
+# the required packages as listed in utilities file                                 #
+# this version 6/1/2020                                                             #
 # v0.2                                                                              #
 # Author : Kevin McGrath                                                            #
 #####################################################################################
@@ -37,11 +38,13 @@ mxdata<- readdata("asthma.csv")
 
 
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",100,2,"CIR",101)
+kmargs <- list("fev","treat","id","time","base",100,2,"CIR",10)
 
 # run main program outputting list containing the M imputed data sets  
 
-mimix_outputlist=do.call('Runmimix', kmargs)
+#mimix_outputlist=do.call('Runmimix', kmargs)
+mimix_outputlist<-Runmimix("fev","treat","id","time","base",100,2,"CIR",10)
+
 
 # for program timings
 #system.time(do.call('Runmimix', kmargs))
@@ -71,7 +74,7 @@ system.time(analyselist(meth,"5456"))
 #https://rdrr.io/cran/norm2/man/miInference.html
 # but instead of mcmcResult$imp.list just create new list from the saved list output
 
-
+# convert imputed data list into combined data set
 dimlist <- (nrow(mg[[1]])*M)
 mata_all_newlist[[1]][[dimlist]]
 mata_all_newData1k <- do.call(rbind,mata_all_newlist[[1]])
@@ -80,6 +83,7 @@ testkm1k<-mata_all_newData1k[order(mata_all_newData1k$II,mata_all_newData1k$SNO)
 # to get the list
 testkmlist1k <- split(testkm1k,testkm1k$II)
 # so has M elemets in list
+# presumably can obtain a list of coefficients and their se's from a regression?
 est.list <- as.list(NULL)
 std.err.list <- as.list( NULL )
 for( m in 1:M ){
