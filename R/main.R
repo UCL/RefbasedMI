@@ -4,7 +4,7 @@
 # ie reference based imputation 
 # Note 1st part is to set up a summary table based on missing data pattern- mimix_group
 # reflects the pattern and treatment group configuration of the raw data
-# then acts as a lookup table to provide the looping mechanism 
+# then acts as a looping mechanism 
 # norm2 is used as MCMC multivariate normal  
 # this version 6/1/2020
 # v0.2
@@ -21,8 +21,8 @@ rm(list = ls())
 
 # file refers to functions called from main program  
 source("functions.R")
- 
-#read the data file - in csv format  and long data format, one record for each time point per individual 
+
+#read the data file - in csv format
 mxdata<- readdata("asthma.csv")
 
 # either save Stata data file dirertory into csv format or use
@@ -32,7 +32,7 @@ mxdata<- readdata("asthma.csv")
 
 
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",10000,2,"J2R",301)
+kmargs <- list("fev","treat","id","time","base",100,2,"CIR",101)
 
 # run main program outputting list containing the M imputed data sets  
 
@@ -57,9 +57,10 @@ meth <- unlist(mimix_outputlist[4])
 #Runmimix("fev","treat","id","time","base","J2R",10000,2)
 
 # produce summary for individual
-analselist(meth,"5456")
+analyselist(meth,"5456")
+analyselist(meth,"5115")
 
-system.time(analselist(meth,"5456"))
+system.time(analyselist(meth,"5456"))
 
 # to handle and combine the outputted muliple data sets see for example
 #https://rdrr.io/cran/norm2/man/miInference.html
@@ -105,7 +106,7 @@ combined.results<-mi.meld(q=b.out,se=se.out)
 print(combined.results)
 
 # sign tests compard with Stata
-pttestf(10000,10000,1.040,0.385,1.051,0.341)
+pttestf(10000,1000,1.606,0.466,1.627,0.453)
 
 
 #for program timings
@@ -113,7 +114,7 @@ end_time <- proc.time()
 time_taken <- end_time - start_time
 print(paste("Time taken:", time_taken[1]))
 
-system.time(analselist("5137")) 
+system.time(analyselist("5137")) 
 
  
   
