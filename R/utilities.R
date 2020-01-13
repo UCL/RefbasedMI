@@ -1,22 +1,29 @@
 
-# chosen to use tidyverse packages
-install.packages("tidyverse")
 
-
-#for select
+#for select  function
+install.packages("dplyr")
 library(dplyr)
 
-#pivot_wider
+# for pivot_wider function
+install.packages("tidyr")
 library(tidyr)
 
-#emnorm
+# for emNorm
+install.packages("norm2")
 library(norm2)
 
-#cholsolve
+# for cholsolve
+install.packages("sparseinv")
 library(sparseinv) 
 
-#stat.desc
+#  for analysis (stat.desc)
+install.packages("pastecs")
 library(pastecs)
+
+# for Amelia
+install.packages("amelia")
+library(amelia)
+
 
 
 
