@@ -232,26 +232,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         paramBiglist[[iter]] <- mcmcResultT$param
         
         
-        
-        #this bit trying matrix
-        #if (m==1) { 
-        #paramBetaMatrixT = as.matrix(mcmcResultT$param)[,1][[1]]   
-        #paramSigmaMatrixT= as.matrix(mcmcResultT$param)[,1][[2]]
-        #} else{
-        #   paramBetaMatrixT = rbind(paramBetaMatrixT,as.matrix(mcmcResultT$param)[,1][[1]])
-        #   paramSigmaMatrixT = rbind(paramSigmaMatrixT,as.matrix(mcmcResultT$param)[,1][[2]]) 
-        #} 
-        
-        # make this more efficient by saving just result 
-        #assign(paste0("mcmcResultT",val,m),mcmcResultT)
-        # above not wprk later so tr saving param
-        
-        #assign(paste0("parambeta",val,m),mcmcResultT$param$beta)
-        #assign(paste0("paramsigma",val,m),mcmcResultT$param$sigma)
-        
-        #print(paste0("parambeta",val,m))
-        #return(list(paste0("parambeta",val,m),paste0("paramsigma",val,m)))
-      }  
+        }  
       
     }
   ) # system.time 
@@ -286,8 +267,10 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
     
     # treatment grp
     trtgp<- mg$treat[i]
-    cat("\ntrtgp = ", trtgp)
-    cat("\n Looping within each pattern,no patients = ", cnt)
+    
+    pattern <- mg$patt[i]
+    #cat("\ntrtgp = ", trtgp)
+    cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
     
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector) 
     #something like

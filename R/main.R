@@ -31,25 +31,25 @@ source("functions.R")
 #read the data file - in csv format
 mxdata<- readdata("asthma.csv")
 
-# either save Stata data file dirertory into csv format or use
-# haven  to read Stata file directly 
-#library(haven)
-#mxdata <- read_dta("asthma.dta") 
+# or directly from github
+mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthma.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+
 
 
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",100,2,"CIR",10)
+kmargs <- list("fev","treat","id","time","base",1000,2,"J2R",101)
 
 # run main program outputting list containing the M imputed data sets  
 
 #mimix_outputlist=do.call('Runmimix', kmargs)
-mimix_outputlist<-Runmimix("fev","treat","id","time","base",100,2,"CIR",10)
+mimix_outputlist <- Runmimix(kmargs)
+#mimix_outputlist<-Runmimix("fev","treat","id","time","base",100,2,"J2R",101)
 
 
 # for program timings
 #system.time(do.call('Runmimix', kmargs))
 
-# list of imputed data
+# save list of imputed data
 mata_all_newlist <- mimix_outputlist[1]
 # pattern matching
 mg <- (mimix_outputlist[2])
@@ -59,38 +59,41 @@ M <- unlist(mimix_outputlist[3])
 meth <- unlist(mimix_outputlist[4])
 
 
-#if run below then outputs the data set to screen so better to run as above 
-#Runmimix(kmargs)
-# equiv to
-#Runmimix("fev","treat","id","time","base","J2R",10000,2)
 
 # produce summary for individual
 analyselist(meth,"5456")
 analyselist(meth,"5115")
 
-system.time(analyselist(meth,"5456"))
+#system.time(analyselist(meth,"5456"))
 
 # to handle and combine the outputted muliple data sets see for example
 #https://rdrr.io/cran/norm2/man/miInference.html
 # but instead of mcmcResult$imp.list just create new list from the saved list output
 
 # convert imputed data list into combined data set
+# dimension of data set, nrows in pattern times no imputations, 
 dimlist <- (nrow(mg[[1]])*M)
+# extract from nested list 
 mata_all_newlist[[1]][[dimlist]]
-mata_all_newData1k <- do.call(rbind,mata_all_newlist[[1]])
-# then sort into M data sets and maybe split into M lists !?
-testkm1k<-mata_all_newData1k[order(mata_all_newData1k$II,mata_all_newData1k$SNO),]
+# combine into data set containing M imputed datasets 
+mata_all_newData1x <- do.call(rbind,mata_all_newlist[[1]])
+
+
+# then sort into M data sets and maybe split into M lists 
+km1x<-mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
 # to get the list
-testkmlist1k <- split(testkm1k,testkm1k$II)
-# so has M elemets in list
-# presumably can obtain a list of coefficients and their se's from a regression?
+kmlist1x <- split(km1x,km1x$II)
+# so has M elements in list
+# can obtain a list of coefficients and their se's from a regression
+# declare list for estimates 
 est.list <- as.list(NULL)
+# declare lists for se's 
 std.err.list <- as.list( NULL )
 for( m in 1:M ){
-  yimp <- testkmlist1k[[m]]  # one imputed dataset
-  diff <- yimp[,"fev2"] 
-  est.list[[m]] <- mean(diff)
-  std.err.list[[m]] <- sqrt( var(diff) / length(diff) ) }
+  mod<-lm(fev12~as.factor(treat)+ base,data=kmlist1x[[m]] )
+  
+  est.list[[m]] <- coef(summary(mod))[,1]
+  std.err.list[[m]] <- coef(summary(mod))[,2] }
 ## combine the results by rules of Barnard and Rubin (1999)
 ## with df.complete = 27, because a paired t-test in a dataset with
 ## N=28 cases has 27 degrees of freedom
