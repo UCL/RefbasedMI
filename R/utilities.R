@@ -1,5 +1,6 @@
 
-
+# chosen to use tidyverse packages
+install.packages("tidyverse")
 
 
 #for select
@@ -17,8 +18,5 @@ library(sparseinv)
 #stat.desc
 library(pastecs)
 
-#library(plyr)
-#read data
-# need haven
-#library(haven)
+
 
