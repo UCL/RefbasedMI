@@ -124,16 +124,14 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   print(ex1s)
   return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
 }
-# Question is should the wide data be sorted for analysis or just ordered in fact, selecting out treatmet and rbinding? to provide analysis data set.   
-# answer is should be sorted by patt as in Stata!
+
+# should be sorted by patt as in Stata
 # therefore just select on treat when looping thru ntreat 
 
 
 # Main function 
 Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,seedval=101) {
-  # 
   
-  #set.seed(101)
   
   set.seed(seedval)
   #set.seed(unlist(tail(kmargs,n=1)))
@@ -519,7 +517,9 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         #for debug   
         #  print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
         
-        mata_y1 = meanval+Z%*%t(U)
+        # Stata triangular opposite to R so no transpose
+        #mata_y1 = meanval+Z%*%t(U)
+        mata_y1 = meanval+Z%*%U
         
         #define new matrix from observed,  id column  (the last)
         mata_new <- preraw
@@ -536,13 +536,6 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         
         #what i this below? 
         #presumablywas  for testing?
-        #assign(paste0("Z11",i,"_imp",m),subset(Z))
-        #assign(paste0("U11",i,"_imp",m),subset(U))
-        # assign(paste0("S12",i,"_imp",m),S12)
-        # assign(paste0("S22",i,"_imp",m),S22)
-        # assign(paste0("mata_y1_11",i,"_imp",m),mata_y1)
-        # assign(paste0("conds11",i,"_imp",m),conds) 
-        # no idea why below cuases error!
         # assign(paste0("t_mimix11",i,"_imp",m),t_mimix)
         
         #assuming this  from Stata if "`interim'"==""{  
