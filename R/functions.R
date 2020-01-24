@@ -23,7 +23,7 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #more informative in error msg to use this explicit and  
   #and put in one statement 
   stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF"),
-             is.numeric(refer),
+             #is.numeric(refer),
              is.numeric(M),
              is.character(depvar),
              is.character(treatvar),
@@ -99,10 +99,17 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   
   # this best for  count, implicit sort by treat
   # may have to generalise using function argument  later!
+  # this bit groups and aggregates but can try using base (aggregate) instead! .
+  #  
   ex1 <- sts4Dpatt %>%
-    dplyr::group_by(sts4Dpatt$treat,sts4Dpatt$patt) %>%
+    # test chg 17/01 treat needs made generic
+    # substantiate var?
+    
+    dplyr::group_by(sts4Dpatt[,c(treatvar)],sts4Dpatt$patt) %>%
+    #dplyr::group_by(sts4Dpatt$treat,sts4Dpatt$patt) %>%
     dplyr::summarise(X1 =n())
-  ex1 <- dplyr::rename(ex1,treat='sts4Dpatt$treat',patt='sts4Dpatt$patt')
+  ex1 <- dplyr::rename(ex1,treat="sts4Dpatt[, c(treatvar)]",patt='sts4Dpatt$patt')
+  #ex1 <- dplyr::rename(ex1,treat='sts4Dpatt$treat',patt='sts4Dpatt$patt')
   # and now find cumX1
   ex1$X1cum <- cumsum(ex1$X1) 
   #want  join this to ex from mimix_group table
@@ -110,6 +117,11 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   ex1$exid <- 1:nrow(ex1)
   ex1id <-merge(ex1,pattmatd,by="patt")
   ex1s<-ex1id[order(ex1id$exid),]
+  
+  #try using aggregating instead 
+  #aggregate(x=sts4Dpatt,by=list(treat,patt),FUN="sum")
+  
+  
   
  
  # for (val in t(ntreat)) {
@@ -124,14 +136,16 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   print(ex1s)
   return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
 }
-
-# should be sorted by patt as in Stata
+# Question is should the wide data be sorted for analysis or just ordered in fact, selecting out treatmet and rbinding? to provide analysis data set.   
+# answer is should be sorted by patt as in Stata!
 # therefore just select on treat when looping thru ntreat 
 
 
 # Main function 
 Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,seedval=101) {
+  # 
   
+  #set.seed(101)
   
   set.seed(seedval)
   #set.seed(unlist(tail(kmargs,n=1)))
@@ -157,7 +171,10 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
   meth <- testlist[[13]]
   
   # so tsts2 is th equiv to mi_impute so try to put in norm2
-  tst2 <- mi_impute("id","time","fev","base")
+  # est tis tomorrow 17/01 
+  #tst2 <- mi_impute("id","time","fev","base")
+  #list("fev","treat","id","time","base",10,2,"J2R",101)
+  tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
   # put commas in
   tst3<-paste(tst2,collapse = ",")
   
@@ -216,8 +233,12 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
       print(paste0("Looping for treatment = ",val," performing mcmcNorm for m = 1 to ",M))
       for(m in 1:M) {  
         #emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
-        emResultT<-emNorm(prnormobj,prior = "jeffreys")
-        mcmcResultT<- mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys")
+        # supppress warnings regrading solution  near boundary, see norm2 user guide, also mimix about this problem
+        # may have to change prior '
+        emResultT<-suppressWarnings(emNorm(prnormobj,prior = "jeffreys"))
+        #print(paste0("running emNorm"))
+        mcmcResultT<- suppressWarnings(mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys"))
+        #print(paste0("running mcmcNorm"))
         #try saving parm files  to a matrix instead of indiv parm files
         
         # assign doesnty make much differenc in tghis loop , perhaps efficiency comes from not calling them later?
@@ -259,6 +280,9 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
     c_mata_nonmiss<-which(mata_nonmiss==1)
     # eg no missing is c(1,2,3,4,5)
     
+    #debug
+    #print("mata_miss")
+    #print(mata_miss)
     
     # count of pattern by treatment
     cnt<- mg$X1[i]
@@ -357,11 +381,21 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           # print(paste0("refer,m = ",refer," ",m))   
           #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
           
-          # note use of [[1]] as is matrix rathe than list
+          # note use of [[1]] as is matrix rathe than list, 
+        
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-          S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+          #to ensure rows and cols as should reflect their stucture use matrix 
+          S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-          
+         
+          #edit due to passing  Sigma after loop, ie save sigma
+          Sigma <- SigmaRefer[[1]]
+          #print("J2R Sigma = ")
+          #print(Sigma)
+          #print ("S11 = " )
+          #print(S11)
+          #print("S12 = ")
+          #print(S12)
         }
         else if (meth=='CR') {
           mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
@@ -382,7 +416,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           #SigmaRefer <- get(paste0("param",refer,m))[2]
           SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-          S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+          S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss) )
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
         }
         else if (meth=='CIR') {
@@ -420,7 +454,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
           
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-          S12 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss]
+          S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
         }  
         else if (meth=='LMCF') { 
@@ -438,11 +472,16 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
           # when reading in Stata sigmas
           S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-          S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+          S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
         }  #if meth
         
-        
+      #debug
+      #  print(SigmaRefer[[1]])
+      #  print(paste0("c_mata_nonmiss,",c_mata_nonmiss))
+      #  print(c_mata_nonmiss)
+      #  print(paste0("c_mata_miss,",c_mata_miss))
+      #  print(c_mata_miss)
         
         # loop still open for row(mg)
         
@@ -476,7 +515,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         j <- mg[i,"X1"]
         
         #for debug  
-        #  print(paste0(" count in patt = ", j))
+          #print(paste0(" count in patt = ", j))
         
         k <- mg[i,"X1cum"]
         startrow <-(k-j+1)  
@@ -491,12 +530,53 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
         raw1 <- preraw[,c_mata_nonmiss]
         
+        
+        
+        ##### try inserting routine for all missing values here NOt really necessary!! ### 20/1/20 #####
+        ## when all missing data, the length of c_mata_nonmiss must exclude the no. of covariates  
+        ## temporary fix set as 1, ie no. of covars 20/01/20
+        # nOTE think no observed data includes no base line as well? 
+        if (length(c_mata_nonmiss)==0)  {
+           ## routine copied from mimix line 1229
+            U <- chol(Sigma)
+           # print("U = ")
+          #  print(U)
+          #  print("miss_count = ")
+          #  print (miss_count)
+            # generate inverse normal, same as used below
+            #for debug 20/01  
+         #   print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
+            Z <- qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+          #  print("Z")
+          #  print(Z)
+            mata_y1 = meanval+Z%*%(U) 
+            #set dimensions mata_new to mata_y1 
+            mata_new <- dim(mata_y1)
+            GI <- array(data=mg[i,"treat"],dim=c(mg[i,"X1"],1))
+            #II  no imputations 
+            II <- array(data=m,dim=c(mg[i,"X1"],1))
+            mata_new=cbind(GI,II,mata_new,SNO)
+            mata_all_newlist[[m_mg_iter]]=mata_new
+            
+        } 
+        
         # for debug    
-        
-        # print("mata_raw = ")
-        
-        
-        t_mimix =cholsolve(Q=S11,y=S12)   
+        #print("mata_raw = ")
+       # print("S11 S12")
+      #  print(S11)
+      #  print(S12)
+      #  print(paste0("typeS12= ",class(S12)))
+      #  print( dim(S12))
+        #so S12 must be declare as a matrix ! as number otherwise is class number  
+        #try transpose as was failing compatible error
+        #tS12<-t(S12)
+        mS11<-as.matrix(S11)
+        mS12 <-as.matrix(S12)
+        #note y must have same no rows as Q 
+        #solve Qx=y
+        #t_mimix =cholsolve(Q=mS11,y=(mS12))   
+        #tryig solve instead ax=b
+        t_mimix=solve(S11,S12)
         conds <-  S22-t(S12)%*%t_mimix
         #  
         #meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)     
@@ -510,16 +590,17 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         U <- chol(conds)
         # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
         miss_count=rowSums(mata_miss)
+      #  print("miss_count = ")
+      #  print (miss_count)
         # gen erate inverse normal
         Z<-qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
         # check same input parameters for inverse norm gen as in stata 
         
-        #for debug   
+        #for debug 20/01  
         #  print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count)) 
         
-        # Stata triangular opposite to R so no transpose
-        #mata_y1 = meanval+Z%*%t(U)
-        mata_y1 = meanval+Z%*%U
+        #mata_y1 = meanval+Z%*%t(U)  14/01/20 try without transpose because Stata Cholesky lower tri, R upper (or vice versa)   
+        mata_y1 = meanval+Z%*%(U) 
         
         #define new matrix from observed,  id column  (the last)
         mata_new <- preraw
@@ -536,6 +617,13 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         
         #what i this below? 
         #presumablywas  for testing?
+        #assign(paste0("Z11",i,"_imp",m),subset(Z))
+        #assign(paste0("U11",i,"_imp",m),subset(U))
+        # assign(paste0("S12",i,"_imp",m),S12)
+        # assign(paste0("S22",i,"_imp",m),S22)
+        # assign(paste0("mata_y1_11",i,"_imp",m),mata_y1)
+        # assign(paste0("conds11",i,"_imp",m),conds) 
+        # no idea why below cuases error!
         # assign(paste0("t_mimix11",i,"_imp",m),t_mimix)
         
         #assuming this  from Stata if "`interim'"==""{  
@@ -558,7 +646,8 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         #mata_all_new<- na.omit(mata_all_new)
         #stata equilv \ is row bind NOt cbind!!?
         
-      } #if patt ==0r
+        #}
+      } #if patt ==0r if all  missing   
     } #for row[mg] 
     
   } #for M StOP HERE!!
@@ -601,7 +690,8 @@ for (i in 1:(nrow(mg[[1]])*M) )  {
   subSNOx<-na.omit(subSNOx)
   
 }
-print(paste0("meth = ",meth))   
+print(paste0("meth = ",meth))  
+#t(round(stat.desc(subSNOx)[,c("head3","head12","head_base")],3)[c(1,9,13,4,8,5),])
 t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
 }
 

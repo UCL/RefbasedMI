@@ -13,7 +13,7 @@
 # function Runmimix  performs major analysis                                        #
 # the required packages as listed in utilities file                                 #
 # this version 6/1/2020                                                             #
-# v0.2                                                                              #
+# v0.0.2                                                                              #
 # Author : Kevin McGrath                                                            #
 #####################################################################################
 
@@ -34,10 +34,23 @@ mxdata<- readdata("asthma.csv")
 # or directly from github
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthma.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 
+# acupuncture data
+mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/accupuncture.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+# next2 below just for testing whther no typ eworks instead of char for treat
 
+#save treat col as want o recode as numeric
+mxdata$treatcopy<- mxdata$treat
+mxdata$treat<-(mxdata$treatcopy=="accupuncture")*1
+mxdata$treat<-(mxdata$treatcopy=="control")*1+1
+# at moment hard coded to use treat as argument , so rename any teratmnet variable in input data to treat.
+kmargs <- list("head","treat","id","time","head_base",1000,2,"J2R",101)
+mimix_outputlist <- Runmimix(kmargs)
+
+# do need to introduce a covar argument to cope when more than 1 covariate variable.  
 
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",1000,2,"J2R",101)
+kmargs <- list("fev","treat","id","time","base",10000,2,"J2R",201)
+
 
 # run main program outputting list containing the M imputed data sets  
 
@@ -62,7 +75,7 @@ meth <- unlist(mimix_outputlist[4])
 
 # produce summary for individual
 analyselist(meth,"5456")
-analyselist(meth,"5115")
+analyselist(meth,"100")
 
 #system.time(analyselist(meth,"5456"))
 
@@ -90,7 +103,7 @@ est.list <- as.list(NULL)
 # declare lists for se's 
 std.err.list <- as.list( NULL )
 for( m in 1:M ){
-  mod<-lm(fev12~as.factor(treat)+ base,data=kmlist1x[[m]] )
+  mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
   
   est.list[[m]] <- coef(summary(mod))[,1]
   std.err.list[[m]] <- coef(summary(mod))[,2] }
@@ -118,8 +131,8 @@ combined.results<-mi.meld(q=b.out,se=se.out)
 print(combined.results)
 
 # sign tests compard with Stata
-pttestf(10000,1000,1.606,0.466,1.627,0.453)
-
+pttestf(10000,10000,1.614,0.378,1.626,0.369)
+pttestf(1000,1000,11.912,11.116,12.34,10.4)
 
 #for program timings
 end_time <- proc.time()
