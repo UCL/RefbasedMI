@@ -325,8 +325,8 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
     #create dataframe from covariates
     
     
-    print(paste0("mata_miss$covar.1= ",mata_miss$covar.1))
-    print(paste0("mata_miss= ",mata_miss))
+   # print(paste0("mata_miss$covar.1= ",mata_miss$covar.1))
+   # print(paste0("mata_miss= ",mata_miss))
     mata_nonmiss <- (ifelse(mata_miss==0,1,0))  #define mata-nonmiss from miss
     
     # need transform nonmiss,miss to c lists - ie. index the  
@@ -389,7 +389,9 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
           #Sigmatrt <- get(paste0("param",trtgp,m))[2]
           Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
           S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-          S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+          #S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+          # to ensure col pos same as stata
+          S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
           
           
