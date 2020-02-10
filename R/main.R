@@ -13,20 +13,21 @@
 # function Runmimix  performs major analysis                                        #
 # the required packages as listed in utilities file                                 #
 # this version 6/1/2020                                                             #
-# v0.0.2                                                                              #
+# v0.0.4                                                                            #
 # Author : Kevin McGrath                                                            #
 #####################################################################################
 
 
 # to check home directory  
 #getwd()
-#source("N:/Documents/GitHub/mimix/mimixR/functions.R")
+
 
 # remove existing files
 rm(list = ls())
 
 # file refers to functions called from main program  
-source("functions.R")
+# doesnt work - source("/functions.R") but this does 
+source("N:/Documents/GitHub/mimix/mimixR/functions.R")
 
 #read the data file - in csv format
 mxdata<- readdata("asthma.csv")
@@ -38,26 +39,35 @@ mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthm
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/accupuncture.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 # next2 below just for testing whther no typ eworks instead of char for treat
 
-#save treat col as want o recode as numeric
+#treatment variable must be numeric, so need recode if char
+#save treat col as want to recode as numeric
 mxdata$treatcopy<- mxdata$treat
 mxdata$treat<-(mxdata$treatcopy=="accupuncture")*1
 mxdata$treat<-(mxdata$treatcopy=="control")*1+1
-# at moment hard coded to use treat as argument , so rename any teratmnet variable in input data to treat.
-kmargs <- list("head","treat","id","time","head_base",1000,2,"J2R",101)
+
+#covarlist<-c("head_base","sex","age")
+kmargs <- list(c("head_base","sex","age"),"head","treat","id","time",100,1,"J2R",201)
+kmargs <- list(c("head_base"),"head","treat","id","time",100,1,"J2R",101)
+
+
+#running this covar becomes list of 9
+#mimix_outputlist <- do.call(Runmimix,kmargs)
 mimix_outputlist <- Runmimix(kmargs)
 
-# do need to introduce a covar argument to cope when more than 1 covariate variable.  
+mimix_outputlist <- Runmimix(c("head_base","sex","age"),"head","treat","id","time",100,1,"J2R",201)
 
+# dont need to introduce a covar argument to cope when more than 1 covariate variable.  
 # Assign list of input parameters 
-kmargs <- list("fev","treat","id","time","base",10000,2,"J2R",201)
+#kmargs <- list("fev","treat","id","time",covar("treat","base"),1,2,"J2R",201)
 
 
 # run main program outputting list containing the M imputed data sets  
 
 #mimix_outputlist=do.call('Runmimix', kmargs)
-mimix_outputlist <- Runmimix(kmargs)
+ 
 #mimix_outputlist<-Runmimix("fev","treat","id","time","base",100,2,"J2R",101)
-
+kmargs<-list("base","fev","treat","id","time",1000,2,"J2R",101)
+mimix_outputlist<-Runmimix("base","fev","treat","id","time",1000,2,"J2R",101)
 
 # for program timings
 #system.time(do.call('Runmimix', kmargs))
@@ -74,8 +84,9 @@ meth <- unlist(mimix_outputlist[4])
 
 
 # produce summary for individual
-analyselist(meth,"5456")
-analyselist(meth,"100")
+analyselist(meth,"5456",c("fev2","fev4","fev8","fev12","base"))
+analyselist(meth,"100",c("head3","head12","sex","age","head_base"))
+#analyselist(meth,"100")
 
 #system.time(analyselist(meth,"5456"))
 
@@ -103,14 +114,14 @@ est.list <- as.list(NULL)
 # declare lists for se's 
 std.err.list <- as.list( NULL )
 for( m in 1:M ){
-  mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
-  
+  #mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
+  mod<-lm(head12~head_base+sex+age,data=kmlist1x[[m]] )
   est.list[[m]] <- coef(summary(mod))[,1]
   std.err.list[[m]] <- coef(summary(mod))[,2] }
 ## combine the results by rules of Barnard and Rubin (1999)
 ## with df.complete = 27, because a paired t-test in a dataset with
 ## N=28 cases has 27 degrees of freedom
-miResult <- miInference(est.list, std.err.list, df.complete=182)
+miResult <- miInference(est.list, std.err.list, df.complete=801)
 print(miResult)
 
 
@@ -142,7 +153,8 @@ print(paste("Time taken:", time_taken[1]))
 system.time(analyselist("5137")) 
 
  
-  
+pttestf(1000,1000,8.156,11.333,8.874,11.406)
+
 
 
 
