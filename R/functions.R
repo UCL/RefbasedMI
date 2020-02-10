@@ -3,8 +3,22 @@
 # trying to write a subroutine for this part of data preprocessing
 A <- function(x) {  ifelse(!is.na(x),0,1) }
 
+# to read covariate list into Runmimix main function 
+#covar <- function(x,...) {
+ #do some error chking here
+ #return(list(x,...))
+ #return(list(nargs(),x,...))
+#}
+#covar <- function(x,...) {
+  #do some error chking here
+  #return(list(nargs(),x,...))
+ # tcovar<-(list(x,...))
+  ## assign to global var 
+ # assign("tstcovar",tcovar,envir = .GlobalEnv)
+  #return(tstcovar)
+#} 
+ 
 
-  
 #readdata
 readdata <-function(data) {
   # Specify full path to data, e.g /directory/path/to/NIRData.csv
@@ -15,21 +29,23 @@ readdata <-function(data) {
   return(mxdata)
 }
 
+#try moving covar to begining of argumnet list  
 
 # this section to find mg, the missing  pattern group and also converts from long to wide data format
-preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
+preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   #extract relevant vars
  
   #more informative in error msg to use this explicit and  
   #and put in one statement 
   stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF"),
-             #is.numeric(refer),
+             is.numeric(refer),
              is.numeric(M),
              is.character(depvar),
              is.character(treatvar),
              is.character(idvar),
              is.character(timevar),
-             is.character(covar)    )
+             #is.character(covar[[2]],
+             is.character(covar) )
   
   #stopifnot(any(meth_valid_values==meth))
         #stopifnot(is.numeric(refer))
@@ -42,11 +58,20 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   # prefix must be supplied from input argument rather than hard coded, this canbe hard coded
   sts4<-pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
   #sts4 is just response data, can join later treat and covar cols from finaldat 
-  #assumes no NA for these vars should add in checking routines !!
-  uniqdat<-unique(mxdata[c(idvar,covar,treatvar)])
   
+  #assumes no NA for these vars should add in checking routines !!
+  #check how many covars used
+ 
+  #nocovar=covar[[1]]
+
+  #tcovar<-unlist(covar)
+  #uniqdat<-unique(mxdata[c(idvar,unlist(tstcovar),treatvar)])
+  print(paste0("covar=",covar))
+  uniqdat<-unique(mxdata[c(idvar,covar,treatvar)])
+  print(head(uniqdat))
   
   finaldat<- merge(sts4,uniqdat,by=idvar)
+  print(head(finaldat))
   # now try and sort on treatvar, doesnt work so instead of sorting , select on treat
  
   
@@ -121,7 +146,7 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
   #try using aggregating instead 
   #aggregate(x=sts4Dpatt,by=list(treat,patt),FUN="sum")
   
-  
+  #browser()
   
  
  # for (val in t(ntreat)) {
@@ -142,8 +167,13 @@ preprodata<- function(depvar,treatvar,idvar,timevar,covar,M,refer,meth)  {
 
 
 # Main function 
-Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,seedval=101) {
+Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,seedval=101) {
   # 
+  #find no covars
+  ncovar_i = length(covar)
+  #browser(1)
+  print(paste0("ncovar_i = ",ncovar_i))
+  print(paste0("covar= ",covar[1]))
   
   #set.seed(101)
   
@@ -174,7 +204,9 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
   # est tis tomorrow 17/01 
   #tst2 <- mi_impute("id","time","fev","base")
   #list("fev","treat","id","time","base",10,2,"J2R",101)
-  tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
+  #pre move, tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
+  #browser()
+  tst2 <- mi_impute(kmargs[[4]],kmargs[[5]],kmargs[[2]],kmargs[[1]])
   # put commas in
   tst3<-paste(tst2,collapse = ",")
   
@@ -240,7 +272,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         mcmcResultT<- suppressWarnings(mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys"))
         #print(paste0("running mcmcNorm"))
         #try saving parm files  to a matrix instead of indiv parm files
-        
+        #print(summary(mcmcResultT))
         # assign doesnty make much differenc in tghis loop , perhaps efficiency comes from not calling them later?
         
         # keep fo rnow to test againt biglist 
@@ -254,6 +286,7 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
         }  
       
     }
+  
   ) # system.time 
   print(paste0("mcmcNorm Loop finished, m = ",M))
   
@@ -268,11 +301,32 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
   m_mg_iter<-0
   for (i in 1:nrow(mg))
   {
-    #define mata_miss as vector of 1's denoting missing using col names ending i ".1"
+    # define mata_miss as vector of 1's denoting missing using col names ending i ".1"
+    # this section to be amended to cope with multiple covariates 
+    #browser()
     mata_miss <- mg[i,grep("*..1",colnames(mg)),drop=F]
-    #mata_miss <- mimix_group[i,c(2,3,4,5)]     #define mata_miss
+    #mata_miss <- mimix_group[i,c(2,3,4,5)]     #defimne mata_miss
     #assumes covariate non missing
-    mata_miss$covar.1 <-0                       #assuming cov col is non missing
+    # now >1 covariate code must be amended
+    #this hard-coded?
+    #find no rows to create covar vector to cbind with mg
+    numrows<- nrow(mata_miss)
+    # this had coded and ok if one covar but need to cope with >1
+    #mata_miss$covar.1 <-0                       #assuming cov col is non missing
+    #browser(2)
+    # so create matrix with names as covariates.1 and 0 row to signify no missing values 
+    covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".1")) )
+    mata_miss <- cbind(mata_miss,covarsdf)
+    
+    #for ( i in  1:ncovar_i)  { 
+     #     mata_miss$covar[i] <-0 
+      #    print(paste0("matamisscovar = ", mata_miss$covar[i]))
+       #  }
+    #create dataframe from covariates
+    
+    
+    print(paste0("mata_miss$covar.1= ",mata_miss$covar.1))
+    print(paste0("mata_miss= ",mata_miss))
     mata_nonmiss <- (ifelse(mata_miss==0,1,0))  #define mata-nonmiss from miss
     
     # need transform nonmiss,miss to c lists - ie. index the  
@@ -354,7 +408,14 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           
           #mata_means <- get(paste0("parambeta",trtgp,m))
           #one way is to element multiply (because 1,0) then add 
+          #debug 2/4/20
+         # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_nonmiss))
+        #  print(paste0("dim =",class(mata_means_trt),dim(mata_means_trt),class(mata_nonmiss)))
+        #  browser()
+          # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
           mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
+         # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
+      
           mata_means_r <- unlist(mata_means_ref)*mata_miss
           # so when all missing  1,1,1, ... then all contributing comes from reference means      
           mata_means <- mata_means_r+mata_means_t
@@ -382,16 +443,18 @@ Runmimix<- function(depvar,treatvar,idvar,timevar,covar,M=1,refer=1,meth=NULL,se
           #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
           
           # note use of [[1]] as is matrix rathe than list, 
-        
+       # browser()
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
           #to ensure rows and cols as should reflect their stucture use matrix 
           S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
          
-          #edit due to passing  Sigma after loop, ie save sigma
+          #edit due to passing  Sigma after loop, ie save sigma 
           Sigma <- SigmaRefer[[1]]
-          #print("J2R Sigma = ")
-          #print(Sigma)
+      
+      #   useful for debug    
+      #   print(paste0("J2R Sigma = "))
+      #   print(Sigma)
           #print ("S11 = " )
           #print(S11)
           #print("S12 = ")
@@ -676,7 +739,7 @@ analse <- function(meth,no)  {
 
 
 #analselist slow so try optimse by pre-declaring saved data structure (as matrix) instead of rbind
-analyselist <-function(meth,no) {
+analyselist <-function(meth,no,varlist) {
    subSNOx <- head(mata_all_newlist[[1]][[1]],1) 
    subSNOx[subSNOx>=0] <-NA
   # subSNOxmata_newlist <- vector('list',M*nrow(mg))
@@ -691,8 +754,10 @@ for (i in 1:(nrow(mg[[1]])*M) )  {
   
 }
 print(paste0("meth = ",meth))  
+
+t(round(stat.desc(subSNOx)[,varlist],3)[c(1,9,13,4,8,5),])
 #t(round(stat.desc(subSNOx)[,c("head3","head12","head_base")],3)[c(1,9,13,4,8,5),])
-t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
+#t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
 }
 
 
