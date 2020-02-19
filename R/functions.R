@@ -19,6 +19,14 @@ A <- function(x) {  ifelse(!is.na(x),0,1) }
 #} 
  
 
+
+rectreat <-function(data,treatvar,labels)
+{
+mxdata$treatcopy<- mxdata$treat
+mxdata$treat<-(mxdata$treatcopy=="accupuncture")*1
+mxdata$treat<-(mxdata$treatcopy=="control")*1+1
+}
+
 #readdata
 readdata <-function(data) {
   # Specify full path to data, e.g /directory/path/to/NIRData.csv
@@ -28,6 +36,11 @@ readdata <-function(data) {
   mxdata <-read.csv(paste0("./",data),fileEncoding = "UTF-8-BOM")
   return(mxdata)
 }
+
+# need write a routine to expand missing rows when incomplete as in anti-depressant data
+# find number visits 
+#unique(mxdata$VISIT.NUMBER)
+
 
 #try moving covar to begining of argumnet list  
 
@@ -133,6 +146,7 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
     dplyr::group_by(sts4Dpatt[,c(treatvar)],sts4Dpatt$patt) %>%
     #dplyr::group_by(sts4Dpatt$treat,sts4Dpatt$patt) %>%
     dplyr::summarise(X1 =n())
+    # this now sets "treat" as col name in mg for treatvar 
   ex1 <- dplyr::rename(ex1,treat="sts4Dpatt[, c(treatvar)]",patt='sts4Dpatt$patt')
   #ex1 <- dplyr::rename(ex1,treat='sts4Dpatt$treat',patt='sts4Dpatt$patt')
   # and now find cumX1
@@ -161,13 +175,12 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   print(ex1s)
   return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
 }
-# Question is should the wide data be sorted for analysis or just ordered in fact, selecting out treatmet and rbinding? to provide analysis data set.   
-# answer is should be sorted by patt as in Stata!
+# wide data should be sorted by patt as in Stata
 # therefore just select on treat when looping thru ntreat 
 
 
 # Main function 
-Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,seedval=101) {
+Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval=101,priorvar) {
   # 
   #find no covars
   ncovar_i = length(covar)
@@ -184,8 +197,15 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
   
   
   #do not read in last elemnt LAST otherwise get an unused argument error msg
-  testlist = do.call( preprodata,kmargs[-length(kmargs)])
-  
+
+  #this outputs the summary pattern table 
+  #testlist = do.call( preprodata,kmargs[-length(kmargs)])
+  #seed, prior not used
+ # testlist = do.call( preprodata,kmargs[c(-(length(kmargs)-1),-(length(kmargs)))])
+  #browser()
+  testlist = do.call( preprodata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth))
+  # 10/02/20
+  #testlist = preprodata(kmargs)
   
   # returns list from preprodata function
   ntreat<-unlist(testlist[[4]])
@@ -206,14 +226,18 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
   #list("fev","treat","id","time","base",10,2,"J2R",101)
   #pre move, tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
   #browser()
-  tst2 <- mi_impute(kmargs[[4]],kmargs[[5]],kmargs[[2]],kmargs[[1]])
+  #tst2 <- mi_impute(kmargs[[4]],kmargs[[5]],kmargs[[2]],kmargs[[1]])
+  tst2 <- mi_impute(idvar,timevar,depvar,covar)
   # put commas in
   tst3<-paste(tst2,collapse = ",")
   
   #create input data sets for each tment from which to model 
+
   for (val in t(ntreat)) {
     print(paste0("prenormdat",val))
-    assign(paste0("prenormdat",val),subset(finaldatS,treat==val))
+    # this fails as treatvar not substantiated 
+    # assign(paste0("prenormdat",val),subset(finaldatS,treatvar==val))
+    assign(paste0("prenormdat",val),subset(finaldatS,finaldatS[,treatvar]==val))
   }  
   
   
@@ -249,8 +273,8 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
   #instead iof start _time try system_time
   #paramBetaMatrixT <- matrix(1,nrow=1,ncol=5)
   #paramSigmaMatrixT <- matrix(,nrow=5,ncol=5)
-  iter<-0
-  system.time(
+  cumiter<-0
+  #system.time(
     
     #try ser up as many Result data files as treatments instead of one big file?.
     
@@ -262,14 +286,29 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
       prnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
       #create  emptylist for each treat 
       # assign(paste0("paramTRTlist",val),vector('list',M))
-      print(paste0("Looping for treatment = ",val," performing mcmcNorm for m = 1 to ",M))
+      #browser()
+      paste0("Looping for treatment = ",val," performing mcmcNorm for m = 1 to ",M)
       for(m in 1:M) {  
         #emResultT<-emNorm(testprnormobj,prior = "ridge",prior.df=0.5)
         # supppress warnings regrading solution  near boundary, see norm2 user guide, also mimix about this problem
         # may have to change prior '
-        emResultT<-suppressWarnings(emNorm(prnormobj,prior = "jeffreys"))
+        #emResultT<-(emNorm(prnormobj,prior = "jeffreys"))
+        #browser()
+        #test when prior ridge or invwish, necessary values supplied
+        #need to error check when ridge or invwish used, the accompanying parameter values supplied.
+        if ( priorvar[1] == "ridge" ) { stopifnot(priorvar[2]>0) }
+        if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
+          emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2],prior.sscp=priorvar[3]))
+          mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2],prior.sscp=priorvar[3]))
+            
+        #else
+        #{
+         # emResultT<-(emNorm(prnormobj,prior = priorvar))
         #print(paste0("running emNorm"))
-        mcmcResultT<- suppressWarnings(mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys"))
+        #mcmcResultT<- suppressWarnings(mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = "jeffreys"))
+         # mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar))
+        #} #priorvar
+        
         #print(paste0("running mcmcNorm"))
         #try saving parm files  to a matrix instead of indiv parm files
         #print(summary(mcmcResultT))
@@ -279,20 +318,20 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
         # teszted ok for j2r
         #assign(paste0("param",val,m),mcmcResultT$param)
         
-        iter<-iter+1    
-        paramBiglist[[iter]] <- mcmcResultT$param
-        
+        cumiter<-cumiter+1    
+        paramBiglist[[cumiter]] <- mcmcResultT$param
+       
         
         }  
       
     }
   
-  ) # system.time 
+ # ) # system.time 
   print(paste0("mcmcNorm Loop finished, m = ",M))
   
   # try and use lappy instead of loop for M
   
-  
+ # browser()
   
   
   # can repeat interactively from here
@@ -360,11 +399,15 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
       #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
       #if `pat' == 0{ 
       m_mg_iter<-m_mg_iter+1
+      # if no missing values
       if(length(c_mata_miss)==0 ) {
+        # start and end row positions
         st<-mg[i,"X1cum"]-mg[i,"X1"]+1
         en <-mg[i,"X1cum"]
+        # id (SNO) is 1st col
         SNO<-mata_Obs[c(st:en),1]
         mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
+        #browser() # treat defined within fun
         GI <- array(data=mg[i,"treat"],dim=c(mg[i,"X1"],1))
         #II  no imputations 
         II <- array(data=m,dim=c(mg[i,"X1"],1))
@@ -721,6 +764,25 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth=NULL,se
   
 } # for runmimix test
 
+getimpdatasets <- function(varlist){
+# to obtain M imputed data sets
+# dimension of data set, nrows in pattern times no imputations, 
+  mata_all_newlist<-  varlist[1]
+  mg<-(varlist[2])
+  M<- unlist(varlist[3])
+  meth<- unlist(varlist[4])
+  
+ dimlist <- (nrow(mg[[1]])*M)
+   
+# extract from nested list 
+# combine into data set containing M imputed datasets 
+   mata_all_newData1x <- do.call(rbind,mata_all_newlist[[1]])
+# then sort (by imputation and patient id) into M data sets and split into M lists 
+   impdatasets<-mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
+# to get the list
+   implist1x <- split(impdatasets,impdatasets$II)
+   return(impdatasets)
+}
 
 mi_impute <-function(idvar,timevar,depvar,covar) {
   #preprodata(depvar,treatvar,idvar,timevar,covar)
@@ -730,33 +792,60 @@ mi_impute <-function(idvar,timevar,depvar,covar) {
   return(respvars)
 }
 
-
-# analse function to be used after main run to output  for summary stats
-analse <- function(meth,no)  {
-  assign( paste0("mata_all_new_rmna",meth), na.omit(mata_all_new))
-  assign( paste0("mata_all_new_rmna",meth,no) , filter(get(paste0("mata_all_new_rmna",meth)),SNO == no))
-  print(paste0("method= ",meth,"SNO = ",no))
-  t(round(stat.desc(get(paste0("mata_all_new_rmna",meth,no))[,c("fev2","fev4","fev8","fev12")]),3)[c(1,9,13,4,8,5),])
+regressimp <- function(dataf,regmodel)  {
+  # to get the list
+  implist1x <- split(dataf,dataf[,"II"])
+  # so has M elements in list
+  # can obtain a list of coefficients and their se's from a regression
+  # declare list for estimates 
+  est.list <- as.list(NULL)
+  # declare lists for se's 
+  std.err.list <- as.list( NULL )
+  M<- tail(dataf[,"II"],1)
+  for( m in 1:M ){
+    #mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
+    #mod<-lm(head12~head_base+sex,data=implist1x[[m]] )
+    #mod<-lm(HAMD17.TOTAL7~basval+HAMD17.TOTAL6,data=implist1x[[m]] )
+    mod<-lm(regmodel,data=implist1x[[m]] )
+    est.list[[m]] <- coef(summary(mod))[,1]
+    std.err.list[[m]] <- coef(summary(mod))[,2] }
+  ## combine the results by rules of Barnard and Rubin (1999)
+  ## with df.complete = 27, because a paired t-test in a dataset with
+  ## N=28 cases has 27 degrees of freedom
+  miResult <- miInference(est.list, std.err.list, df.complete=801)
+  print(miResult)
 }
+
+regressimp(impdatasets,"fev12~treat+base")
+
+#regressimp(impdatasets,HAMD17.TOTAL7~basval+HAMD17.TOTAL6)
 
 
 #analselist slow so try optimse by pre-declaring saved data structure (as matrix) instead of rbind
-analyselist <-function(meth,no,varlist) {
-   subSNOx <- head(mata_all_newlist[[1]][[1]],1) 
+analyselist <-function(no,datlist,varlist) {
+
+  # this just sets up header row
+   #subSNOx <- head(mata_all_newlist[[1]][[1]],1) 
+  mata_all_newlist <- datlist[1]
+   subSNOx <- head( mata_all_newlist[[1]][[1]],1)
    subSNOx[subSNOx>=0] <-NA
   # subSNOxmata_newlist <- vector('list',M*nrow(mg))
    #subSNOx_newMatrix <- matrix(, nrow=(M*nrow(mg)), ncol=ncol(subSNOx) )
-for (i in 1:(nrow(mg[[1]])*M) )  {
+   mg<-(datlist[2])
+   M<- unlist(datlist[3])
+   meth<- unlist(datlist[4])
+   dimlist <- (nrow(mg[[1]])*M)
+for (i in 1:dimlist )  {
   subSNO <- subset((mata_all_newlist[[1]][[i]]),SNO== no)
   #for (j in 1:ncol(subSNO)) {
   #subSNOx_newMatrix[i,j]=subSNO[i,j]
-  #}
+  # these are the imputed data  just for the patient ID selected
   subSNOx<- rbind(subSNOx,subSNO)
   subSNOx<-na.omit(subSNOx)
   
 }
 print(paste0("meth = ",meth))  
-
+#browser()
 t(round(stat.desc(subSNOx)[,varlist],3)[c(1,9,13,4,8,5),])
 #t(round(stat.desc(subSNOx)[,c("head3","head12","head_base")],3)[c(1,9,13,4,8,5),])
 #t(round(stat.desc(subSNOx)[,c("fev2","fev4","fev8","fev12")],3)[c(1,9,13,4,8,5),])
@@ -819,10 +908,10 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 testread <-function(pathdat) {
   #mxdata <-read.csv("./asthma.csv")
   txdata <-read.csv(pathdat)
-}
+
  #txdata <-testread("asthma.csv")
  
-
+}
  
   
 
