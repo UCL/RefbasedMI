@@ -1,7 +1,8 @@
 
 
-# trying to write a subroutine for this part of data preprocessing
+#  write a subroutine for this part of data preprocessing
 A <- function(x) {  ifelse(!is.na(x),0,1) }
+
 
 # to read covariate list into Runmimix main function 
 #covar <- function(x,...) {
@@ -20,8 +21,13 @@ A <- function(x) {  ifelse(!is.na(x),0,1) }
  
 
 
-rectreat <-function(data,treatvar,labels)
+recodetreat <-function(data,treatvar,labels)
 {
+  #recode refer to number within treatvar
+  refer = which(unique(mxdata[,treatvar])==refer)
+  #recode treatvar to number  
+  for  (i in 1:length(unique(mxdata[,treatvar])) ) {mxdata[,treatvar]=i  }
+  
 mxdata$treatcopy<- mxdata$treat
 mxdata$treat<-(mxdata$treatcopy=="accupuncture")*1
 mxdata$treat<-(mxdata$treatcopy=="control")*1+1
@@ -48,17 +54,21 @@ readdata <-function(data) {
 preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   #extract relevant vars
  
+  
   #more informative in error msg to use this explicit and  
   #and put in one statement 
   stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF"),
-             is.numeric(refer),
+             #is.numeric(refer),
              is.numeric(M),
              is.character(depvar),
-             is.character(treatvar),
+             # treatvar could be char or numeric ? then refer must be same type
+             #is.character(treatvar),
              is.character(idvar),
              is.character(timevar),
              #is.character(covar[[2]],
              is.character(covar) )
+  # convert to numic
+  mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])
   
   #stopifnot(any(meth_valid_values==meth))
         #stopifnot(is.numeric(refer))
@@ -168,8 +178,10 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
     #assign(paste0("prenorm2",val),subset(finaldat,treat==val))
  #  } 
   
-  
+ # browser() # ensure numeric type
+ 
   #error chk
+  
   stopifnot(refer %in% t(ntreat))
   print("summary missing pattern")
   print(ex1s)
@@ -180,7 +192,8 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
 
 
 # Main function 
-Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval=101,priorvar) {
+Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar) {
+ 
   # 
   #find no covars
   ncovar_i = length(covar)
@@ -188,7 +201,25 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
   print(paste0("ncovar_i = ",ncovar_i))
   print(paste0("covar= ",covar[1]))
   
+  #browser()
+  #recode refer to number within treatvar if not already numeric/integer
+  if ((class(mxdata[,treatvar])!="integer" & class(mxdata[,treatvar])!="numeric") )  {refer = which(unique(mxdata[,treatvar])==refer) }
+  #recode treatvar to number, doesnt like this  
+  #for  (i in 1:length(unique(mxdata[,treatvar])) ) {mxdata[,treatvar]=i  }
+  # danger to use transform
+  #transform(mxdata,treatvar=as.numeric(treatvar) )
+  # if char convert to numeric, if numeric then leave
+  if (class(mxdata[,treatvar])=="char") {mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])}
+  #treatvar <- as.numeric(treatvar)
+  # treatvar and refer convert to numeric and check refer in treatvar but as.nemeric not appropriate here
+  # need to recode instead
+  #treatvar<- as.numeric(treatvar)
+  #refer <- as.numeric(refer)
   #set.seed(101)
+  
+  # to recode refer, need use a lookup table
+  
+  
   
   set.seed(seedval)
   #set.seed(unlist(tail(kmargs,n=1)))
@@ -206,7 +237,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
   testlist = do.call( preprodata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth))
   # 10/02/20
   #testlist = preprodata(kmargs)
-  
+ 
   # returns list from preprodata function
   ntreat<-unlist(testlist[[4]])
   #stopifnot()
@@ -217,6 +248,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
   mata_Obs <- testlist[[2]]
   M <- testlist[[11]]
   refer <- testlist[[12]]
+ 
   stopifnot(refer %in% ntreat)
   meth <- testlist[[13]]
   
@@ -251,7 +283,10 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
   dropid<-c("id")
   mata_ObsX<-mata_Obs[,!(names(mata_Obs) %in% dropid)] 
   mata_all_new <- cbind(GI,II,mata_ObsX,SNO)
-  mata_all_new[ mata_all_new>=0] <-NA 
+ 
+  # browser()
+  # is this line needed? 
+  #mata_all_new[ mata_all_new>=0] <-NA 
   mata_all_newlist <- vector('list',M*nrow(mg))
   #Warning message:
   #In Ops.factor(left, right) : ‘>=’ not meaningful for factors
@@ -298,10 +333,19 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
         #need to error check when ridge or invwish used, the accompanying parameter values supplied.
         if ( priorvar[1] == "ridge" ) { stopifnot(priorvar[2]>0) }
         if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
-          emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2],prior.sscp=priorvar[3]))
-          mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2],prior.sscp=priorvar[3]))
-            
-        #else
+        
+         # emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2],prior.sscp=priorvar[3]))
+        #  mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2],prior.sscp=priorvar[3]))
+       
+        emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2]))
+        mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))   
+        
+        # msg from emNorm
+        #Note: Finite-differencing procedure strayed outside
+        #parameter space; solution at or near boundary
+        #OCCURRED IN: estimate_worst_frac in MOD norm_engine
+        
+         #else
         #{
          # emResultT<-(emNorm(prnormobj,prior = priorvar))
         #print(paste0("running emNorm"))
@@ -474,9 +518,12 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
           
           
           # do we ever  use SigmaTrt !!?? in j2r? 
+          # answer is yes, need to use SigmaTrt for the predeviation observations, ie up to where they go missing
+          # only after they go missing (trailing missing) need to use the SigmaRef    
           
           SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
           #SigmaRefer <- get(paste0("param",refer,m))[2] 
+          Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
           
           # get(paste0("mcmcResultT",refer,m,"$param$sigma"))
           # when reading in Stata sigmas
@@ -488,14 +535,17 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
           #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
           
           # note use of [[1]] as is matrix rathe than list, 
-       # browser()
-          S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+      
+         S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+          # causes non-def error in conds
+         # S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
           #to ensure rows and cols as should reflect their stucture use matrix 
           S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-         
+         # prob have to change this to loop to fill in matrix  
+          
           #edit due to passing  Sigma after loop, ie save sigma 
-          Sigma <- SigmaRefer[[1]]
+        #  Sigma <- SigmaRefer[[1]]
       
       #   useful for debug    
       #   print(paste0("J2R Sigma = "))
@@ -506,6 +556,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
           #print(S12)
         }
         else if (meth=='CR') {
+          # no need to use Sigmatrt here 
           mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
           #mata_means <- get(paste0("param",refer,m))[1]
           # convert from list to matrix
@@ -528,6 +579,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
         }
         else if (meth=='CIR') {
+          # need to use Sigmatrt as in j2r
           # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp 
           
           #mata_means_trt <- get(paste0("parambeta",trtgp,m)) 
@@ -637,7 +689,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
         #raw1 <- mata_obs[, c_mata_nonmiss]
         preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
         raw1 <- preraw[,c_mata_nonmiss]
-        
+        #browser()
         
         
         ##### try inserting routine for all missing values here NOt really necessary!! ### 20/1/20 #####
@@ -695,6 +747,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
         } else  {
           meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
         } 
+       #24/02browser()
         U <- chol(conds)
         # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so 
         miss_count=rowSums(mata_miss)
@@ -759,7 +812,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval
     } #for row[mg] 
     
   } #for M StOP HERE!!
-  
+ # browser()
   return(list(mata_all_newlist,mg,M,meth))
   
 } # for runmimix test
@@ -780,7 +833,7 @@ getimpdatasets <- function(varlist){
 # then sort (by imputation and patient id) into M data sets and split into M lists 
    impdatasets<-mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
 # to get the list
-   implist1x <- split(impdatasets,impdatasets$II)
+   implist1x <- split(impdatasets,impdatasets[,"II"])
    return(impdatasets)
 }
 
@@ -816,7 +869,7 @@ regressimp <- function(dataf,regmodel)  {
   print(miResult)
 }
 
-regressimp(impdatasets,"fev12~treat+base")
+#regressimp(impdatasets,"fev12~treat+base")
 
 #regressimp(impdatasets,HAMD17.TOTAL7~basval+HAMD17.TOTAL6)
 
@@ -912,7 +965,22 @@ testread <-function(pathdat) {
  #txdata <-testread("asthma.csv")
  
 }
- 
+test<-reshape(impdatasets,
+              varying = c("fev2","fev4","fev8","fev12"),
+              v.names = "fev",
+              timevar = "time",
+              times = c("fev2","fev4","fev8","fev12"),
+              direction="long")
+# sort by SNO and time
+tail(test[order(test$id,test$SNO,test$II),],10)
+
+
+test<-reshape(impdatasets,
+              varying = c("HAMD17.TOTAL4","HAMD17.TOTAL5","HAMD17.TOTAL6","HAMD17.TOTAL7"),
+              v.names = "HAMD17",
+              timevar = "time",
+              times = c("HAMD17.TOTAL4","HAMD17.TOTAL5","HAMD17.TOTAL6","HAMD17.TOTAL7"),
+              direction="long") 
   
 
 
