@@ -185,7 +185,9 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   stopifnot(refer %in% t(ntreat))
   print("summary missing pattern")
   print(ex1s)
-  return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
+#  return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
+  
+  return(list(sts4Dpatt,finaldatS,ntreat,ex1s,ex1,pattmat,patt,ntime,M,refer,meth))
 }
 # wide data should be sorted by patt as in Stata
 # therefore just select on treat when looping thru ntreat 
@@ -194,6 +196,11 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
 # Main function 
 Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
  
+  # establish whether indivual or group by cretung a flag var
+  if (!is.null(meth)) { flag_indiv <<-0 }
+  if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
+  
+  
   # 
   #find no covars
   ncovar_i = length(covar)
@@ -201,15 +208,17 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
   print(paste0("ncovar_i = ",ncovar_i))
   print(paste0("covar= ",covar[1]))
   
+  
+  
   #browser()
-  #recode refer to number within treatvar if not already numeric/integer
-  if ((class(mxdata[,treatvar])!="integer" & class(mxdata[,treatvar])!="numeric") )  {refer = which(unique(mxdata[,treatvar])==refer) }
+  #recode refer to number within treatvar if not already numeric/integer no need for this now treat recoded previously
+ # if ((class(mxdata[,treatvar])!="integer" & class(mxdata[,treatvar])!="numeric") )  {refer = which(unique(mxdata[,treatvar])==refer) }
   #recode treatvar to number, doesnt like this  
   #for  (i in 1:length(unique(mxdata[,treatvar])) ) {mxdata[,treatvar]=i  }
   # danger to use transform
   #transform(mxdata,treatvar=as.numeric(treatvar) )
   # if char convert to numeric, if numeric then leave
-  if (class(mxdata[,treatvar])=="char") {mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])}
+#  if (class(mxdata[,treatvar])=="char") {mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])}
   #treatvar <- as.numeric(treatvar)
   # treatvar and refer convert to numeric and check refer in treatvar but as.nemeric not appropriate here
   # need to recode instead
@@ -232,25 +241,36 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
   #this outputs the summary pattern table 
   #testlist = do.call( preprodata,kmargs[-length(kmargs)])
   #seed, prior not used
- # testlist = do.call( preprodata,kmargs[c(-(length(kmargs)-1),-(length(kmargs)))])
+ # testlit = do.call( preprodata,kmargs[c(-(length(kmargs)-1),-(length(kmargs)))])
+ # 15/03browser()
  # browser()
-  if (is.na(meth) ) {
+  if (!is.null(meth) ) {
         testlist = do.call( preprodata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth))
-        refer <- testlist[[12]]
+        refer <- testlist[[10]]
         
-        stopifnot(refer %in% ntreat)
-        meth <- testlist[[13]]
+       # stopifnot(refer %in% ntreat)
+        meth <- testlist[[11]]
+        #need to recode meth
+        meth<-  ifelse( ( meth=="j2r" | meth=="J2R" |meth=="j2R"|meth=="J2r" ),3,9)
+        
         }
-  else if (!is.na(methodindiv[1]) ) {
+  else if (!is.null(methodindiv[1]) ) {
         testlist = do.call( preproIndivdata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth,methodindiv))
         # need to re-set meth for individual 
         meth <- testlist[[10]][1]
   }
+  
+  
+  
+  
   # 10/02/20
   #testlist = preprodata(kmargs)
  #browser()
   # returns list from preprodata function
-  ntreat<-unlist(testlist[[3]])
+  ntreat<-sort(unlist(testlist[[3]]))
+  #sort it !!
+
+  
   #ntreat <-testlist$ntreat
   #stopifnot()
   finaldatS<-testlist[[2]]
@@ -276,8 +296,8 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
   tst3<-paste(tst2,collapse = ",")
   
   #create input data sets for each tment from which to model 
-
-  for (val in t(ntreat)) {
+#browser()
+  for (val in 1:length(ntreat)) {
     print(paste0("prenormdat",val))
     # this fails as treatvar not substantiated 
     # assign(paste0("prenormdat",val),subset(finaldatS,treatvar==val))
@@ -314,7 +334,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
   #create  emptylist for each treat and multiple m's
   #browser()
   paramBiglist <- vector('list',length(ntreat)*M)
-  for (val in t(ntreat)) {
+  for (val in 1:length(ntreat)) {
   assign(paste0("paramBiglist",val),vector('list',M))
   }
   
@@ -333,7 +353,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
     #try ser up as many Result data files as treatments instead of one big file?.
   # browser() 
     
-    for (val in 1:length(t(ntreat))) {
+    for (val in 1:length(ntreat)) {
       #prnormobj <- subset(prenormdat2, select=c(tst2))
       #prnormobj <- assign(paste0("prenormdat",val),subset(finaldatS,treat==val))
       kmvar=get(paste0("prenormdat",val))
@@ -491,8 +511,12 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
         # mata_all_new=rbind(mata_all_new,mata_new)
       } else {
         # need to distinguish between meth and methodindiv 
-       # browser()
-    if  (is.na(meth) ) {
+        browser()
+    #if    (!is.null(meth) ) {
+        # if group rather than indiv 
+      if (flag_indiv==0 ) { 
+    #  browser()
+      referindex<- refer
         #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES  
         # dependent on method chosen 
         
@@ -513,7 +537,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
           S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
           
-          
+          Sigma<<-Sigmatrt 
         }
         #'J2R'
         else if (meth == 3 ) { 
@@ -589,6 +613,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
           #print(S11)
           #print("S12 = ")
           #print(S12)
+          Sigma<<-SigmaRefer
         }
         else if (meth=='CR') {
           # no need to use Sigmatrt here 
@@ -612,6 +637,8 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
           S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss) )
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
+          
+          Sigma<<-SigmaRefer
         }
         else if (meth=='CIR')
          
@@ -653,6 +680,8 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
           S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
+          
+          Sigma<<- SigmaRefer
         }  
         else if (meth=='LMCF') { 
           
@@ -671,206 +700,23 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
           S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
           S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
           S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
+          
+          Sigma<<- Sigmatrt
         }  #if meth
       
  ############# individual analysis #########################
-     } else if(!is.na(methodindiv[1])) {
+     } 
+        #else if(!is.null(methodindiv[1])) 
+        else if (flag_indiv==1) {
       # browser()
-       
+      # call function for  indiv  
+    
        mata_means <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
       
         # methodindiv
-      #'   trtgp <- mg[i,"treat"]
-      #'   refergp <- mg[i,methodindiv[2]]
-      #'   
-      #'   if (mg[i,methodindiv[1]]== 'MAR')  {
-      #'     #mata_means <- get(paste0("param",trtgp,m))[1]  
-      #'     mata_means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
-      #'     # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-      #'     # convert from list element to matrix
-      #'     mata_means <- mata_means[[1]]
-      #'     
-      #'     
-      #'     #Sigmatrt <- get(paste0("param",trtgp,m))[2]
-      #'     Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
-      #'     S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     #S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
-      #'     # to ensure col pos same as stata
-      #'     S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-      #'     S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
-      #'     
-      #'     
-      #'   }
-      #'   #'J2R'
-      #'   else if (mg[i,methodindiv[1]] == 3)  { 
-      #'     
-      #'     # changed saving the result into  just the param file, list of 2 so can use list index here
-      #'     #treatmnets are 1.. M then M+1 ..2M .. etc
-      #'     
-      #'     #6/3/20 need editing after chnaging suffixes in paramBiglist   
-      #'     #mata_means_trt <- paramBiglist[[M*(trtgpindex-1)+m]][1]
-      #'     #mata_means_ref <- paramBiglist[[M*(referindex-1)+m]][1]
-      #'     
-      #'     # 9/3/20  need editing after chnaging suffixes in paramBiglist   
-      #'     mata_means_trt <- get(paste0("paramBiglist",trtgp,"_",m))[1]
-      #'     mata_means_ref <- get(paste0("paramBiglist",refergp,"_",m))[1]
-      #'     
-      #'     #mata_means_ref <- paramBiglist[[M*(referindex-1)+m]][1]
-      #'     
-      #'     #mata_means_trt <- get(paste0("param",trtgp,m))[1]
-      #'     #mata_means_ref <- get(paste0("param",refer,m))[1]
-      #'     #mata_means_trt <- get(paste0("mcmcResultT",trtgp,m,"$param$beta")) 
-      #'     #mata_means_ref <- get(paste0("mcmcResultT",refer,m,"$param$beta"))
-      #'     
-      #'     #mata_means <- get(paste0("parambeta",trtgp,m))
-      #'     #one way is to element multiply (because 1,0) then add 
-      #'     #debug 2/4/20
-      #'     # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_nonmiss))
-      #'     #  print(paste0("dim =",class(mata_means_trt),dim(mata_means_trt),class(mata_nonmiss)))
-      #'     #  browser()
-      #'     # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
-      #'     mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
-      #'     # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
-      #'     
-      #'     mata_means_r <- unlist(mata_means_ref)*mata_miss
-      #'     # so when all missing  1,1,1, ... then all contributing comes from reference means      
-      #'     mata_means <- mata_means_r+mata_means_t
-      #'     # and preserve names   
-      #'     colnames(mata_means) <- colnames(mata_means_trt)
-      #'     #replicate to number of rows defined by X1 
-      #'     #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-      #'     
-      #'     
-      #'     ############# SIGMA is from paramsigma  the reference group ################
-      #'     
-      #'     
-      #'     # do we ever  use SigmaTrt !!?? in j2r? 
-      #'     # answer is yes, need to use SigmaTrt for the predeviation observations, ie up to where they go missing
-      #'     # only after they go missing (trailing missing) need to use the SigmaRef    
-      #'     
-      #'     #SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
-      #'     Sigma <- get(paste0("paramBiglist",refergp,"_",m))[2]
-      #'     
-      #'     #Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
-      #'     
-      #'     # get(paste0("mcmcResultT",refer,m,"$param$sigma"))
-      #'     # when reading in Stata sigmas
-      #'     # needs to to ths as tibble will fail in cholesky
-      #'     #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
-      #'     
-      #'     #print(paste0("paramsigma",refer,m))
-      #'     # print(paste0("refer,m = ",refer," ",m))   
-      #'     #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
-      #'     
-      #'     # note use of [[1]] as is matrix rathe than list, 
-      #'     
-      #'     S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     # causes non-def error in conds
-      #'     # S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     #to ensure rows and cols as should reflect their stucture use matrix 
-      #'     S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-      #'     S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-      #'     # prob have to change this to loop to fill in matrix  
-      #'     
-      #'     #edit due to passing  Sigma after loop, ie save sigma 
-      #'     #  Sigma <- SigmaRefer[[1]]
-      #'     
-      #'     #   useful for debug    
-      #'     #   print(paste0("J2R Sigma = "))
-      #'     #   print(Sigma)
-      #'     #print ("S11 = " )
-      #'     #print(S11)
-      #'     #print("S12 = ")
-      #'     #print(S12)
-      #'   }
-      #'   else if (meth=='CR') {
-      #'     # no need to use Sigmatrt here 
-      #'     mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
-      #'     #mata_means <- get(paste0("param",refer,m))[1]
-      #'     # convert from list to matrix
-      #'     mata_means <- mata_means[[1]]
-      #'     #mata_means_r <- unlist(mata_means_ref)*1
-      #'     #mata_means_r <- unlist(mata_means_ref)*mata_miss
-      #'     #mata_means <- mata_means_r
-      #'     # and preserve names   
-      #'     #colnames(mata_means) <- colnames(mata_means_trt)
-      #'     #replicate to number of rows defined by X1 
-      #'     #mata_means <- mata_means_r
-      #'     #colnames(mata_means) <- colnames(mata_means_ref)
-      #'     
-      #'     #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-      #'     
-      #'     #SigmaRefer <- get(paste0("param",refer,m))[2]
-      #'     SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
-      #'     S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss) )
-      #'     S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-      #'   }
-      #'   #else if (meth=='CIR')
-      #'    else if (mg[i,methodindiv[1]] == 4) 
-      #'    {
-      #'     # need to use Sigmatrt as in j2r
-      #'     # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp 
-      #'     
-      #'     #mata_means_trt <- get(paste0("parambeta",trtgp,m)) 
-      #'     #mata_means_ref <- get(paste0("parambeta",refer,m))
-      #'     
-      #'     # put equiv to mimix 
-      #'     #mata_Means <- get(paste0("param",trtgp,m))[1]
-      #'     mata_Means <- get(paste0("paramBiglist",trtgp,"_",m))[1]  
-      #'       #paramBiglist[[M*(trtgpindex-1)+m]][1]
-      #'     
-      #'     # convert from list to matrix
-      #'     mata_Means <- mata_Means[[1]]
-      #'     #mata_Means <-  get(paste0("parambeta",trtgp,m))
-      #'     #MeansC <-  get(paste0("param",refer,m))[1]
-      #'     MeansC <-  get(paste0("paramBiglist",refergp,"_",m))[1]
-      #'       #paramBiglist[[M*(referindex-1)+m]][1]
-      #'     
-      #'     #might be better to copy mimix algol
-      #'     
-      #'     mata_means<-CIR_loop(c_mata_miss,mata_Means,MeansC)
-      #'     #returns mata_means as single row
-      #'     # then duplicate over patt rows
-      #'     #replicate to number of rows defined by X1 
-      #'     # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-      #'     
-      #'     #SigmaRefer <- get(paste0("paramsigma",refer,m))
-      #'     
-      #'     #SigmaRefer <- get(paste0("param",refer,m))[2] 
-      #'     SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2] #paramBiglist[[M*(referindex-1)+m]][2]
-      #'     # when reading in Stata sigmas
-      #'     # needs to to ths as tibble will fail in cholesky
-      #'     #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
-      #'     
-      #'     #print(paste0("paramsigma",refer,m))
-      #'     #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
-      #'     
-      #'     S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-      #'     S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-      #'   }  
-      #'   else if (meth=='LMCF') { 
-      #'     
-      #'     #mata_Means <-  get(paste0("param",trtgp,m))[1]
-      #'     mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
-      #'     # convert from list to matrix
-      #'     mata_Means <- mata_Means[[1]]
-      #'     # no ref MeansC <- mata_means_ref
-      #'     mata_means<-LMCF_loop(c_mata_miss,mata_Means)
-      #'     #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-      #'     
-      #'     
-      #'     #Sigmatrt <- get(paste0("param",trtgp,m))[2]
-      #'     Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
-      #'     # when reading in Stata sigmas
-      #'     S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-      #'     S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-      #'     S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
-      #'   
-      #'  }
-     
-         }
+      }
+        
+        
       #debug
       #  print(SigmaRefer[[1]])
       #  print(paste0("c_mata_nonmiss,",c_mata_nonmiss))
@@ -899,8 +745,10 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
        #  mata_means<- Matameans
         # causing problems replace with simpler
         mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$X1[i]),]
-        browser()
+       # browser()
         #mata_means<- t(replicate(mg$X1[i],mata_means))
+        
+        #perhaps put zeros in ? to make sure same length??
         if (!is.null(nrow(mata_means)) )  {
           m1 <- mata_means[,c_mata_nonmiss]
           m2 <- mata_means[,c_mata_miss]
@@ -990,15 +838,17 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
         #browser() the else condition not works ,m2 needs matrix  
         
         ## important calculation to CHECK !!!
+        #depends whether meth or methodindiv used
+        #really this needs to be independent of which merh used
        # if (meth=='J2R')  
-        if  (mg[i,methodindiv[1]] == 3) {  
+      #  if  (mg[i,methodindiv[1]] == 3) {  
           #{  1*1 MATRIX ?
           meanval <- as.matrix(m2)+as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
         #  mennval   <-  as.matrix(m2) + meanval_ 
         #  meanval = as.matrix(m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
-        } else if (mg[i,methodindiv[1]] == 4)   {
-         meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
-        } 
+       # } else if (mg[i,methodindiv[1]] == 4)   {
+      #   meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+       # } 
         
         
        #24/02browser()
@@ -1118,6 +968,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i, c_mata_nonmiss,c_ma
     #6/3/20 need editing after chnaging suffixes in paramBiglist   
     mata_means_trt <- paramBiglist[[M*(trtgp-1)+m]][1]
     mata_means_ref <- paramBiglist[[M*(refergp-1)+m]][1]
+    #mata_means_ref <- paramBiglist[[M*(refergp-1)+m]][1]
     
     # 9/3/20  need editing after chnaging suffixes in paramBiglist   
     #mata_means_trt <- get(paste0("paramBiglist",trtgp,"_",m))[1]
@@ -1369,7 +1220,7 @@ t(round(stat.desc(subSNOx)[,varlist],3)[c(1,9,13,4,8,5),])
 # mata_S_miss something like [2 3 4] ,so is cc
 CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 {    
-  browser()
+ # browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
   
