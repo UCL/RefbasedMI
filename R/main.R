@@ -18,6 +18,11 @@
 # for invwish prior.sscp sysmmetric +definite matrix same dimension as sigma,       #
 #  prior.df, prior.sscp) not implemented yet                                        #
 #                                                                                   #
+# the imputation methods are
+# Randomised-arm mssing at random (MAR), jump to reference (J2R),                   #
+# last mean carried forward,(LMCF), copy increments in reference(CIR),              #
+#copy reference (CR)                                                                #
+
 
 
 
@@ -25,82 +30,80 @@
 # function preprodata prepares data and and finds mg (the mimix group)              # 
 # function Runmimix  performs major analysis                                        #
 # the required packages as listed in utilities file                                 #
-# this version 6/1/2020                                                             #
-# v0.5                                                                            #
+# this version 19/03/2020                                                           #
+# v0.6                                                                              #
+# replace library from utilities by ::                                              #
+#                                                                                   #
 # Author : Kevin McGrath                                                            #
 #####################################################################################
 
-# perform multiple imputation as in mimix
-# the parameters are
-# covar,depvar,treatvar,idvar,timevar,M=1,refer=1,meth,seedval=101,priorvar)
-# choice of priors ~
-# jeffreys , uniform
-# ridge (require prior.df) eg c("ridge","0.5")
-# for invwish prior.sscp sysmmetric +definite matrix same dimension as sigma, prior.df, prior.sscp) not implemented yet
 
-# the imputation methods are
-# Randomised-arm mssing at random (MAR), jump to reference (J2R), last mean carried forward,(LMCF), copy increments in reference(CIR), copy reference (CR)
 
 
 # remove existing files
 rm(list = ls())
 
 # file refers to functions called from main program source("/functions.R") 
-
 source("N:/Documents/GitHub/mimix/mimixR/functions.R")
 
-#read the data file - in csv format but csv file must be in working directory - check using #getwd()
-#mxdata<- readdata("asthma.csv")
-
-# or directly from github
+# read csv data file directly from github
 # asthma data
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthma.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 
+#recode treatment groups to 1,2..
+mxdata$treat<-ifelse(mxdata$treat==2,1,ifelse(mxdata$treat==3,2,9))
 
-mimix_outputlist<-Runmimix(c("base"),"fev","treat","id","time",1000,2,"J2R",201,c("jeffreys"))   # replace by ridge c("ridge","0.5") rids warnings
+
+mimix_outputlist<-Runmimix(c("base"),"fev","treat","id","time",100,1,"J2R",101,"jeffreys",1000,NULL,NULL)   # replace by ridge c("ridge","0.5") rids warnings
+
 # obtain dataset of imputed datsets
+# the impute data sets are  in mimix_outputlist[[1]][[m]]  over the m imputations socan be combined 
+
 impdatasets<-getimpdatasets(mimix_outputlist)
 # produce summary for individual
-analyselist("5435",mimix_outputlist,c("fev2","fev4","fev8","fev12","base"))
+impdatasets<-analyselist("5456",mimix_outputlist,c("fev2","fev4","fev8","fev12","base"))
 # apply regression model according to Rubin's rules
 regressimp(impdatasets,"fev12~treat+base")
 
-
+###########################################################################################################################################
 # acupuncture data
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/accupuncture.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
-# if treatment variable needs to be numeric, then recode as follows
-#mxdata$treatcopy<- mxdata$treat
-#mxdata$treat <- as.numeric(mxdata$treat)
+#recode treatment groups to 1,2..
+mxdata$treat<-ifelse(mxdata$treat=="control",1,ifelse(mxdata$treat=="accupuncture",2,9))
 
-mimix_outputlist <- Runmimix(c("head_base","sex","age"),"head","treat","id","time",1000,"control","J2R",201,"jeffreys") #c("ridge","0.5"))
+mimix_outputlist <- Runmimix(c("head_base","sex","age"),"head","treat","id","time",100,1,"MAR",201,c("jeffreys"),1000,NULL,NULL) #c("ridge","0.5"))
 mimix_outputlist <- Runmimix(c("head_base","sex"),"head","treat","id","time",1000,"control","J2R",201,"jeffreys")
 impdatasets<-getimpdatasets(mimix_outputlist)
 analyselist("151",mimix_outputlist,c("head3","head12","sex","head_base","age"))
 regressimp(impdatasets,"head12~treat+head_base+age+sex")
 
+###########################################################################################################################################
 #anti-depressant data 
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/SASantidep.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+#anti-depressant data with methdovar & refernecevar
+mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/SASantidepmethodvar.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 
-#mxdata$treatcopy<- mxdata$TREATMENT.NAME
-#mxdata$TREATMENT<- as.numeric(mxdata$TREATMENT.NAME)
-#mxdata$SEX <- as.numeric(mxdata$PATIENT.SEX)
 
-#mxdata <- subset(mxdata, POOLED.INVESTIGATOR !="999") 
+#recode treatment variable to numeric
+
+mxdata$TREATMENT.NAME<-ifelse(mxdata$TREATMENT.NAME=="PLACEBO",1,ifelse(mxdata$TREATMENT.NAME=="DRUG",2,9))
+
+
+# mxdata <- subset(mxdata, POOLED.INVESTIGATOR !="999") 
+
+# try running methodvar, note cant hanle "NULL" 
+mimix_outputlist <- Runmimix(c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",2,NULL,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar")) 
+
 
 
 mimix_outputlist <- Runmimix(c("basval"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,"DRUG","J2R",101,c("jeffreys")) #c("ridge","0.5"))
 impdatasets<-getimpdatasets(mimix_outputlist)
-analyselist("2721",mimix_outputlist,c("HAMD17.TOTAL4","HAMD17.TOTAL5","HAMD17.TOTAL6","HAMD17.TOTAL7"))
-regressimp(impdatasets,"HAMD17.TOTAL7~TREATMENT.NAME+basval")
+analyselist("2721",mimix_outputlist,c("change4","change5","change6","change7","basval"))
+regressimp(impdatasets,"change4~TREATMENT.NAME+basval")
+
+#try with
+with(impdatasets,lm("change4~TREATMENT.NAME+basval"))
 #4623
-#priors 
-#jeffreys , uniform
-# ridge (require prior.df)
-#invwish (require prior.df, prior.sscp)
-
-# warnings when set df =0.5  c("ridge","0.5")
-# for invwish prior.sscp sysmmetric +definite matrix same dimension as sigma.
-
 
 
 # dont need to introduce a covar argument to cope when more than 1 covariate variable.  
