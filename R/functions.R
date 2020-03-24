@@ -8,14 +8,21 @@ recodetreat <-function(data,treatvar,labels)
 {
   #recode refer to number within treatvar
   refer = which(unique(mxdata[,treatvar])==refer)
-  #recode treatvar to number  
+#  #recode treatvar to number  
   for  (i in 1:length(unique(mxdata[,treatvar])) ) {mxdata[,treatvar]=i  }
+  
+  #recode treatment groups to 1,2..
+#  mxdata$treat<-ifelse(mxdata$treat==2,1,ifelse(mxdata$treat==3,2,99))
   
 mxdata$treatcopy<- mxdata$treat
 mxdata$treat<-(mxdata$treatcopy=="accupuncture")*1
 mxdata$treat<-(mxdata$treatcopy=="control")*1+1
 }
 
+
+f<-"N:/Documents/GitHub/mimix/mimixR"
+read.csv(file.path("N:/Documents/GitHub/mimix/mimixR","asthma.csv"))
+t<-read.csv(file.path(f,"asthma.csv"))
 #readdata
 readdata <-function(data) {
   # Specify full path to data, e.g /directory/path/to/NIRData.csv
@@ -34,9 +41,14 @@ readdata <-function(data) {
 #try moving covar to begining of argumnet list  
 
 # this section to find mg, the missing  pattern group and also converts from long to wide data format
-preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
+preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   #extract relevant vars
  
+  browser()
+  #  (is.na(covar))
+  ### checking covars complete, ie non- missing 
+  #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))==0,error=stop("Error: not all covariates are complete !!")))
+  stopifnot(sum(is.na(get(data)[,covar]))==0)
   
   #more informative in error msg to use this explicit and  
   #and put in one statement 
@@ -51,14 +63,14 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
              #is.character(covar[[2]],
              is.character(covar) )
   # convert to numic
-  mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])
+  #get(data)[,treatvar]<-as.numeric(get(data)[,treatvar])
   
   #stopifnot(any(meth_valid_values==meth))
         #stopifnot(is.numeric(refer))
         #stopifnot(is.numeric(M))
   #mxdata <- do.call( readdata,kmargs[1])
  
-  fevdata<-dplyr::select(mxdata,idvar,depvar,timevar)
+  fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
   # only want to widen the dose var, ie fev, so take the other variables
   #reshape to wide and assign new names 
   # prefix must be supplied from input argument rather than hard coded, this canbe hard coded
@@ -73,7 +85,7 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   #tcovar<-unlist(covar)
   #uniqdat<-unique(mxdata[c(idvar,unlist(tstcovar),treatvar)])
   print(paste0("covar=",covar))
-  uniqdat<-unique(mxdata[c(idvar,covar,treatvar)])
+  uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
   print(head(uniqdat))
   
   finaldat<- merge(sts4,uniqdat,by=idvar)
@@ -83,9 +95,9 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   
   # need find no. ntreat  to loop over
   #ntreat<-unique(unique(mxdata$treatvar))
-  ntreatcol<-(dplyr::select(mxdata,treatvar))
+  ntreatcol<-(dplyr::select(get(data),treatvar))
   ntreat <- unique(ntreatcol)
-  ntimecol<-(dplyr::select(mxdata,timevar))
+  ntimecol<-(dplyr::select(get(data),timevar))
   ntime<-unique(ntimecol)
   
   
@@ -94,7 +106,7 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
   # for sts4 array drop 1st col and create newvars for rest
   STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,FUN=A)
   # append to names
-  colnames(STSdummy) <- paste(colnames(STSdummy),'.1')
+  colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
   # merge back on to data 
   sts4D<-cbind(finaldat,STSdummy)
   # create powrs of 2
@@ -177,8 +189,8 @@ preprodata<- function(covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL)  {
 
 
 # Main function 
-Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
- 
+Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
+ #browser()
   # establish whether indivual or group by cretung a flag var
   if (!is.null(meth)) { flag_indiv <<-0 }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
@@ -228,7 +240,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
  # 15/03browser()
  # browser()
   if (!is.null(meth) ) {
-        testlist = do.call( preprodata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth))
+        testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth))
         refer <- testlist[[10]]
         
        # stopifnot(refer %in% ntreat)
@@ -243,7 +255,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
         
         }
   else if (!is.null(methodindiv[1]) ) {
-        testlist = do.call( preproIndivdata,list(covar,depvar,treatvar,idvar,timevar,M,refer,meth,methodindiv))
+        testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth,methodindiv))
         # need to re-set meth for individual 
         meth <- testlist[[10]][1]
        
@@ -357,7 +369,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
         #need to error check when ridge or invwish used, the accompanying parameter values supplied.
        
          # find sd of depvar over all times?
-          sd_depvar<- sd((mxdata[,depvar]),na.rm=TRUE)
+          sd_depvar<- sd((get(data)[,depvar]),na.rm=TRUE)
        
         if ( priorvar[1] == "ridge" ) { if ( is.na(priorvar[2])) { priorvar[2]<-(sd_depvar*0.1) }}
         # invwish not implemented!
@@ -369,9 +381,10 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
         #if prior =ridge then need fing default ridge parameter ,try 0.1sd(depvar)
         
         
-        emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2]))
+        # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
+       emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) 
         #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))   
-        mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = priorvar[1],prior.df = priorvar[2])) 
+        mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = priorvar[1],prior.df = priorvar[2]))  
         
         # msg from emNorm
         #Note: Finite-differencing procedure strayed outside
@@ -403,10 +416,10 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
   m_mg_iter<-0
   for (i in 1:nrow(mg))
   {
-    # define mata_miss as vector of 1's denoting missing using col names ending i ".1"
+    # define mata_miss as vector of 1's denoting missing using col names ending i ".missing"
     # this section to be amended to cope with multiple covariates 
     #browser()
-    mata_miss <- mg[i,grep("*..1",colnames(mg)),drop=F]
+    mata_miss <- mg[i,grep("*..missing",colnames(mg)),drop=F]
     #mata_miss <- mimix_group[i,c(2,3,4,5)]     #defimne mata_miss
     #assumes covariate non missing
     # now >1 covariate code must be amended
@@ -417,7 +430,7 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
     #mata_miss$covar.1 <-0                       #assuming cov col is non missing
     #browser(2)
     # so create matrix with names as covariates.1 and 0 row to signify no missing values 
-    covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".1")) )
+    covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".missing")) )
     mata_miss <- cbind(mata_miss,covarsdf)
     
     
@@ -437,8 +450,12 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
     
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
-  # browser()
+   # browser()
+    if  (is.null(methodindiv[1]) ) {
     cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
+    }else if(!is.null(methodindiv[1]) ) {
+    cat("\ntrtgp = ", trtgp,"method= ",as.character(mg[i,methodindiv[1]]),"refgp=",as.character(mg[i,methodindiv[2]]),"patt = ",pattern,"no patients = ", cnt) 
+    }
     
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector) 
     #unneceassary now recoded
@@ -811,11 +828,26 @@ Runmimix<- function(covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=1
     } #for row[mg] 
     
   } #for M StOP HERE!!
- # browser()
-  return(list(mata_all_newlist,mg,M,meth))
   
+  
+ # 23/03 addon to save as implist
+#  browser()
+#  dimlist <- (nrow(mg[[1]])*M)
+  
+  # extract from nested list 
+  # combine into data set containing M imputed datasets 
+#  mata_all_newData1x <- do.call(rbind,mata_all_newlist[[1]])
+  # then sort (by imputation and patient id) into M data sets and split into M lists 
+#  impdatasets <- mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
+#  impdatasets2 <- mata_all_newlist[order(mata_all_newlist$II,mata_all_newlist$SNO),]
+  impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,meth))
+  
+  #return(list(mata_all_newlist,mg,M,meth))
+  return(impdataset)
 } # for runmimix test
 
+
+#### error check covariates are complete
 
 
 #####################################
@@ -1010,7 +1042,7 @@ getimpdatasets <- function(varlist){
   M<- unlist(varlist[3])
   meth<- unlist(varlist[4])
   
- dimlist <- (nrow(mg[[1]])*M)
+ #dimlist <- (nrow(mg[[1]])*M)
    
 # extract from nested list 
 # combine into data set containing M imputed datasets 
@@ -1140,10 +1172,11 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
   return(mata_means)
 }
 
-preproIndivdata<- function(covar,depvar,treatvar,idvar,timevar,M,refer=null,meth=null,methodindiv)  {
+preproIndivdata<- function(mxdata,covar,depvar,treatvar,idvar,timevar,M,refer=null,meth=null,methodindiv)  {
   #extract relevant vars
-  
-  
+  browser()
+  stopifnot(sum(is.na(mxdata[,covar]))==0)
+  #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))!=0,error=stop("Error: not all covariates are complete !!")))
   #more informative in error msg to use this explicit and  
   #and put in one statement 
   methodL <- unique(mxdata[,methodindiv[1]])
@@ -1184,7 +1217,7 @@ preproIndivdata<- function(covar,depvar,treatvar,idvar,timevar,M,refer=null,meth
   # for sts4 array drop 1st col and create newvars for rest thes are the dummy missing patterns
   STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,FUN=A)
   # append to names
-  colnames(STSdummy) <- paste(colnames(STSdummy),'.1')
+  colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
   # merge back on to data 
   print(head(STSdummy))
   sts4D<-cbind(finaldat,STSdummy)
