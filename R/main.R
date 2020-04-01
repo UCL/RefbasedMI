@@ -1,4 +1,4 @@
-#####################################################################################  
+#####################################################################################
 # Rmimix.R                                                                          #
 # R program to  perform multiple imputation as in mimix (stata program)             #
 # ie reference based imputation, for sensitivity analysis of longitudinal trials    #
@@ -27,7 +27,7 @@
 
 
 # calls functions listed in functions.R file                                        #
-# function preprodata prepares data and and finds mg (the mimix group)              # 
+# function preprodata prepares data and and finds mg (the mimix group)              #
 # function Runmimix  performs major analysis                                        #
 # the required packages as listed in utilities file                                 #
 # this version 19/03/2020                                                           #
@@ -43,78 +43,84 @@
 # remove existing files
 rm(list = ls())
 
-# file refers to functions called from main program source("/functions.R") 
+# file refers to functions called from main program source("/functions.R")
+
+fpack<-"N:/Documents/RmimixPackage/rmimixpackage/R"
+source(paste0(fpack,"/Runmimix.R"))
+source(paste0(fpack,"/proprocess.R"))
+source(paste0(fpack,"/utilities.R"))
+
+f<-"N:/Documents/GitHub/mimix/mimixR"
 source("N:/Documents/GitHub/mimix/mimixR/functions.R")
+source(paste0(f,"/functions.R"))
+
+
+#mxdata<-read.csv(file.path(f,"asthma.csv"),fileEncoding = "UTF-8-BOM")
 
 # read csv data file directly from github
 # asthma data
-mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthma.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+asthma<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/asthma.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+
 
 #recode treatment groups to 1,2..
-mxdata$treat<-ifelse(mxdata$treat==2,1,ifelse(mxdata$treat==3,2,9))
+asthma$treat<-ifelse(asthma$treat==2,1,ifelse(asthma$treat==3,2,99))
+
+#mimix_outputlist
+impdataset<-(Runmimix("asthma",c("base"),"fev","treat","id","time",100,1,"J2R",101,"jeffreys",1000,NULL,NULL) )  # replace by ridge c("ridge","0.5") rids warnings
+save(asthma, file="asthma.RData")
+
+regressimp(impdataset,"fev.12~treat+base")
 
 
-mimix_outputlist<-Runmimix(c("base"),"fev","treat","id","time",100,1,"J2R",101,"jeffreys",1000,NULL,NULL)   # replace by ridge c("ridge","0.5") rids warnings
-
-# obtain dataset of imputed datsets
-# the impute data sets are  in mimix_outputlist[[1]][[m]]  over the m imputations socan be combined 
-
-impdatasets<-getimpdatasets(mimix_outputlist)
-# produce summary for individual
-impdatasets<-analyselist("5456",mimix_outputlist,c("fev2","fev4","fev8","fev12","base"))
-# apply regression model according to Rubin's rules
-regressimp(impdatasets,"fev12~treat+base")
 
 ###########################################################################################################################################
 # acupuncture data
-mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/accupuncture.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+acupuncture<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/accupuncture.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 #recode treatment groups to 1,2..
-mxdata$treat<-ifelse(mxdata$treat=="control",1,ifelse(mxdata$treat=="accupuncture",2,9))
+acupuncture$treat<-ifelse(acupuncture$treat=="control",1,ifelse(acupuncture$treat=="accupuncture",2,9))
+save(acupuncture, file="acupuncture.RData")
+impdatasets <- Runmimix("acupuncture",c("head_base","sex","age"),"head","treat","id","time",10,1,"J2R",201,c("jeffreys"),1000,NULL,NULL) #c("ridge","0.5"))
 
-mimix_outputlist <- Runmimix(c("head_base","sex","age"),"head","treat","id","time",100,1,"MAR",201,c("jeffreys"),1000,NULL,NULL) #c("ridge","0.5"))
-mimix_outputlist <- Runmimix(c("head_base","sex"),"head","treat","id","time",1000,"control","J2R",201,"jeffreys")
-impdatasets<-getimpdatasets(mimix_outputlist)
-analyselist("151",mimix_outputlist,c("head3","head12","sex","head_base","age"))
+#analyselist("151",mimix_outputlist,c("head3","head12","sex","head_base","age"))
 regressimp(impdatasets,"head12~treat+head_base+age+sex")
 
 ###########################################################################################################################################
-#anti-depressant data 
+#anti-depressant data
 mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/SASantidep.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 #anti-depressant data with methdovar & refernecevar
-mxdata<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/SASantidepmethodvar.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
+antidepressant<-read.table("http://raw.githubusercontent.com/UCL/mimix/master/data/SASantidepmethodvar.csv",header=TRUE,sep=",",fileEncoding = "UTF-8-BOM")
 
 
 #recode treatment variable to numeric
 
-mxdata$TREATMENT.NAME<-ifelse(mxdata$TREATMENT.NAME=="PLACEBO",1,ifelse(mxdata$TREATMENT.NAME=="DRUG",2,9))
+antidepressant$TREATMENT.NAME<-ifelse(antidepressant$TREATMENT.NAME=="PLACEBO",1,ifelse(antidepressant$TREATMENT.NAME=="DRUG",2,99))
+save(antidepressant, file="antidepressant.RData")
+
+# mxdata <- subset(mxdata, POOLED.INVESTIGATOR !="999")
+
+# try running methodvar, note cant hanle "NULL"
+impdataset <- Runmimix("antidepressant",c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",10,NULL,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar"))
+#analyselist("2721",mimix_outputlist,c("change4","change5","change6","change7","basval"))
 
 
-# mxdata <- subset(mxdata, POOLED.INVESTIGATOR !="999") 
-
-# try running methodvar, note cant hanle "NULL" 
-mimix_outputlist <- Runmimix(c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",2,NULL,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar")) 
-
-
-
-mimix_outputlist <- Runmimix(c("basval"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,"DRUG","J2R",101,c("jeffreys")) #c("ridge","0.5"))
-impdatasets<-getimpdatasets(mimix_outputlist)
-analyselist("2721",mimix_outputlist,c("change4","change5","change6","change7","basval"))
-regressimp(impdatasets,"change4~TREATMENT.NAME+basval")
+mimix_outputlist <- Runmimix(c("basval"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,2,"J2R",101,c("ridge"),1000,NULL,NULL)
+#analyselist("2721",mimix_outputlist,c("HAMD17.TOTAL4","change5","change6","change7","basval"))
+regressimp(impdatasets,"change7~TREATMENT.NAME+basval")
 
 #try with
-with(impdatasets,lm("change4~TREATMENT.NAME+basval"))
+#with(impdatasets,lm("change7~TREATMENT.NAME+basval"))
 #4623
 
 
-# dont need to introduce a covar argument to cope when more than 1 covariate variable.  
-# Assign list of input parameters 
+# dont need to introduce a covar argument to cope when more than 1 covariate variable.
+# Assign list of input parameters
 #kmargs <- list("fev","treat","id","time",covar("treat","base"),1,2,"J2R",201)
 
 
-# run main program outputting list containing the M imputed data sets  
+# run main program outputting list containing the M imputed data sets
 
 #mimix_outputlist=do.call('Runmimix', kmargs)
- 
+
 #mimix_outputlist<-Runmimix("fev","treat","id","time","base",100,2,"J2R",101)
 
 # for program timings
@@ -147,24 +153,24 @@ analyselist(meth,"4623",c("HAMD17.TOTAL4","HAMD17.TOTAL5","HAMD17.TOTAL6","HAMD1
 # but instead of mcmcResult$imp.list just create new list from the saved list output
 
 # convert imputed data list into combined data set
-# dimension of data set, nrows in pattern times no imputations, 
+# dimension of data set, nrows in pattern times no imputations,
 dimlist <- (nrow(mg[[1]])*M)
-# extract from nested list 
+# extract from nested list
 #head(mata_all_newlist[[1]][[dimlist]])
-# combine into data set containing M imputed datasets 
+# combine into data set containing M imputed datasets
 mata_all_newData1x <- do.call(rbind,mata_all_newlist[[1]][[dimlist]])
 
 
-# then sort into M data sets and split into M lists 
+# then sort into M data sets and split into M lists
 # ort by imputation no and patient id (SNO)
 impdatasets<-mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
 # to get the list
 implist1x <- split(impdatasets,impdatasets$II)
 # so has M elements in list
 # can obtain a list of coefficients and their se's from a regression
-# declare list for estimates 
+# declare list for estimates
 est.list <- as.list(NULL)
-# declare lists for se's 
+# declare lists for se's
 std.err.list <- as.list( NULL )
 for( m in 1:M ){
   #mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
@@ -192,7 +198,7 @@ lmeModel = lmer(HAMD17~treat*time+ (1|))
 #tail(test[order(test$id,test$SNO,test$II),],10)
 impdatalong <- test[order(test$id,test$SNO,test$II),]
 implonglist1x <- split(impdatalong,impdatalong$II)
-# declare lists for model estimates and their se's 
+# declare lists for model estimates and their se's
 est.list <- as.list(NULL)
 std.err.list <- as.list( NULL )
 
@@ -205,11 +211,11 @@ for( m in 1:M ){
 ## with df.complete = 27, because a paired t-test in a dataset with
 ## N=28 cases has 27 degrees of freedom
 miResult <- miInference(est.list, std.err.list, df.complete=171)
-print(miResult) 
-  
-  
-  
-# Alternatively 
+print(miResult)
+
+
+
+# Alternatively
 # this from CRAN vignette/amelia.pdf
 b.out<-NULL
 se.out<-NULL
@@ -233,9 +239,9 @@ end_time <- proc.time()
 time_taken <- end_time - start_time
 print(paste("Time taken:", time_taken[1]))
 
-system.time(analyselist("5137")) 
+system.time(analyselist("5137"))
 
- 
+
 pttestf(200,200,1.302,0.623,1.367,0.573)
 
 
