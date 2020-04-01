@@ -84,7 +84,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   # for sts4 array drop 1st col and create newvars for rest
   #STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,FUN=A)
   STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
-  A <- function(x) {  ifelse(!is.na(x),0,1) }
+ # A <- function(x) {  ifelse(!is.na(x),0,1) }
   # append to names
   colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
   # merge back on to data
@@ -228,7 +228,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
   #in order to aggregate by pattern need create dummy vars
 
   # for sts4 array drop 1st col and create newvars for rest thes are the dummy missing patterns
-  STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,FUN=A)
+  STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
   # append to names
   colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
   # merge back on to data
@@ -293,7 +293,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
   #X1 is a count variable of 1's'
   sts4Dpatt$X1<-1
 
-  ex1<-summarize(sts4Dpatt$X1, by=llist(sts4Dpatt[,treatvar],sts4Dpatt[,c(methodindiv[1])],sts4Dpatt[,c(methodindiv[2])],sts4Dpatt$patt),FUN=sum)
+  ex1<-Hmisc::summarize(sts4Dpatt$X1, by=Hmisc::llist(sts4Dpatt[,treatvar],sts4Dpatt[,c(methodindiv[1])],sts4Dpatt[,c(methodindiv[2])],sts4Dpatt$patt),FUN=sum)
  #to rename
   newnames <- c( treatvar,"methodvar","referencevar","patt","X1")
   names(ex1)<-newnames
@@ -341,6 +341,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
 #' @param M number of total imputations.
 #' @param paramBiglist  list of Beta and Sigma parameters from mcmc
 #' @param i in loop throug mg rows
+#' @parm treatvar treatment group
 #' @param c_mata_nonmiss  0,1 vector of nonmissing
 #' @param c_mata_miss 0,1 vector of missing
 #' @param mata_miss position of missing values in repeated time visits
@@ -350,7 +351,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
 
 
 # alternative logic for individual method
-ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i, c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
+ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
 {
 
 
@@ -364,7 +365,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i, c_mata_nonmiss,c_ma
   #browser()
   if(!is.na(methodindiv[1])) {
     # methodindiv needs editing this bit
-    trtgp <- mg[i,"treat"]
+    trtgp <- mg[i,treatvar]
     #the refernce group comes from the indvidual colunm!
     refergp <- mg[i,methodindiv[2]]
   }
@@ -378,7 +379,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i, c_mata_nonmiss,c_ma
                                        ifelse( ( methindiv=="CIR" | methindiv=="cir" |methindiv=="CIr"|methindiv=="cliR" ),4,
                                                ifelse( ( methindiv=="LMCF" | methindiv=="lmcf" |methindiv=="Last"|methindiv=="last" ),5,9)))))
 
-
+#browser()
   # only done methods  3,4 so far, so Mar need correcting
   #MAR
   if  (methindiv== 1)  {

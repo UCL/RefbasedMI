@@ -171,7 +171,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
   #paramMatrix<-matrix(,nrow=(nrow(ntreat)*M),ncol=2)
 
   #create  emptylist for each treat and multiple m's
-  #browser()
+browser()
   paramBiglist <- vector('list',length(ntreat)*M)
   for (val in 1:length(ntreat)) {
     assign(paste0("paramBiglist",val),vector('list',M))
@@ -287,7 +287,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
-    # browser()
+
     if  (is.null(methodindiv[1]) ) {
       cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
     }else if(!is.null(methodindiv[1]) ) {
@@ -314,7 +314,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         SNO<-mata_Obs[c(st:en),1]
         mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
         #browser() # treat defined within fun
-        GI <- array(data=mg[i,"treat"],dim=c(mg[i,"X1"],1))
+        GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
         #II  no imputations
         II <- array(data=m,dim=c(mg[i,"X1"],1))
         mata_new=cbind(GI,II,mata_new,SNO)
@@ -483,7 +483,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
           # call function for  indiv
 
-          mata_means <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
+          mata_means <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
 
         }
 
