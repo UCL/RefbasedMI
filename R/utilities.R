@@ -100,3 +100,38 @@ pttestf<- function(n1,n2,mn1,sd1,mn2,sd2) {
   pttest = pt((((mn1 - mn2) -0) /sqrt(sd1^2/n1+sd2^2/n2)),(n1+n2-2))
   return(pttest)
 }
+
+
+#' @title regressimp
+#' @description run regression on M imputed data set, combinging as Rubin's rules
+#' @details This is approach followed from  norm2 user manual
+#' @param dataf data-frame
+#' @param regmodel regression model specfication
+#' @return estimates of regression coefficients
+#' @example
+#' regressimp(impdataset,"fev12~treat+base")
+
+
+regressimp <- function(dataf,regmodel)  {
+  # to get the list
+  implist1x <- split(dataf,dataf[,"II"])
+  # so has M elements in list
+  # can obtain a list of coefficients and their se's from a regression
+  # declare list for estimates
+  est.list <- as.list(NULL)
+  # declare lists for se's
+  std.err.list <- as.list( NULL )
+  M<- tail(dataf[,"II"],1)
+  for( m in 1:M ){
+    #mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
+    #mod<-lm(head12~head_base+sex,data=implist1x[[m]] )
+    #mod<-lm(HAMD17.TOTAL7~basval+HAMD17.TOTAL6,data=implist1x[[m]] )
+    mod<-lm(regmodel,data=implist1x[[m]] )
+    est.list[[m]] <- coef(summary(mod))[,1]
+    std.err.list[[m]] <- coef(summary(mod))[,2] }
+  ## combine the results by rules of Barnard and Rubin (1999)
+  ## with df.complete = 27, because a paired t-test in a dataset with
+  ## N=28 cases has 27 degrees of freedom
+  miResult <- miInference(est.list, std.err.list, df.complete=801)
+  print(miResult)
+}
