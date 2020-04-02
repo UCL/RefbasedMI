@@ -20,9 +20,6 @@ mxdata$treat<-(mxdata$treatcopy=="control")*1+1
 }
 
 
-f<-"N:/Documents/GitHub/mimix/mimixR"
-read.csv(file.path("N:/Documents/GitHub/mimix/mimixR","asthma.csv"))
-t<-read.csv(file.path(f,"asthma.csv"))
 #readdata
 readdata <-function(data) {
   # Specify full path to data, e.g /directory/path/to/NIRData.csv

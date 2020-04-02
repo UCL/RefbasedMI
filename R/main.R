@@ -46,13 +46,12 @@ rm(list = ls())
 # file refers to functions called from main program source("/functions.R")
 
 fpack<-"N:/Documents/RmimixPackage/rmimixpackage/R"
+fpack<-"c:/ado/ian/Rmimix/R"
 source(paste0(fpack,"/Runmimix.R"))
 source(paste0(fpack,"/proprocess.R"))
 source(paste0(fpack,"/utilities.R"))
 
-f<-"N:/Documents/GitHub/mimix/mimixR"
-source("N:/Documents/GitHub/mimix/mimixR/functions.R")
-source(paste0(f,"/functions.R"))
+source(paste0(fpack,"/functions.R"))
 
 
 #mxdata<-read.csv(file.path(f,"asthma.csv"),fileEncoding = "UTF-8-BOM")
