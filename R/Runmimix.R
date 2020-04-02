@@ -171,7 +171,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
   #paramMatrix<-matrix(,nrow=(nrow(ntreat)*M),ncol=2)
 
   #create  emptylist for each treat and multiple m's
-browser()
+#browser()
   paramBiglist <- vector('list',length(ntreat)*M)
   for (val in 1:length(ntreat)) {
     assign(paste0("paramBiglist",val),vector('list',M))
