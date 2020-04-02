@@ -43,16 +43,17 @@
 # remove existing files
 rm(list = ls())
 
-# file refers to functions called from main program source("/functions.R")
 
+# functions in functions.R  now re-assigned to other files
 fpack<-"N:/Documents/RmimixPackage/rmimixpackage/R"
 source(paste0(fpack,"/Runmimix.R"))
 source(paste0(fpack,"/proprocess.R"))
 source(paste0(fpack,"/utilities.R"))
 
-f<-"N:/Documents/GitHub/mimix/mimixR"
-source("N:/Documents/GitHub/mimix/mimixR/functions.R")
-source(paste0(f,"/functions.R"))
+# file refers to functions called from main program source("/functions.R")
+#f<-"N:/Documents/GitHub/mimix/mimixR"
+#source("N:/Documents/GitHub/mimix/mimixR/functions.R")
+#source(paste0(f,"/functions.R"))
 
 
 #mxdata<-read.csv(file.path(f,"asthma.csv"),fileEncoding = "UTF-8-BOM")
