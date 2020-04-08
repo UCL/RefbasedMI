@@ -27,7 +27,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
   #more informative in error msg to use this explicit and
   #and put in one statement
-  stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF"),
+  stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF" | meth=="Causal"),
              #is.numeric(refer),
              is.numeric(M),
              is.character(depvar),
@@ -50,7 +50,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
   #replace tidyr function
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
-  sts4<-reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   #sts4 is just response data, can join later treat and covar cols from finaldat
 
   #assumes no NA for these vars should add in checking routines !!
@@ -62,10 +62,10 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   #uniqdat<-unique(mxdata[c(idvar,unlist(tstcovar),treatvar)])
   print(paste0("covar=",covar))
   uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
-  print(head(uniqdat))
+  print(utils::head(uniqdat))
 
   finaldat<- merge(sts4,uniqdat,by=idvar)
-  print(head(finaldat))
+  print(utils::head(finaldat))
   # now try and sort on treatvar, doesnt work so instead of sorting , select on treat
 
 
@@ -216,7 +216,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
 
   #generate names depvar#time
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
-  sts4<-reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   # assumes the covars all non-missing
   uniqdat<-unique(get(data)[c(idvar,covar,treatvar,methodindiv)])
@@ -232,14 +232,14 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
   # append to names
   colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
   # merge back on to data
-  print(head(STSdummy))
+  print(utils::head(STSdummy))
   sts4D<-cbind(finaldat,STSdummy)
   # create powrs of 2
   pows2 <- sapply(1:ncol(STSdummy),function(i) STSdummy[,i]*2^(i-1))
   #need to add up to find patt
   patt <- rowSums(pows2)
   sts4Dpatt<-cbind(sts4D,patt)
-  print(head(sts4Dpatt))
+  print(utils::head(sts4Dpatt))
 
 
   #patt has just been created so use $ notation wheras treatvar from input argument and need to by methodindiv[1] as well
@@ -341,7 +341,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null
 #' @param M number of total imputations.
 #' @param paramBiglist  list of Beta and Sigma parameters from mcmc
 #' @param i in loop throug mg rows
-#' @parm treatvar treatment group
+#' @param treatvar treatment group
 #' @param c_mata_nonmiss  0,1 vector of nonmissing
 #' @param c_mata_miss 0,1 vector of missing
 #' @param mata_miss position of missing values in repeated time visits
@@ -395,7 +395,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
     #Sigmatrt <- get(paste0("param",trtgp,m))[2]
     Sigmatrt <- paramBiglist[[M*(trtgp-1)+m]][2]
     #Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
-    Sigma <<- Sigmatrt
+    Sigma <- Sigmatrt
 
 
   }
@@ -437,7 +437,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
 
     #SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2]
     SigmaRefer <- paramBiglist[[M*(refergp-1)+m]][2]
-    Sigma <<- SigmaRefer
+    Sigma <- SigmaRefer
     #Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
 
 
@@ -465,7 +465,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
     #SigmaRefer <- get(paste0("param",refer,m))[2]
     SigmaRefer <- paramBiglist[[M*(refergp-1)+m]][2]
     # SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2]
-    Sigma <<- SigmaRefer
+    Sigma <- SigmaRefer
 
   }
   #else if (meth=='CIR')
@@ -497,7 +497,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
     #SigmaRefer <- get(paste0("param",refer,m))[2]
     #SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2]
     SigmaRefer<- paramBiglist[[M*(refergp-1)+m]][2]
-    Sigma <<- SigmaRefer
+    Sigma <- SigmaRefer
     # when reading in Stata sigmas
     # needs to to ths as tibble will fail in cholesky
     #SigmaRefer <- as.matrix(get(paste0("paramsigmaStata",refer,m)))
@@ -528,7 +528,7 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
 
   }
 
-  return(mata_means)
+  return(list(mata_means,Sigma))
 }
 
 
