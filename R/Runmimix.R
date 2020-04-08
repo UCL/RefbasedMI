@@ -5,7 +5,7 @@
 #' @details This is based on Suzie Cro's Stata program
 #' @export Runmimix
 #' @param data  datset in wide format
-#' @param covar covariates and base depvar must be complete
+#' @param covar covariates and base depvar must be complete (no missing vaules)
 #' @param depvar dependent variable
 #' @param treatvar treatment group , recoded to 1,2,..
 #' @param idvar patient id
@@ -19,14 +19,16 @@
 #' @param bbetween  value between iterations in mcmc
 #' @param methodindiv  columns in dat for individual method and reference group
 #' @return impdataset
-#' @examples
-#' impdatasets <- Runmimix("acupuncture",c("head_base","sex","age"),"head","treat","id","time",10,1,"J2R",201,c("jeffreys"),1000,NULL,NULL)
-#' impdataset<- Runmimix("asthma",c("base"),"fev","treat","id","time",100,1,"J2R",101,"jeffreys",1000,NULL,NULL)
+#' @example
+#' \dontrun{
+#' impdataset<-(Runmimix("asthma",c("base"),"fev","treat","id","time",
+#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL) )
+#' }
 
 Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
   #browser()
   # establish whether indivual or group by cretung a flag var
-  if (!is.null(meth)) { flag_indiv <<-0 }
+  if (!is.null(meth)) { flag_indiv <-0 }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
 
 
@@ -85,7 +87,8 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
                     ifelse( ( meth=="CR" | meth=="cr" |meth=="Cr"|meth=="cR" ),2,
                             ifelse( ( meth=="MAR" | meth=="mar" |meth=="Mar"|meth=="MAr"|meth=="Mr"|meth=="MR" ),1,
                                     ifelse( ( meth=="CIR" | meth=="cir" |meth=="CIr"|meth=="cliR" ),4,
-                                            ifelse( ( meth=="LMCF" | meth=="lmcf" |meth=="Last"|meth=="last" ),5,9)))))
+                                            ifelse( ( meth=="LMCF" | meth=="lmcf" |meth=="Last"|meth=="last" ),5,
+                                              ifelse( ( meth=="Causal" | meth=="causal"),6,9))))))
     #ifelse(mxdata$methodvar=="j2r",3,ifelse(mxdata$methodvar=="cir",4,9))
 
   }
@@ -206,7 +209,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
       #need to error check when ridge or invwish used, the accompanying parameter values supplied.
 
       # find sd of depvar over all times?
-      sd_depvar<- sd((get(data)[,depvar]),na.rm=TRUE)
+      sd_depvar<- stats::sd((get(data)[,depvar]),na.rm=TRUE)
 
       if ( priorvar[1] == "ridge" ) { if ( is.na(priorvar[2])) { priorvar[2]<-(sd_depvar*0.1) }}
       # invwish not implemented!
@@ -283,10 +286,11 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
     cnt<- mg$X1[i]
 
     # treatment grp
-    trtgp<- mg$treat[i]
+    trtgp<- mg[i,treatvar]
 
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
+
 
     if  (is.null(methodindiv[1]) ) {
       cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
@@ -347,7 +351,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
             S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
             S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
 
-            Sigma<<-Sigmatrt
+            Sigma<-Sigmatrt
           }
           # 'J2R'
           else if (meth == 3 ) {
@@ -398,7 +402,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
             #edit due to passing  Sigma after loop, ie save sigma
             #  Sigma <- SigmaRefer[[1]]
 
-            Sigma<<-SigmaRefer
+            Sigma<-SigmaRefer
           }
           # 'CR'
           else if (meth==2) {
@@ -413,7 +417,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
             S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss) )
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
-            Sigma<<-SigmaRefer
+            Sigma<-SigmaRefer
           }
           # 'CIR'
           else if (meth==4)
@@ -452,7 +456,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
             S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
-            Sigma<<- SigmaRefer
+            Sigma<- SigmaRefer
           }
           # 'LMCF'
           else if (meth==5) {
@@ -473,9 +477,33 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
             S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
             S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
 
-            Sigma<<- Sigmatrt
-          }  #if meth
+            Sigma<- Sigmatrt
+          }  #if meth=5
+          # causal method uses same matrices as CIR with K parameter
+         else if (meth==6)  {
+           mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
+           # convert from list to matrix
+           mata_Means <- mata_Means[[1]]
+           #mata_Means <-  get(paste0("parambeta",trtgp,m))
+           #MeansC <-  get(paste0("param",refer,m))[1]
+           MeansC <-  paramBiglist[[M*(referindex-1)+m]][1]
+           #put Kd tempval
+           Kd<-1
+          # browser()
+           mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,Kd)
 
+          #this temporary  fpr test purposes until algo decided upon
+           SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
+           # when reading in Stata sigmas
+
+
+           S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+           S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+           S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
+
+           Sigma<- SigmaRefer
+
+         }
           ############# individual analysis #########################
         }
         #else if(!is.null(methodindiv[1]))
@@ -483,8 +511,9 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
           # call function for  indiv
 
-          mata_means <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
-
+        indparamlist  <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
+        mata_means<- indparamlist[[1]]
+        Sigma <- indparamlist[[2]]
         }
 
 
@@ -553,12 +582,12 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
           # generate inverse normal, same as used below
           #for debug 20/01
           #   print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count))
-          Z <- qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+          Z <- stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
 
           mata_y1 = meanval+Z%*%(U)
           #set dimensions mata_new to mata_y1
           mata_new <- dim(mata_y1)
-          GI <- array(data=mg[i,"treat"],dim=c(mg[i,"X1"],1))
+          GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
           #II  no imputations
           II <- array(data=m,dim=c(mg[i,"X1"],1))
           mata_new=cbind(GI,II,mata_new,SNO)
@@ -614,7 +643,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         #  print("miss_count = ")
         #  print (miss_count)
         # gen erate inverse normal
-        Z<-qnorm(matrix(runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+        Z<-stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
         # check same input parameters for inverse norm gen as in stata
 
         #for debug 20/01
@@ -729,7 +758,7 @@ getimpdatasets <- function(varlist){
 
 mi_impute <-function(data,idvar,timevar,depvar,covar) {
   #preprodata(depvar,treatvar,idvar,timevar,covar)
-  tst<-reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   #tst<-tidyr::pivot_wider(get(data),id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
   # add ont covariates and add on to resp list
   respvars<-c(names(tst[,-1]),covar)
