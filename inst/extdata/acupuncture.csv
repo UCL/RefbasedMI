@@ -1,0 +1,803 @@
+id,time,age,sex,migraine,chronicity,practice_id,treat,head_base,head,withdrawal_reason
+100,3,47,1,1,35,35,accupuncture,10.75,,treatment hassle
+100,12,47,1,1,35,35,accupuncture,10.75,,treatment hassle
+101,3,52,1,1,8,35,control,9.5,,withdrew consent
+101,12,52,1,1,8,35,control,9.5,,withdrew consent
+104,3,32,1,1,14,35,control,16,,
+104,12,32,1,1,14,35,control,16,15.33333,
+105,3,53,1,1,10,25,control,32.5,44,withdrew consent
+105,12,53,1,1,10,25,control,32.5,,withdrew consent
+108,3,56,1,1,40,25,control,16.5,17.5,
+108,12,56,1,1,40,25,control,16.5,23.25,
+112,3,45,1,1,27,25,accupuncture,9.25,4.75,
+112,12,45,1,1,27,25,accupuncture,9.25,6.25,
+113,3,45,1,1,30,25,accupuncture,42.5,34.5,
+113,12,45,1,1,30,25,accupuncture,42.5,51.25,
+114,3,49,1,1,49,25,accupuncture,24.25,16.25,
+114,12,49,1,1,49,25,accupuncture,24.25,25.25,
+126,3,47,1,1,42,28,control,21,18.5,
+126,12,47,1,1,42,28,control,21,15.25,
+130,3,46,1,1,3,15,accupuncture,21.75,2,
+130,12,46,1,1,3,15,accupuncture,21.75,1,
+131,3,64,1,1,23,15,accupuncture,14.5,20,
+131,12,64,1,1,23,15,accupuncture,14.5,2.5,
+135,3,59,1,1,40,15,control,40.5,37.25,
+135,12,59,1,1,40,15,control,40.5,28.75,
+137,3,53,1,1,32,15,accupuncture,11.75,11.25,
+137,12,53,1,1,32,15,accupuncture,11.75,13.5,
+138,3,52,1,1,40,15,accupuncture,56.5,70.5,treatment ineffective
+138,12,52,1,1,40,15,accupuncture,56.5,,treatment ineffective
+139,3,52,0,1,5,15,control,11.75,,withdrew consent
+139,12,52,0,1,5,15,control,11.75,,withdrew consent
+141,3,37,1,0,7,15,accupuncture,15.5,5.75,
+141,12,37,1,0,7,15,accupuncture,15.5,2.75,
+143,3,51,0,1,38,15,control,33.25,17.5,
+143,12,51,0,1,38,15,control,33.25,26.75,
+144,3,49,1,1,10,15,control,39.5,29,
+144,12,49,1,1,10,15,control,39.5,40,
+148,3,55,1,1,20,33,control,20.5,39,
+148,12,55,1,1,20,33,control,20.5,32.75,
+149,3,23,1,1,23,33,accupuncture,49.25,9.75,
+149,12,23,1,1,23,33,accupuncture,49.25,19.5,
+150,3,59,1,1,54,33,accupuncture,9.75,8.75,
+150,12,59,1,1,54,33,accupuncture,9.75,21.5,
+151,3,35,1,1,21,33,control,25,56.5,withdrew consent
+151,12,35,1,1,21,33,control,25,,withdrew consent
+154,3,35,1,1,30,33,control,26.25,,intercurrent illness
+154,12,35,1,1,30,33,control,26.25,,intercurrent illness
+159,3,34,0,1,6,32,accupuncture,35.75,,intercurrent illness
+159,12,34,0,1,6,32,accupuncture,35.75,,intercurrent illness
+161,3,32,1,1,5,28,accupuncture,59.75,67,
+161,12,32,1,1,5,28,accupuncture,59.75,38,
+162,3,47,1,1,4,28,control,14.5,11.5,
+162,12,47,1,1,4,28,control,14.5,12.5,
+164,3,48,1,1,2,28,accupuncture,48.75,,treatment hassle
+164,12,48,1,1,2,28,accupuncture,48.75,,treatment hassle
+166,3,41,1,1,21,32,control,51.25,84,lost to follow-up
+166,12,41,1,1,21,32,control,51.25,,lost to follow-up
+169,3,49,1,1,40,28,accupuncture,19.75,23.25,
+169,12,49,1,1,40,28,accupuncture,19.75,18.75,
+172,3,64,1,1,35,33,accupuncture,74.25,,intercurrent illness
+172,12,64,1,1,35,33,accupuncture,74.25,,intercurrent illness
+174,3,19,1,1,5,28,control,43.75,49.75,withdrew consent
+174,12,19,1,1,5,28,control,43.75,,withdrew consent
+181,3,63,1,1,8,25,control,12.25,10,
+181,12,63,1,1,8,25,control,12.25,8.5,
+182,3,36,1,1,15,15,control,19.25,36,intercurrent illness
+182,12,36,1,1,15,15,control,19.25,,intercurrent illness
+183,3,63,1,1,20,25,control,55.75,57.75,
+183,12,63,1,1,20,25,control,55.75,62.25,
+184,3,46,1,1,15,25,accupuncture,23.5,16.25,
+184,12,46,1,1,15,25,accupuncture,23.5,9.75,
+185,3,36,1,1,4,15,accupuncture,21,2.25,
+185,12,36,1,1,4,15,accupuncture,21,15.5,
+186,3,58,1,1,40,25,accupuncture,19,17.75,
+186,12,58,1,1,40,25,accupuncture,19,9.25,
+188,3,29,0,1,4,25,control,14.75,13.75,
+188,12,29,0,1,4,25,control,14.75,9.25,
+189,3,39,1,1,23,15,control,10,18.25,
+189,12,39,1,1,23,15,control,10,6,
+190,3,49,1,1,24,15,accupuncture,64.75,61.5,
+190,12,49,1,1,24,15,accupuncture,64.75,60,
+191,3,31,1,0,4,25,control,13.5,19.25,withdrew consent
+191,12,31,1,0,4,25,control,13.5,,withdrew consent
+192,3,43,1,1,13,25,accupuncture,38.5,1.5,
+192,12,43,1,1,13,25,accupuncture,38.5,28.75,
+195,3,55,1,1,35,15,accupuncture,17.5,15,
+195,12,55,1,1,35,15,accupuncture,17.5,23,
+196,3,52,1,1,30,15,control,19.5,2.75,
+196,12,52,1,1,30,15,control,19.5,3.5,
+197,3,53,1,1,42,25,control,31,,intercurrent illness
+197,12,53,1,1,42,25,control,31,,intercurrent illness
+198,3,50,0,1,20,33,accupuncture,48,10.75,
+198,12,50,0,1,20,33,accupuncture,48,3.25,
+199,3,44,1,1,7,25,accupuncture,45,2,
+199,12,44,1,1,7,25,accupuncture,45,73.733337,
+200,3,48,1,1,38,34,control,32.25,4,
+200,12,48,1,1,38,34,control,32.25,16.75,
+203,3,29,1,1,16,29,accupuncture,26.25,5.25,
+203,12,29,1,1,16,29,accupuncture,26.25,6.25,
+205,3,44,0,1,10,34,control,30,28,
+205,12,44,0,1,10,34,control,30,29.5,
+207,3,26,1,1,5,34,control,21.25,23,
+207,12,26,1,1,5,34,control,21.25,13.75,
+208,3,21,1,1,6,52,accupuncture,35,24,
+208,12,21,1,1,6,52,accupuncture,35,.5,
+210,3,34,1,1,22,34,control,24.75,6.5,withdrew consent
+210,12,34,1,1,22,34,control,24.75,,withdrew consent
+212,3,44,1,1,44,25,control,27.25,22.75,
+212,12,44,1,1,44,25,control,27.25,17,
+213,3,54,1,1,40,11,control,8.75,11.75,
+213,12,54,1,1,40,11,control,8.75,12.75,
+215,3,52,1,0,8,28,control,28.25,0,lost to follow-up
+215,12,52,1,0,8,28,control,28.25,,lost to follow-up
+216,3,18,1,1,4,34,accupuncture,31.25,,withdrew consent
+216,12,18,1,1,4,34,accupuncture,31.25,,withdrew consent
+217,3,65,0,1,54,34,accupuncture,22.5,12.75,
+217,12,65,0,1,54,34,accupuncture,22.5,7.75,
+219,3,53,0,1,15,11,accupuncture,8.75,8.5,
+219,12,53,0,1,15,11,accupuncture,8.75,1.25,
+220,3,23,1,1,5,34,accupuncture,35.25,,intercurrent illness
+220,12,23,1,1,5,34,accupuncture,35.25,,intercurrent illness
+221,3,62,1,1,52,11,control,13.75,7,
+221,12,62,1,1,52,11,control,13.75,5.5,
+222,3,60,1,1,46,34,control,44.25,23.75,
+222,12,60,1,1,46,34,control,44.25,8.25,
+224,3,27,1,1,10,11,accupuncture,33,14.25,
+224,12,27,1,1,10,11,accupuncture,33,5.5,
+225,3,50,1,1,15,11,accupuncture,19,16.25,
+225,12,50,1,1,15,11,accupuncture,19,3,
+227,3,41,1,1,21,11,control,19,12.25,
+227,12,41,1,1,21,11,control,19,8.25,
+229,3,36,1,1,22,11,control,29,,withdrew consent
+229,12,36,1,1,22,11,control,29,,withdrew consent
+230,3,33,1,1,10,11,accupuncture,9.75,5.25,
+230,12,33,1,1,10,11,accupuncture,9.75,4.75,
+231,3,40,1,1,16,15,control,59.25,45.75,
+231,12,40,1,1,16,15,control,59.25,28.25,
+236,3,49,1,1,37,11,accupuncture,19.5,15.5,
+236,12,49,1,1,37,11,accupuncture,19.5,11.75,
+237,3,48,1,1,30,11,accupuncture,12,6,
+237,12,48,1,1,30,11,accupuncture,12,17,
+244,3,60,0,1,5,41,control,65.25,,withdrew consent
+244,12,60,0,1,5,41,control,65.25,,withdrew consent
+245,3,57,1,1,20,41,control,36.25,29.5,
+245,12,57,1,1,20,41,control,36.25,30.75,
+246,3,55,1,1,31,41,control,22.25,10,
+246,12,55,1,1,31,41,control,22.25,16,
+248,3,40,1,1,8,41,accupuncture,16.25,5.25,
+248,12,40,1,1,8,41,accupuncture,16.25,6.25,
+252,3,64,1,1,29,41,accupuncture,29.75,,treatment ineffective
+252,12,64,1,1,29,41,accupuncture,29.75,,treatment ineffective
+253,3,58,1,1,25,41,accupuncture,9.25,7.75,
+253,12,58,1,1,25,41,accupuncture,9.25,8,
+255,3,31,1,1,6,30,control,19.5,3,
+255,12,31,1,1,6,30,control,19.5,8.25,
+258,3,50,0,0,6,41,accupuncture,13.75,14.5,
+258,12,50,0,0,6,41,accupuncture,13.75,13.75,
+260,3,56,0,1,31,41,control,67.5,69.75,
+260,12,56,0,1,31,41,control,67.5,79.75,
+261,3,24,1,1,12,30,control,29.5,,withdrew consent
+261,12,24,1,1,12,30,control,29.5,,withdrew consent
+263,3,48,0,1,18,34,accupuncture,21.25,11,withdrew consent
+263,12,48,0,1,18,34,accupuncture,21.25,,withdrew consent
+264,3,34,1,1,29,30,accupuncture,27,23.75,
+264,12,34,1,1,29,30,accupuncture,27,22.5,
+265,3,55,1,1,30,41,control,42.5,46.25,
+265,12,55,1,1,30,41,control,42.5,44.75,
+266,3,27,0,1,8,11,control,18.25,0,
+266,12,27,0,1,8,11,control,18.25,.25,
+267,3,48,1,1,6,11,accupuncture,13,9.25,
+267,12,48,1,1,6,11,accupuncture,13,7,
+268,3,38,0,1,10,30,control,38.25,,withdrew consent
+268,12,38,0,1,10,30,control,38.25,,withdrew consent
+269,3,55,1,1,41,11,accupuncture,32,12.75,
+269,12,55,1,1,41,11,accupuncture,32,15.25,
+271,3,19,1,1,12,11,accupuncture,33.25,,treatment ineffective
+271,12,19,1,1,12,11,accupuncture,33.25,,treatment ineffective
+274,3,49,1,1,30,41,accupuncture,10.25,10.25,
+274,12,49,1,1,30,41,accupuncture,10.25,16.75,
+277,3,48,0,1,25,38,control,66.5,48.75,
+277,12,48,0,1,25,38,control,66.5,29.75,
+278,3,40,1,1,25,41,control,15.75,8,
+278,12,40,1,1,25,41,control,15.75,17.5,
+279,3,39,1,1,10,41,control,17.25,13.25,
+279,12,39,1,1,10,41,control,17.25,13.75,
+280,3,45,1,1,10,41,control,16.25,4.75,
+280,12,45,1,1,10,41,control,16.25,7.5,
+282,3,54,1,1,15,11,control,21.5,20.5,
+282,12,54,1,1,15,11,control,21.5,15.75,
+283,3,58,1,1,20,41,accupuncture,37,30.75,
+283,12,58,1,1,20,41,accupuncture,37,25.25,
+284,3,51,1,1,9,41,control,21,20.25,
+284,12,51,1,1,9,41,control,21,26,
+285,3,61,1,1,30,41,control,23,15.25,
+285,12,61,1,1,30,41,control,23,7.75,
+287,3,52,1,1,52,38,accupuncture,19.75,4.75,
+287,12,52,1,1,52,38,accupuncture,19.75,9.5,
+290,3,43,1,1,15,41,accupuncture,12.25,9,
+290,12,43,1,1,15,41,accupuncture,12.25,2.5,
+291,3,28,1,1,14,41,control,24,25,
+291,12,28,1,1,14,41,control,24,11.75,
+292,3,51,1,1,10,41,accupuncture,32.25,15.5,
+292,12,51,1,1,10,41,accupuncture,32.25,14.25,
+295,3,63,1,1,45,41,accupuncture,19.25,28,withdrew consent
+295,12,63,1,1,45,41,accupuncture,19.25,,withdrew consent
+302,3,31,1,1,8,38,accupuncture,9.75,8.75,
+302,12,31,1,1,8,38,accupuncture,9.75,11.5,
+306,3,53,1,1,5,41,accupuncture,17,16.25,
+306,12,53,1,1,5,41,accupuncture,17,9,
+307,3,31,1,1,12,37,accupuncture,37.25,28,
+307,12,31,1,1,12,37,accupuncture,37.25,14.5,
+308,3,52,1,0,9,41,control,19.75,20.75,
+308,12,52,1,0,9,41,control,19.75,27.25,
+310,3,33,1,1,15,41,accupuncture,10.75,,withdrew consent
+310,12,33,1,1,15,41,accupuncture,10.75,,withdrew consent
+313,3,49,1,1,6,41,accupuncture,13.75,18,
+313,12,49,1,1,6,41,accupuncture,13.75,7.25,
+315,3,62,1,1,44,41,control,35,,withdrew consent
+315,12,62,1,1,44,41,control,35,,withdrew consent
+316,3,29,1,1,3,38,control,25.75,14.75,
+316,12,29,1,1,3,38,control,25.75,15.75,
+319,3,47,1,1,10,37,control,29,13.75,
+319,12,47,1,1,10,37,control,29,19.5,
+320,3,50,1,1,35,37,control,76.25,35.5,
+320,12,50,1,1,35,37,control,76.25,64.5,
+321,3,49,1,1,27,41,accupuncture,39.25,30.75,
+321,12,49,1,1,27,41,accupuncture,39.25,28.25,
+322,3,46,1,1,31,41,accupuncture,47,,treatment ineffective
+322,12,46,1,1,31,41,accupuncture,47,,treatment ineffective
+323,3,48,0,0,41,53,accupuncture,43.25,60.25,
+323,12,48,0,0,41,53,accupuncture,43.25,31,
+324,3,25,1,1,18,37,control,24,14.25,
+324,12,25,1,1,18,37,control,24,20,
+326,3,47,1,1,17,41,control,9,8,
+326,12,47,1,1,17,41,control,9,12.25,
+327,3,59,1,1,11,37,accupuncture,19.25,8.5,
+327,12,59,1,1,11,37,accupuncture,19.25,27.5,
+328,3,47,1,1,42,41,accupuncture,50.75,47,
+328,12,47,1,1,42,41,accupuncture,50.75,47.75,
+329,3,49,1,1,33,37,accupuncture,21.5,22.75,
+329,12,49,1,1,33,37,accupuncture,21.5,24.25,
+331,3,52,1,1,47,44,accupuncture,36.5,18.75,lost to follow-up
+331,12,52,1,1,47,44,accupuncture,36.5,,lost to follow-up
+333,3,47,0,1,39,41,control,6.75,,
+333,12,47,0,1,39,41,control,6.75,12,
+335,3,52,0,1,52,30,accupuncture,18.25,2.5,
+335,12,52,0,1,52,30,accupuncture,18.25,6.5,
+337,3,61,1,1,15,44,control,20.25,30,
+337,12,61,1,1,15,44,control,20.25,25.25,
+339,3,41,0,1,21,38,control,32.25,30.5,
+339,12,41,0,1,21,38,control,32.25,42.75,
+340,3,43,1,1,5,41,control,15,11,
+340,12,43,1,1,5,41,control,15,18.75,
+342,3,46,0,1,40,41,accupuncture,74,65.75,
+342,12,46,0,1,40,41,accupuncture,74,61.5,
+343,3,49,1,1,31,20,control,70.75,70.666656,
+343,12,49,1,1,31,20,control,70.75,75.25,
+345,3,40,1,1,10,38,accupuncture,23.75,21.25,
+345,12,40,1,1,10,38,accupuncture,23.75,13.5,
+346,3,39,1,0,5,20,accupuncture,20.25,18.75,
+346,12,39,1,0,5,20,accupuncture,20.25,15.5,
+348,3,42,1,1,1,44,accupuncture,35.75,27.25,
+348,12,42,1,1,1,44,accupuncture,35.75,10.75,
+354,3,27,1,1,10,44,accupuncture,38.25,28.75,
+354,12,27,1,1,10,44,accupuncture,38.25,20.75,
+357,3,59,1,0,30,20,control,19,24.25,
+357,12,59,1,0,30,20,control,19,31.75,
+358,3,37,1,1,4,20,accupuncture,14.5,,lost to follow-up
+358,12,37,1,1,4,20,accupuncture,14.5,,lost to follow-up
+359,3,53,1,0,8,33,accupuncture,58.5,59.5,
+359,12,53,1,0,8,33,accupuncture,58.5,57.75,
+363,3,52,0,1,45,33,control,59,18.75,
+363,12,52,0,1,45,33,control,59,43.75,
+364,3,59,1,1,45,33,accupuncture,30,24.25,withdrew consent
+364,12,59,1,1,45,33,accupuncture,30,,withdrew consent
+365,3,51,0,1,34,33,accupuncture,22.25,4.5,
+365,12,51,0,1,34,33,accupuncture,22.25,6.25,
+369,3,52,1,1,28,33,accupuncture,21.25,13.75,
+369,12,52,1,1,28,33,accupuncture,21.25,12.5,
+371,3,34,1,0,18,24,accupuncture,9.5,8,
+371,12,34,1,0,18,24,accupuncture,9.5,9.5,
+372,3,53,1,1,23,33,accupuncture,48.5,36.25,
+372,12,53,1,1,23,33,accupuncture,48.5,16.5,
+373,3,30,0,1,6,33,accupuncture,17,8.75,
+373,12,30,0,1,6,33,accupuncture,17,17.75,
+374,3,52,1,1,30,24,control,13.75,,intercurrent illness
+374,12,52,1,1,30,24,control,13.75,,intercurrent illness
+375,3,59,1,1,35,33,control,17.5,13.25,
+375,12,59,1,1,35,33,control,17.5,19,
+376,3,22,1,1,5,33,control,10.75,11.33333,withdrew consent
+376,12,22,1,1,5,33,control,10.75,,withdrew consent
+377,3,57,1,1,9,22,control,10.25,4.25,
+377,12,57,1,1,9,22,control,10.25,7.25,
+380,3,65,1,1,54,22,accupuncture,41.25,15.75,
+380,12,65,1,1,54,22,accupuncture,41.25,15,
+382,3,54,1,1,10,22,accupuncture,9.5,2.5,
+382,12,54,1,1,10,22,accupuncture,9.5,2.25,
+383,3,44,1,1,12,22,control,16.25,17.5,
+383,12,44,1,1,12,22,control,16.25,11.5,
+384,3,36,1,1,20,22,accupuncture,22,21.25,
+384,12,36,1,1,20,22,accupuncture,22,14.75,
+385,3,40,1,1,24,22,control,24.75,,withdrew consent
+385,12,40,1,1,24,22,control,24.75,,withdrew consent
+386,3,45,1,0,24,22,control,16.5,,
+386,12,45,1,0,24,22,control,16.5,14,
+389,3,53,1,1,30,12,control,42,,intercurrent illness
+389,12,53,1,1,30,12,control,42,,intercurrent illness
+390,3,53,1,1,20,24,accupuncture,12.25,,withdrew consent
+390,12,53,1,1,20,24,accupuncture,12.25,,withdrew consent
+391,3,61,1,1,46,22,control,37.75,27.75,
+391,12,61,1,1,46,22,control,37.75,28.75,
+392,3,46,1,1,28,22,control,16.25,28,
+392,12,46,1,1,28,22,control,16.25,28.75,
+393,3,52,1,1,46,33,control,12.5,20.75,
+393,12,52,1,1,46,33,control,12.5,25.75,
+394,3,36,1,1,7,12,control,18.25,19.25,
+394,12,36,1,1,7,12,control,18.25,14.25,
+396,3,47,1,1,10,22,accupuncture,19.75,13,
+396,12,47,1,1,10,22,accupuncture,19.75,12,
+398,3,52,1,1,32,12,control,26.75,16.75,
+398,12,52,1,1,32,12,control,26.75,13,
+399,3,44,1,1,13,12,accupuncture,76.5,48.25,withdrew consent
+399,12,44,1,1,13,12,accupuncture,76.5,,withdrew consent
+401,3,57,0,0,20,12,accupuncture,17.75,11,
+401,12,57,0,0,20,12,accupuncture,17.75,14.25,
+404,3,50,1,0,8,12,control,13.5,13.75,
+404,12,50,1,0,8,12,control,13.5,13.5,
+406,3,45,1,1,5,12,control,57.25,36,
+406,12,45,1,1,5,12,control,57.25,36.5,
+408,3,43,1,1,6,12,accupuncture,11,3.5,
+408,12,43,1,1,6,12,accupuncture,11,3,
+410,3,54,1,1,30,12,accupuncture,27.25,21,
+410,12,54,1,1,30,12,accupuncture,27.25,25,
+413,3,25,1,1,10,12,control,28,24.75,
+413,12,25,1,1,10,12,control,28,14.75,
+414,3,50,1,1,7,12,control,13.75,12,
+414,12,50,1,1,7,12,control,13.75,13.75,
+415,3,36,1,1,19,22,control,19.5,15.25,
+415,12,36,1,1,19,22,control,19.5,17,
+416,3,42,1,1,20,12,accupuncture,12.75,4,
+416,12,42,1,1,20,12,accupuncture,12.75,4,
+418,3,30,1,1,9,12,control,40.5,,withdrew consent
+418,12,30,1,1,9,12,control,40.5,,withdrew consent
+419,3,36,1,1,3,16,control,27,43.25,
+419,12,36,1,1,3,16,control,27,15.75,
+420,3,51,1,1,40,12,accupuncture,15.75,7.25,
+420,12,51,1,1,40,12,accupuncture,15.75,21.5,
+424,3,49,1,1,36,23,accupuncture,34.5,26,
+424,12,49,1,1,36,23,accupuncture,34.5,12,
+425,3,54,1,1,20,23,accupuncture,20.75,,withdrew consent
+425,12,54,1,1,20,23,accupuncture,20.75,,withdrew consent
+426,3,43,1,1,31,16,control,16.25,,intercurrent illness
+426,12,43,1,1,31,16,control,16.25,,intercurrent illness
+428,3,55,1,1,30,16,accupuncture,15.25,7.25,
+428,12,55,1,1,30,16,accupuncture,15.25,3,
+429,3,56,1,1,20,16,accupuncture,9.25,15.66667,
+429,12,56,1,1,20,16,accupuncture,9.25,23,
+431,3,57,1,1,20,16,control,11.75,25,
+431,12,57,1,1,20,16,control,11.75,15,
+432,3,18,0,1,16,12,control,18.5,16.75,
+432,12,18,0,1,16,12,control,18.5,9.75,
+433,3,54,1,1,29,12,control,18.5,18,
+433,12,54,1,1,29,12,control,18.5,25,
+434,3,61,1,1,53,12,accupuncture,41.5,21.25,
+434,12,61,1,1,53,12,accupuncture,41.5,41.25,
+435,3,43,1,1,8,12,accupuncture,19,,
+435,12,43,1,1,8,12,accupuncture,19,24.25,
+441,3,37,1,1,21,12,accupuncture,12.75,23.25,
+441,12,37,1,1,21,12,accupuncture,12.75,9.25,
+442,3,30,1,1,11,12,accupuncture,22.5,,withdrew consent
+442,12,30,1,1,11,12,accupuncture,22.5,,withdrew consent
+444,3,42,1,1,36,16,accupuncture,12.5,12.75,
+444,12,42,1,1,36,16,accupuncture,12.5,10.5,
+446,3,28,1,1,19,12,control,13,,withdrew consent
+446,12,28,1,1,19,12,control,13,,withdrew consent
+447,3,47,1,1,6,12,control,9.25,,withdrew consent
+447,12,47,1,1,6,12,control,9.25,,withdrew consent
+449,3,48,1,0,20,12,accupuncture,13.25,26,
+449,12,48,1,0,20,12,accupuncture,13.25,10.25,
+450,3,29,1,1,17,16,control,13,,withdrew consent
+450,12,29,1,1,17,16,control,13,,withdrew consent
+451,3,44,1,1,4,16,accupuncture,14,13.25,
+451,12,44,1,1,4,16,accupuncture,14,16,
+452,3,50,0,1,36,23,control,20,30.25,
+452,12,50,0,1,36,23,control,20,19.75,
+455,3,54,1,1,17,23,accupuncture,17,11.5,
+455,12,54,1,1,17,23,accupuncture,17,7.5,
+456,3,34,1,1,18,23,control,14.25,11.5,
+456,12,34,1,1,18,23,control,14.25,10.5,
+458,3,56,0,1,15,16,accupuncture,17.75,17.25,
+458,12,56,0,1,15,16,accupuncture,17.75,16.75,
+459,3,51,1,1,30,16,control,16.25,8.25,
+459,12,51,1,1,30,16,control,16.25,18.25,
+460,3,29,1,1,10,12,accupuncture,12,3.333333,
+460,12,29,1,1,10,12,accupuncture,12,7.25,
+463,3,49,1,1,33,12,control,42.25,38.25,
+463,12,49,1,1,33,12,control,42.25,9,
+464,3,53,1,1,9,16,control,19.25,7.75,
+464,12,53,1,1,9,16,control,19.25,11.75,
+467,3,46,0,1,19,23,control,63.75,59,
+467,12,46,0,1,19,23,control,63.75,71.5,
+468,3,46,1,0,5,12,control,9.25,8.75,
+468,12,46,1,0,5,12,control,9.25,5.25,
+469,3,41,1,1,20,22,accupuncture,32.5,29.5,
+469,12,41,1,1,20,22,accupuncture,32.5,9.5,
+470,3,49,0,1,24,23,control,36.25,41.75,
+470,12,49,0,1,24,23,control,36.25,46.75,
+471,3,49,1,1,15,16,control,17.75,14.75,
+471,12,49,1,1,15,16,control,17.75,7.25,
+472,3,43,0,1,35,23,accupuncture,77,,withdrew consent
+472,12,43,0,1,35,23,accupuncture,77,,withdrew consent
+473,3,46,1,1,25,16,accupuncture,13.25,10,
+473,12,46,1,1,25,16,accupuncture,13.25,2.75,
+474,3,61,0,1,45,23,accupuncture,11,14.75,
+474,12,61,0,1,45,23,accupuncture,11,9.5,
+477,3,57,1,1,8,16,accupuncture,39,15.75,
+477,12,57,1,1,8,16,accupuncture,39,5.25,
+478,3,22,1,1,6,16,control,38.5,25,
+478,12,22,1,1,6,16,control,38.5,33,
+480,3,59,1,1,30,23,accupuncture,9.5,7.25,
+480,12,59,1,1,30,23,accupuncture,9.5,11.75,
+481,3,40,1,1,17,23,control,12,3.75,
+481,12,40,1,1,17,23,control,12,8,
+482,3,52,1,1,8,23,accupuncture,16.75,12,
+482,12,52,1,1,8,23,accupuncture,16.75,12.75,
+486,3,54,0,1,15,22,control,9.75,,withdrew consent
+486,12,54,0,1,15,22,control,9.75,,withdrew consent
+488,3,31,0,1,2,23,accupuncture,28.5,14,
+488,12,31,0,1,2,23,accupuncture,28.5,17.25,
+489,3,49,0,1,37,16,control,10.25,,withdrew consent
+489,12,49,0,1,37,16,control,10.25,,withdrew consent
+494,3,31,1,1,13,24,control,14.5,22.25,
+494,12,31,1,1,13,24,control,14.5,16.75,
+497,3,39,1,1,27,12,control,31.75,8.25,
+497,12,39,1,1,27,12,control,31.75,6.5,
+498,3,61,0,1,49,16,accupuncture,20.75,11,
+498,12,61,0,1,49,16,accupuncture,20.75,12.5,
+500,3,41,1,1,10,12,accupuncture,45.5,32,
+500,12,41,1,1,10,12,accupuncture,45.5,67,
+501,3,50,1,0,2,12,control,47.5,63,
+501,12,50,1,0,2,12,control,47.5,33,
+503,3,56,1,1,46,12,accupuncture,8.75,13,
+503,12,56,1,1,46,12,accupuncture,8.75,8,
+504,3,60,1,1,21,16,accupuncture,20,15.25,
+504,12,60,1,1,21,16,accupuncture,20,25,
+505,3,43,1,1,12,22,accupuncture,15,6,
+505,12,43,1,1,12,22,accupuncture,15,2,
+506,3,19,1,1,4,12,control,18.75,,withdrew consent
+506,12,19,1,1,4,12,control,18.75,,withdrew consent
+507,3,46,1,0,4,12,accupuncture,11.5,,treatment hassle
+507,12,46,1,0,4,12,accupuncture,11.5,,treatment hassle
+508,3,52,1,1,15,16,accupuncture,11.5,17,
+508,12,52,1,1,15,16,accupuncture,11.5,4.5,
+509,3,44,1,1,3,16,accupuncture,24.75,4.25,
+509,12,44,1,1,3,16,accupuncture,24.75,0,
+511,3,52,1,1,47,23,control,29,,withdrew consent
+511,12,52,1,1,47,23,control,29,,withdrew consent
+512,3,41,1,1,6,23,accupuncture,11.25,26.25,
+512,12,41,1,1,6,23,accupuncture,11.25,10,
+516,3,49,1,1,5,12,control,41.25,36.75,
+516,12,49,1,1,5,12,control,41.25,29,
+518,3,55,0,1,2,12,accupuncture,18.75,20.25,
+518,12,55,0,1,2,12,accupuncture,18.75,11,
+519,3,63,1,1,44,16,control,22.25,16.25,
+519,12,63,1,1,44,16,control,22.25,19.75,
+521,3,50,0,1,10,12,control,11.5,9,
+521,12,50,0,1,10,12,control,11.5,7.5,
+522,3,52,1,1,40,54,control,25.25,12,
+522,12,52,1,1,40,54,control,25.25,22.75,
+523,3,41,1,1,21,16,accupuncture,14,13.5,withdrew consent
+523,12,41,1,1,21,16,accupuncture,14,,withdrew consent
+524,3,39,1,1,3,12,accupuncture,14.25,4,
+524,12,39,1,1,3,12,accupuncture,14.25,12.5,
+525,3,52,1,1,23,23,accupuncture,14,,intercurrent illness
+525,12,52,1,1,23,23,accupuncture,14,,intercurrent illness
+530,3,41,1,1,30,23,control,13.75,22.5,
+530,12,41,1,1,30,23,control,13.75,16.25,
+535,3,25,1,1,19,45,accupuncture,21,23,
+535,12,25,1,1,19,45,accupuncture,21,11,
+536,3,26,1,1,10,18,control,32.5,,withdrew consent
+536,12,26,1,1,10,18,control,32.5,,withdrew consent
+539,3,53,0,1,10,18,control,11.25,18.75,withdrew consent
+539,12,53,0,1,10,18,control,11.25,,withdrew consent
+540,3,54,1,1,40,18,accupuncture,28.25,13.75,
+540,12,54,1,1,40,18,accupuncture,28.25,10,
+542,3,32,1,1,18,55,accupuncture,16.5,19,lost to follow-up
+542,12,32,1,1,18,55,accupuncture,16.5,,lost to follow-up
+543,3,30,1,0,15,33,accupuncture,18.5,,lost to follow-up
+543,12,30,1,0,15,33,accupuncture,18.5,,lost to follow-up
+546,3,54,1,1,19,18,accupuncture,17,,withdrew consent
+546,12,54,1,1,19,18,accupuncture,17,,withdrew consent
+547,3,39,1,1,7,18,control,17,,withdrew consent
+547,12,39,1,1,7,18,control,17,,withdrew consent
+548,3,37,1,1,26,18,control,35.5,26,
+548,12,37,1,1,26,18,control,35.5,16.5,
+549,3,40,1,1,5,18,control,23.5,12.25,
+549,12,40,1,1,5,18,control,23.5,17,
+550,3,33,0,1,10,18,accupuncture,34,,withdrew consent
+550,12,33,0,1,10,18,accupuncture,34,,withdrew consent
+553,3,49,1,1,31,18,control,68.5,65.75,
+553,12,49,1,1,31,18,control,68.5,73.75,
+554,3,50,1,1,37,18,accupuncture,15.25,8.25,
+554,12,50,1,1,37,18,accupuncture,15.25,8.25,
+555,3,45,1,1,33,18,control,40.5,33,
+555,12,45,1,1,33,18,control,40.5,26,
+558,3,56,1,1,11,18,control,16.25,13,
+558,12,56,1,1,11,18,control,16.25,12.75,
+559,3,23,1,1,5,18,accupuncture,52.75,20,
+559,12,23,1,1,5,18,accupuncture,52.75,17.5,
+563,3,43,1,1,30,18,accupuncture,21.75,20.25,
+563,12,43,1,1,30,18,accupuncture,21.75,6,
+564,3,41,1,1,21,18,accupuncture,26.25,17,
+564,12,41,1,1,21,18,accupuncture,26.25,16.75,
+566,3,48,1,1,21,45,control,18,18.75,
+566,12,48,1,1,21,45,control,18,15.5,
+567,3,60,1,1,2,18,control,29.5,39,
+567,12,60,1,1,2,18,control,29.5,28.25,
+568,3,59,1,1,41,18,accupuncture,47.75,98.5,
+568,12,59,1,1,41,18,accupuncture,47.75,47.25,
+569,3,53,1,1,6,18,accupuncture,22.5,13.25,
+569,12,53,1,1,6,18,accupuncture,22.5,11.75,
+577,3,45,1,1,26,18,accupuncture,16.25,13.75,
+577,12,45,1,1,26,18,accupuncture,16.25,19.75,
+578,3,64,1,0,3,18,control,13,5.75,
+578,12,64,1,0,3,18,control,13,2.75,
+579,3,42,1,1,10,18,accupuncture,9.75,10.25,
+579,12,42,1,1,10,18,accupuncture,9.75,11.75,
+580,3,49,1,1,38,18,control,9.25,,withdrew consent
+580,12,49,1,1,38,18,control,9.25,,withdrew consent
+581,3,57,0,1,41,18,control,21.25,,withdrew consent
+581,12,57,0,1,41,18,control,21.25,,withdrew consent
+582,3,51,1,1,20,18,control,9.25,14.25,
+582,12,51,1,1,20,18,control,9.25,2,
+584,3,48,1,1,18,18,accupuncture,18,,lost to follow-up
+584,12,48,1,1,18,18,accupuncture,18,,lost to follow-up
+586,3,51,1,1,38,18,accupuncture,24.5,57.25,lost to follow-up
+586,12,51,1,1,38,18,accupuncture,24.5,,lost to follow-up
+587,3,28,1,1,3,18,control,25.75,8.5,
+587,12,28,1,1,3,18,control,25.75,40,
+588,3,63,1,1,10,18,control,9.25,14.75,
+588,12,63,1,1,10,18,control,9.25,17.5,
+590,3,65,1,1,40,18,accupuncture,20.5,12.25,
+590,12,65,1,1,40,18,accupuncture,20.5,12.75,
+591,3,56,1,1,37,18,control,39.25,35.25,
+591,12,56,1,1,37,18,control,39.25,32,
+592,3,38,1,1,4,26,accupuncture,24.75,20,
+592,12,38,1,1,4,26,accupuncture,24.75,27,
+594,3,40,1,1,6,26,accupuncture,11,6.75,
+594,12,40,1,1,6,26,accupuncture,11,18.75,
+596,3,31,1,1,14,42,accupuncture,31.5,32.5,
+596,12,31,1,1,14,42,accupuncture,31.5,22.75,
+597,3,50,1,1,38,42,control,64.5,,intercurrent illness
+597,12,50,1,1,38,42,control,64.5,,intercurrent illness
+598,3,20,1,1,4,42,accupuncture,44.5,45.25,
+598,12,20,1,1,4,42,accupuncture,44.5,34.75,
+601,3,51,1,1,10,26,control,16,25.75,
+601,12,51,1,1,10,26,control,16,8.25,
+603,3,42,1,1,2,42,accupuncture,61.75,42.5,
+603,12,42,1,1,2,42,accupuncture,61.75,27.25,
+604,3,51,1,1,12,26,accupuncture,30,27.25,
+604,12,51,1,1,12,26,accupuncture,30,4.5,
+606,3,52,1,1,10,18,control,31,24,withdrew consent
+606,12,52,1,1,10,18,control,31,,withdrew consent
+607,3,23,1,1,11,18,accupuncture,17.66667,,intercurrent illness
+607,12,23,1,1,11,18,accupuncture,17.66667,,intercurrent illness
+608,3,48,1,1,15,18,accupuncture,9.5,28,
+608,12,48,1,1,15,18,accupuncture,9.5,14.25,
+612,3,55,1,1,31,18,control,18.25,11,
+612,12,55,1,1,31,18,control,18.25,9.5,
+614,3,47,1,1,8,18,accupuncture,26.25,13.5,
+614,12,47,1,1,8,18,accupuncture,26.25,9,
+617,3,50,1,1,2,42,control,17,8.75,
+617,12,50,1,1,2,42,control,17,4.5,
+619,3,34,1,1,5,18,control,22.25,33.75,
+619,12,34,1,1,5,18,control,22.25,15.75,
+620,3,29,1,1,21,42,control,9.25,9.5,
+620,12,29,1,1,21,42,control,9.25,7.25,
+621,3,37,0,1,20,42,control,23.25,18,
+621,12,37,0,1,20,42,control,23.25,16,
+622,3,56,0,1,23,42,accupuncture,11.75,4.75,
+622,12,56,0,1,23,42,accupuncture,11.75,3.75,
+623,3,39,0,1,4,42,control,22.5,,withdrew consent
+623,12,39,0,1,4,42,control,22.5,,withdrew consent
+624,3,61,1,1,36,18,control,57.75,61.75,
+624,12,61,1,1,36,18,control,57.75,52,
+627,3,56,0,1,42,42,accupuncture,15,15.75,
+627,12,56,0,1,42,42,accupuncture,15,29.25,
+628,3,57,1,1,31,26,accupuncture,9.5,10.75,
+628,12,57,1,1,31,26,accupuncture,9.5,10.25,
+630,3,58,1,1,45,42,control,37,40,
+630,12,58,1,1,45,42,control,37,7.25,
+631,3,58,1,1,41,26,control,58.25,,withdrew consent
+631,12,58,1,1,41,26,control,58.25,,withdrew consent
+632,3,29,0,1,15,10,accupuncture,13.75,,withdrew consent
+632,12,29,0,1,15,10,accupuncture,13.75,,withdrew consent
+634,3,64,0,1,30,42,control,70,,withdrew consent
+634,12,64,0,1,30,42,control,70,,withdrew consent
+635,3,49,1,1,41,10,control,39.5,49.5,
+635,12,49,1,1,41,10,control,39.5,38.75,
+636,3,54,1,1,48,10,control,16.5,20.25,
+636,12,54,1,1,48,10,control,16.5,13.5,
+638,3,25,1,1,15,10,accupuncture,12.25,10.5,
+638,12,25,1,1,15,10,accupuncture,12.25,7.5,
+640,3,56,1,1,22,10,control,24.75,34.5,died
+640,12,56,1,1,22,10,control,24.75,,died
+641,3,44,1,1,30,10,accupuncture,26.25,,intercurrent illness
+641,12,44,1,1,30,10,accupuncture,26.25,,intercurrent illness
+642,3,59,1,1,20,12,control,8.75,10.75,
+642,12,59,1,1,20,12,control,8.75,7.75,
+645,3,36,1,0,24,18,control,27.66667,,lost to follow-up
+645,12,36,1,0,24,18,control,27.66667,,lost to follow-up
+646,3,27,1,1,7,10,control,22.25,19.75,
+646,12,27,1,1,7,10,control,22.25,21.25,
+647,3,55,1,1,42,10,control,40.25,20.75,
+647,12,55,1,1,42,10,control,40.25,22.75,
+648,3,48,1,1,36,42,accupuncture,15.25,14.75,
+648,12,48,1,1,36,42,accupuncture,15.25,3,
+650,3,31,0,1,2,10,accupuncture,9.5,5.5,
+650,12,31,0,1,2,10,accupuncture,9.5,14,
+655,3,44,0,1,7,18,accupuncture,23,19,
+655,12,44,0,1,7,18,accupuncture,23,9.5,
+656,3,38,1,1,25,18,accupuncture,31,31.75,
+656,12,38,1,1,25,18,accupuncture,31,19.5,
+659,3,25,1,1,12,10,control,31.75,,withdrew consent
+659,12,25,1,1,12,10,control,31.75,,withdrew consent
+662,3,37,1,1,20,10,accupuncture,64,26,
+662,12,37,1,1,20,10,accupuncture,64,8.25,
+667,3,48,1,1,18,18,accupuncture,17.5,17.75,
+667,12,48,1,1,18,18,accupuncture,17.5,22,
+668,3,47,1,1,39,10,accupuncture,20.25,11,
+668,12,47,1,1,39,10,accupuncture,20.25,7,
+671,3,51,0,1,41,42,accupuncture,16.75,1.75,
+671,12,51,0,1,41,42,accupuncture,16.75,8.75,
+672,3,45,1,1,25,10,accupuncture,9.25,12,
+672,12,45,1,1,25,10,accupuncture,9.25,19.25,
+674,3,55,1,1,2,42,accupuncture,12.75,19.25,
+674,12,55,1,1,2,42,accupuncture,12.75,41.25,
+676,3,42,0,1,5,33,control,16.5,20.25,
+676,12,42,0,1,5,33,control,16.5,3.5,
+677,3,54,1,1,44,10,control,10,18.75,
+677,12,54,1,1,44,10,control,10,10.25,
+679,3,41,1,1,27,10,control,27.5,,lost to follow-up
+679,12,41,1,1,27,10,control,27.5,,lost to follow-up
+681,3,36,1,1,4,10,control,50.25,,lost to follow-up
+681,12,36,1,1,4,10,control,50.25,,lost to follow-up
+683,3,43,1,1,24,56,control,53.75,50,
+683,12,43,1,1,24,56,control,53.75,42.25,
+684,3,53,1,1,48,10,accupuncture,37.5,25,
+684,12,53,1,1,48,10,accupuncture,37.5,37.5,
+685,3,56,1,1,38,18,control,9,4.75,
+685,12,56,1,1,38,18,control,9,31.75,
+687,3,42,1,1,31,10,control,51,69.75,
+687,12,42,1,1,31,10,control,51,51.75,
+688,3,38,1,1,26,21,control,36.75,,intercurrent illness
+688,12,38,1,1,26,21,control,36.75,,intercurrent illness
+692,3,32,1,1,28,18,control,35,32.75,
+692,12,32,1,1,28,18,control,35,17,
+693,3,53,1,0,37,10,control,16.75,,withdrew consent
+693,12,53,1,0,37,10,control,16.75,,withdrew consent
+695,3,28,1,1,3,21,accupuncture,56,.5,
+695,12,28,1,1,3,21,accupuncture,56,11.75,
+696,3,53,1,1,40,21,accupuncture,37.25,22,
+696,12,53,1,1,40,21,accupuncture,37.25,23.25,
+697,3,20,0,1,8,40,accupuncture,15,,
+697,12,20,0,1,8,40,accupuncture,15,5.25,
+698,3,63,0,1,52,40,control,16.25,15,withdrew consent
+698,12,63,0,1,52,40,control,16.25,,withdrew consent
+699,3,63,1,1,52,40,accupuncture,22.25,15,intercurrent illness
+699,12,63,1,1,52,40,accupuncture,22.25,,intercurrent illness
+700,3,61,1,0,17,40,control,75,,withdrew consent
+700,12,61,1,0,17,40,control,75,,withdrew consent
+701,3,58,0,1,20,21,accupuncture,42,36,
+701,12,58,0,1,20,21,accupuncture,42,31.75,
+702,3,46,1,1,25,21,accupuncture,20.75,,withdrew consent
+702,12,46,1,1,25,21,accupuncture,20.75,,withdrew consent
+704,3,43,1,1,30,10,accupuncture,25.75,7.25,
+704,12,43,1,1,30,10,accupuncture,25.75,9.5,
+705,3,52,1,1,23,21,control,15,,withdrew consent
+705,12,52,1,1,23,21,control,15,,withdrew consent
+707,3,57,1,1,31,40,accupuncture,26.75,48.5,
+707,12,57,1,1,31,40,accupuncture,26.75,30.5,
+710,3,48,1,1,28,21,accupuncture,12,8.25,
+710,12,48,1,1,28,21,accupuncture,12,7,
+711,3,24,1,1,14,40,control,10,8,
+711,12,24,1,1,14,40,control,10,3.5,
+712,3,34,0,1,24,40,accupuncture,16.25,5,
+712,12,34,0,1,24,40,accupuncture,16.25,17.75,
+713,3,51,1,1,31,40,control,16,9.5,
+713,12,51,1,1,31,40,control,16,8.75,
+714,3,35,1,1,17,40,control,38,18,
+714,12,35,1,1,17,40,control,38,27.25,
+715,3,49,1,1,31,40,accupuncture,13.5,,withdrew consent
+715,12,49,1,1,31,40,accupuncture,13.5,,withdrew consent
+717,3,46,1,1,2,10,accupuncture,19,11.25,
+717,12,46,1,1,2,10,accupuncture,19,2,
+719,3,25,1,1,16,21,control,33.25,24.5,
+719,12,25,1,1,16,21,control,33.25,27.5,
+726,3,37,1,1,25,10,accupuncture,87.5,62.5,lost to follow-up
+726,12,37,1,1,25,10,accupuncture,87.5,,lost to follow-up
+733,3,45,1,1,32,40,accupuncture,29,7.25,
+733,12,45,1,1,32,40,accupuncture,29,4.5,
+734,3,64,0,1,21,21,control,18,27,
+734,12,64,0,1,21,21,control,18,14,
+735,3,26,1,1,10,10,accupuncture,18.5,17.5,lost to follow-up
+735,12,26,1,1,10,10,accupuncture,18.5,,lost to follow-up
+737,3,50,1,1,24,21,accupuncture,32.25,16,
+737,12,50,1,1,24,21,accupuncture,32.25,24.75,
+740,3,51,1,1,27,21,control,12.25,17,
+740,12,51,1,1,27,21,control,12.25,6,
+741,3,30,1,1,16,10,control,23.25,15.25,
+741,12,30,1,1,16,10,control,23.25,31,
+742,3,55,1,1,32,21,control,12.25,6.75,
+742,12,55,1,1,32,21,control,12.25,17.25,
+743,3,49,1,1,15,21,accupuncture,22,20.75,
+743,12,49,1,1,15,21,accupuncture,22,10,
+744,3,46,1,1,32,21,accupuncture,28.5,38,
+744,12,46,1,1,32,21,accupuncture,28.5,22,
+745,3,56,1,1,42,40,accupuncture,26.75,,adverse effects
+745,12,56,1,1,42,40,accupuncture,26.75,,adverse effects
+746,3,49,0,1,2,21,accupuncture,10,6.5,
+746,12,49,0,1,2,21,accupuncture,10,9.5,
+748,3,48,1,1,27,21,control,53,42.25,
+748,12,48,1,1,27,21,control,53,53.5,
+756,3,46,1,1,24,58,accupuncture,27,7.5,
+756,12,46,1,1,24,58,accupuncture,27,8.75,
+758,3,55,1,1,30,17,accupuncture,26.5,14,
+758,12,55,1,1,30,17,accupuncture,26.5,25.5,
+763,3,24,1,1,13,40,accupuncture,17.75,,treatment hassle
+763,12,24,1,1,13,40,accupuncture,17.75,,treatment hassle
+764,3,23,1,1,13,40,control,28,32.5,
+764,12,23,1,1,13,40,control,28,26,
+765,3,52,0,0,27,21,control,25.75,26.75,
+765,12,52,0,0,27,21,control,25.75,23,
+766,3,49,1,1,8,17,control,94.75,91.75,
+766,12,49,1,1,8,17,control,94.75,87.25,
+767,3,50,1,1,37,17,control,19,16.5,withdrew consent
+767,12,50,1,1,37,17,control,19,,withdrew consent
+768,3,37,1,1,26,17,control,18.75,24.25,
+768,12,37,1,1,26,17,control,18.75,27.5,
+769,3,59,1,1,51,17,accupuncture,54.75,47.5,
+769,12,59,1,1,51,17,accupuncture,54.75,17,
+771,3,52,1,1,5,17,accupuncture,14.5,,withdrew consent
+771,12,52,1,1,5,17,accupuncture,14.5,,withdrew consent
+773,3,25,0,1,6,40,control,15.5,15,
+773,12,25,0,1,6,40,control,15.5,22.5,
+774,3,54,1,1,51,40,control,31,23,
+774,12,54,1,1,51,40,control,31,40.25,
+776,3,57,1,1,17,17,accupuncture,18.5,9.75,
+776,12,57,1,1,17,17,accupuncture,18.5,11.25,
+778,3,42,1,1,21,40,accupuncture,35.5,,intercurrent illness
+778,12,42,1,1,21,40,accupuncture,35.5,,intercurrent illness
+780,3,53,1,1,30,17,accupuncture,24.5,21.25,
+780,12,53,1,1,30,17,accupuncture,24.5,35.25,
+782,3,62,1,1,13,40,control,60.5,64.5,lost to follow-up
+782,12,62,1,1,13,40,control,60.5,,lost to follow-up
+783,3,45,0,0,20,40,accupuncture,51.25,56.75,
+783,12,45,0,0,20,40,accupuncture,51.25,53.25,
+784,3,33,1,1,19,17,control,55.666672,,withdrew consent
+784,12,33,1,1,19,17,control,55.666672,,withdrew consent
+785,3,33,1,1,10,40,accupuncture,48.75,36.75,
+785,12,33,1,1,10,40,accupuncture,48.75,17.75,
+787,3,51,0,1,27,40,control,9.25,,
+787,12,51,0,1,27,40,control,9.25,38.25,
+788,3,46,1,1,3,17,accupuncture,48.5,27.25,treatment hassle
+788,12,46,1,1,3,17,accupuncture,48.5,,treatment hassle
+789,3,62,0,1,48,17,accupuncture,34.25,27,
+789,12,62,0,1,48,17,accupuncture,34.25,38.25,
+794,3,48,0,1,27,21,control,24.25,16,lost to follow-up
+794,12,48,0,1,27,21,control,24.25,,lost to follow-up
+798,3,55,1,1,45,17,control,14,26,
+798,12,55,1,1,45,17,control,14,6,
+800,3,49,1,1,25,17,accupuncture,10.75,5,
+800,12,49,1,1,25,17,accupuncture,10.75,3.5,
+827,3,43,0,1,10,27,accupuncture,36.25,12.5,
+827,12,43,0,1,10,27,accupuncture,36.25,5,
+829,3,42,1,1,17,27,control,65.75,69.5,
+829,12,42,1,1,17,27,control,65.75,67.75,
+832,3,22,1,1,19,27,control,19.5,,withdrew consent
+832,12,22,1,1,19,27,control,19.5,,withdrew consent
+833,3,46,1,1,32,27,control,19,15.75,
+833,12,46,1,1,32,27,control,19,14.25,
+840,3,41,1,1,5,27,accupuncture,17.25,15.75,
+840,12,41,1,1,5,27,accupuncture,17.25,0,
+857,3,43,1,1,26,42,accupuncture,18,19.75,withdrew consent
+857,12,43,1,1,26,42,accupuncture,18,,withdrew consent
+872,3,54,1,1,16,21,control,53,34,
+872,12,54,1,1,16,21,control,53,25.5,
+876,3,49,0,1,36,27,accupuncture,10.25,1.25,
+876,12,49,0,1,36,27,accupuncture,10.25,1.5,
+880,3,36,1,1,24,27,control,17,12.75,
+880,12,36,1,1,24,27,control,17,9.75,
+884,3,65,1,1,22,42,accupuncture,17.5,8.75,
+884,12,65,1,1,22,42,accupuncture,17.5,5.75,
+886,3,33,1,1,21,21,control,21,11.5,
+886,12,33,1,1,21,21,control,21,24.25,
+895,3,21,1,1,11,40,control,38.5,26.5,withdrew consent
+895,12,21,1,1,11,40,control,38.5,,withdrew consent
+899,3,49,1,1,6,19,accupuncture,29.75,23.5,
+899,12,49,1,1,6,19,accupuncture,29.75,16.25,
+905,3,50,1,1,7,19,control,14.25,10.25,
+905,12,50,1,1,7,19,control,14.25,4,
+912,3,43,1,1,4,19,accupuncture,11.75,11.75,
+912,12,43,1,1,4,19,accupuncture,11.75,9.5,

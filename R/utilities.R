@@ -96,7 +96,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 {
-  # browser()
+   browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
@@ -116,7 +116,8 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
       mata_means[b] <- MeansC[[1]][b]
     } else  {
       #filling in column at a time
-      mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ Kd*( MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1])
+     # mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ Kd*( MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1])
+      mata_means[c_mata_miss[b]] <-  Kd*(mata_means[(c_mata_miss[b]-1)]- MeansC[[1]][(c_mata_miss[b])-1]) + MeansC[[1]][(c_mata_miss[b])]
     }
   }
   return(mata_means)
@@ -178,3 +179,27 @@ regressimp <- function(dataf,regmodel)  {
   miResult <- norm2::miInference(est.list, std.err.list, df.complete=801)
   print(miResult)
 }
+
+
+
+#' @title analyselist
+#' @description find descriptive stats on the  M imputed data set
+#' @details select on patient id and find their means etc
+#' @param id patient identifier
+#' @param datlist imputed dataset of M imputations
+#' @param varlist list of derived variables
+#' @return printout of descriptve stats
+#' @example
+#' \dontrun{
+#' varlist <- c("fev2","fev4","fev8","fev12","base")
+#' analyselist(5017,impdataset,varlist)
+#' }
+
+
+analyselist <-function(id,datlist,varlist) {
+  datano <- subset(datlist,id==datlist$SNO)
+   # numbers denote the descriptive stats to display
+   t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
+}
+
+

@@ -416,14 +416,18 @@ ifmethodindiv <- function(methodindiv,mg,m,M,paramBiglist,i,treatvar, c_mata_non
 
 
     # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
-    mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
+    # edits 12/04 same as in runmimix
+    mata_means_t <- lapply(mata_means_trt,FUN = function(x) x*mata_nonmiss)
+    #mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
     # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
 
-    mata_means_r <- unlist(mata_means_ref)*mata_miss
+    mata_means_r <- lapply(mata_means_ref, FUN = function(x) x*mata_miss)
+    #mata_means_r <- unlist(mata_means_ref)*mata_miss
     # so when all missing  1,1,1, ... then all contributing comes from reference means
-    mata_means <- mata_means_r+mata_means_t
+    mata_means <- unlist(mata_means_r)+unlist(mata_means_t)
+    mata_means <- (as.matrix(t(mata_means)))
     # and preserve names
-    colnames(mata_means) <- colnames(mata_means_trt)
+   # colnames(mata_means) <- colnames(mata_means_trt)
     #replicate to number of rows defined by X1
     #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
 

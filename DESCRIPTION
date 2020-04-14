@@ -22,6 +22,7 @@ LazyData: true
 Imports:
      Hmisc,
      norm2,
+     pastecs,
 RoxygenNote: 7.1.0
 Suggests: 
     testthat

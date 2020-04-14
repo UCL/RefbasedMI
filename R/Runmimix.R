@@ -26,7 +26,7 @@
 #' }
 
 Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
-  #browser()
+
   # establish whether indivual or group by cretung a flag var
   if (!is.null(meth)) { flag_indiv <-0 }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
@@ -290,7 +290,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
-
+ #browser()
 
     if  (is.null(methodindiv[1]) ) {
       cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
@@ -327,7 +327,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         # mata_all_new=rbind(mata_all_new,mata_new)
       } else {
         # need to distinguish between meth and methodindiv
-
+     # browser()
         if (flag_indiv==0 ) {
 
           referindex<- refer
@@ -364,14 +364,23 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
             #  browser()
             # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
-            mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
+
+            # try not unisting because error only fr J2r merod when on patien in patt
+            #
+            # 11/0420
+           # browser()
+            mata_means_t <-lapply(mata_means_trt,FUN = function(x) x*mata_nonmiss)
+            #mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
             # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
 
-            mata_means_r <- unlist(mata_means_ref)*mata_miss
+            mata_means_r <-lapply(mata_means_ref,FUN = function(x) x*mata_miss)
+           #mata_means_r <- unlist(mata_means_ref)*mata_miss
             # so when all missing  1,1,1, ... then all contributing comes from reference means
-            mata_means <- mata_means_r+mata_means_t
+            mata_means <- unlist(mata_means_r)+unlist(mata_means_t)
+            #try this 11/04
+            mata_means<-(as.matrix(t(mata_means)))
             # and preserve names
-            colnames(mata_means) <- colnames(mata_means_trt)
+           # 11/04 colnames(mata_means) <-  colnames(mata_means_t[[1]])
             #replicate to number of rows defined by X1
             #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
 
@@ -488,7 +497,9 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
            #MeansC <-  get(paste0("param",refer,m))[1]
            MeansC <-  paramBiglist[[M*(referindex-1)+m]][1]
            #put Kd tempval
-           Kd<-1
+           #Kd =0 eq0iv to J2R?
+           #Kd =1 equiv to CIR
+           Kd<-0.8
           # browser()
            mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,Kd)
 
@@ -629,11 +640,12 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         # m2 careful as matrix needs to be vertical , test change 17/03
         # this works for accupuncture data but not asthma, because when one patient raw daa is 1 by n matrix so m2 needs to be horizontal, ie not a matrix
 
-        #19/03    if (mg[i,"X1"] == 1) {
-        #    meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
-        # }  else {
+        #19/03  11/04 works for CR but then not for J2R for 5333 patt=7 one patient
+        if (mg[i,"X1"] == 1) {
+            meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+        }  else {
         meanval = as.matrix(m2) + (as.matrix(raw1 - m1)%*%as.matrix(t_mimix))
-        #  }
+         }
 
 
         #24/02browser()
@@ -722,6 +734,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
 
 getimpdatasets <- function(varlist){
+  browser()
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
