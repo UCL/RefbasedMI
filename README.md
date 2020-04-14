@@ -20,7 +20,7 @@ The 5 methods available for sensitivity analysis are
 | Last mean carried forward	    | LMCF|  n |
 
 
-The R program does not provide the interim option available in Stata (where the individual has data observed later ) or the methodvar option (where  different imputation methods are required for different individuals). 
+The R program does not provide the interim option available in Stata (where the individual has data observed later ) . It does have the methodvar option (where  different imputation methods are specific for different individuals). 
 
 # installation
 
