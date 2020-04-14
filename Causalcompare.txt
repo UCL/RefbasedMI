@@ -1,0 +1,16 @@
+subset(impdatasetCuasal0,SNO=="5094")
+     GI II fev.2 fev.4 fev.8    fev.12 base treat fev.2 .missing fev.4 .missing fev.8 .missing fev.12 .missing patt  SNO
+109   8  1  1.25  1.13  1.73 0.5370923 1.79     2              0              0              0               1    8 5094
+1091  8  2  1.25  1.13  1.73 0.6185705 1.79     2              0              0              0               1    8 5094
+> subset(impdatasetCuasal1,SNO=="5094")
+     GI II fev.2 fev.4 fev.8    fev.12 base treat fev.2 .missing fev.4 .missing fev.8 .missing fev.12 .missing patt  SNO
+109   8  1  1.25  1.13  1.73 1.1303947 1.79     2              0              0              0               1    8 5094
+1091  8  2  1.25  1.13  1.73 0.7644786 1.79     2              0              0              0               1    8 5094
+> subset(impdatasetJ2R,SNO=="5094")
+     GI II fev.2 fev.4 fev.8    fev.12 base treat fev.2 .missing fev.4 .missing fev.8 .missing fev.12 .missing patt  SNO
+109   8  1  1.25  1.13  1.73 0.5370923 1.79     2              0              0              0               1    8 5094
+1091  8  2  1.25  1.13  1.73 0.6185705 1.79     2              0              0              0               1    8 5094
+> subset(impdatasetCIR,SNO=="5094")
+     GI II fev.2 fev.4 fev.8    fev.12 base treat fev.2 .missing fev.4 .missing fev.8 .missing fev.12 .missing patt  SNO
+109   8  1  1.25  1.13  1.73 1.1303947 1.79     2              0              0              0               1    8 5094
+1091  8  2  1.25  1.13  1.73 0.7644786 1.79     2              0              0              0               1    8 5094
