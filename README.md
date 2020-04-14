@@ -24,5 +24,7 @@ The R program does not provide the interim option available in Stata (where the 
 
 # installation
 
-library(githubinstall)
-githubinstall("rmimixpackage")
+
+library(devtools)
+
+install_github("UCL/mimix")
