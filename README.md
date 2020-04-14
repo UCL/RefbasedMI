@@ -21,3 +21,8 @@ The 5 methods available for sensitivity analysis are
 
 
 The R program does not provide the interim option available in Stata (where the individual has data observed later ) or the methodvar option (where  different imputation methods are required for different individuals). 
+
+# installation
+
+library(githubinstall)
+githubinstall("rmimixpackage")
