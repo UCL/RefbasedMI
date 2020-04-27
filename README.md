@@ -9,7 +9,7 @@ Reference-based sensitivity analysis via multiple imputation for longitudinal tr
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
-The 5 methods available for sensitivity analysis are
+The 5 methods (plus Causal) available for sensitivity analysis are
  
 |  Method         | option cmd             | reference group required |
 | --------------- | --------------- | --------------------  |
@@ -39,7 +39,7 @@ install_github("UCL/mimix")
 
 # usage
 
-ensure all covariates are numeric, for example
+covariates and basevalue response must be non-missing, also all covariates to be converted to numeric, for example 
 antidepressant$PATIENT.SEX <- as.numeric(antidepressant$PATIENT.SEX)
 
 otherwise you get the following warning 
@@ -50,16 +50,38 @@ Warning messages:
   Factors in argument "y" converted to mode "numeric".
 3
 
-to run mimix()
-ensure data set loaded, eg antidepressant
 
-run mimix to save the imputed data-sets
+arguments in function mimix() showing default values
+(If meth specified then methodIndiv must be NULL and vice versa)
 
-Causal method
+mimix(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv,delta=NULL) 
+
+# Examples
+
+Using the Causal method
+
 impdataCausal <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL)
 
-Individual specific, includind delta adjustment
+
+Individual specific, with delta adjustment
+
 impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
+
+
+Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
+
+impdatasetJ2R<-(Runmimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ) ))   
+
+check outputs for individual patient id
+
+varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+
+analyselist(5017,impdatasetJ2R,varlist)
+
+run regression on imputed data-sets, combining using Rubin's rules
+
+regressimp(impdatasetJ2R,"fev.12~treat+base")
+
 
 
 
