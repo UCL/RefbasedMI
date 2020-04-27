@@ -130,6 +130,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 #' @title regressimp
 #' @description run regression on M imputed data set, combinging as Rubin's rules
 #' @details This is approach followed from  norm2 user manual
+#' @export regressimp
 #' @param dataf data-frame
 #' @param regmodel regression model specfication
 #' @return estimates of regression coefficients
@@ -168,6 +169,7 @@ regressimp <- function(dataf,regmodel)  {
 #' @title analyselist
 #' @description find descriptive stats on the  M imputed data set
 #' @details select on patient id and find their means etc
+#' @export analyselist
 #' @param id patient identifier
 #' @param datlist imputed dataset of M imputations
 #' @param varlist list of derived variables
