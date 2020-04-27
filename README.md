@@ -20,7 +20,14 @@ The 5 methods (plus Causal) available for sensitivity analysis are
 | Last mean carried forward	    | LMCF|  n |
 | Causal	                       | Causal|  y |
 
+for explanation of the Causal model refer to 
+
+https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
+
 and an option for Delta adjustmnent to the imputed values
+
+see the explanation within the SAS 5macros folder ,also
+https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
 The R program does not provide the interim option available in Stata (where the individual has data observed later ) .
 
