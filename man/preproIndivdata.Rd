@@ -12,8 +12,8 @@ preproIndivdata(
   idvar,
   timevar,
   M,
-  refer = null,
-  meth = null,
+  refer = NULL,
+  meth = NULL,
   methodindiv
 )
 }

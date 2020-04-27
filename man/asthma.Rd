@@ -15,12 +15,12 @@ A dataset containg  asthma trial data as used in the Stata mimix help file
 }
 \details{
 @format A data frame containing 732 rows and 5 columns
-  \describe{
-  \item{id}{}
-  \item{time}{}
-  \item{treat}{}
-  \item{base}{}
-  \item{fev}{}
-  }
+\describe{
+\item{id}{}
+\item{time}{}
+\item{treat}{}
+\item{base}{}
+\item{fev}{}
+}
 }
 \keyword{datasets}
