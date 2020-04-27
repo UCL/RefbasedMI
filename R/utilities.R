@@ -53,8 +53,9 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 #' @return mata_means
 
 
-# mata_S_miss something like [2 3 4] ,so is cc
+
 CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
+  # mata_S_miss something like [2 3 4] ,so is cc
 {
   # browser()
   miss_count <- length(c_mata_miss)
@@ -96,7 +97,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 {
-   browser()
+   #browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
@@ -124,24 +125,6 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 }
 
 
-
-#' @title pttestf
-#' @description significance test between mean of 2 groups
-#' @details This is based on ..
-#' @param n1 sample size  group1
-#' @param n2 samplesize group
-#' @param mn1 mean value in sample 1
-#' @param mn2 mean value in sample 2
-#' @param sd1 standard deviation in sample 1
-#' @param sd2 stadard deviation sample 2
-#' @return p value
-
-
-#'
-pttestf<- function(n1,n2,mn1,sd1,mn2,sd2) {
-  pttest = stats::pt((((mn1 - mn2) -0) /sqrt(sd1^2/n1+sd2^2/n2)),(n1+n2-2))
-  return(pttest)
-}
 
 
 #' @title regressimp
@@ -201,5 +184,53 @@ analyselist <-function(id,datlist,varlist) {
    # numbers denote the descriptive stats to display
    t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
 }
+
+#' @title AddDelta
+#' @description add delta's to imputed values
+#' @details adding delta values after wthdrawal
+#' @param vec_tst  vector of visit names
+#' @param ncovar number covariates
+#' @param mata_imp the imputed values (as well as the complete)
+#' @param delta vector of delta values for each vist time
+#' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
+#' @example
+#' \dontrun{
+#' Adddelta(tst2, nocovar_i,mata_new,delta)
+#' }
+
+
+#define function 19/04 to add delta's to imputed values
+AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
+ #browser()
+  # create vector of 1 and 0s
+  #browser()
+  onezero<-sapply(vec_tst[1:(length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x," .missing")]))
+  # then 1st and last  ,set last0 as last of complete  before the missing values start
+  lastVisit <- min(which(onezero==1))
+  # so add appropriate delta to imputed values after last visit
+  super_delta<-0
+  for (v in lastVisit:(length(vec_tst)-ncovar)) {
+    # when dlag used super_delta<- super_delta + delta[v]* dlag[v-1]
+    # we only increment delta when missing, so skip if non imssing
+    # 1st row should be same value for all rows in the same pattern group, gives warning othewise
+    if (mata_imp[1,2+v+1+length(vec_tst)]==1) {
+       super_delta <- super_delta + delta[v]
+    }
+    #browser()
+    # mata_new values start in col 3 so must add 2 to index
+    # needs adjusting for when interim case non missing! test dummy missing vars
+   # jump<-length(vec_tst)
+   # mata_imp[2+v]<- ifelse(mata_imp[2+v+1+jump]==1,mata_imp[2+v] + super_delta,mata_imp[2+v])
+   #{
+    #print(paste0("interim missing, check delta adjustment ",onezero))
+    mata_imp[2+v] <- mata_imp[2+v] + super_delta
+    #}
+  }
+  return(mata_imp)
+}
+
+
+
+
 
 

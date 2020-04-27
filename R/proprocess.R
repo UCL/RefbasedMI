@@ -124,7 +124,8 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   # may have to generalise using function argument  later!
   # this bit groups and aggregates but can try using base (aggregate) instead! .
   #
- # browser()
+ # browser
+
   #29/03
  # library("dplyr")
 # replace dplr cmds 29/03
@@ -188,7 +189,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
 
 #preprocess data for individual method
-preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=null,meth=null,methodindiv)  {
+preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL,meth=NULL,methodindiv)  {
   #extract relevant vars
 #browser()
   #check covars complete

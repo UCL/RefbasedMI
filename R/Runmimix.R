@@ -1,9 +1,9 @@
 
 
-#' @title Runmimix
+#' @title mimix
 #' @description main wrapper for running mimix
 #' @details This is based on Suzie Cro's Stata program
-#' @export Runmimix
+#' @export mimix
 #' @param data  datset in wide format
 #' @param covar covariates and base depvar must be complete (no missing vaules)
 #' @param depvar dependent variable
@@ -17,20 +17,24 @@
 #' @param priorvar  prior,defualt Jeffries, also uniform or ridge
 #' @param burnin  burnin value
 #' @param bbetween  value between iterations in mcmc
-#' @param methodindiv  columns in dat for individual method and reference group
+#' @param methodindiv  2 element vector designating variables in data for individual method and reference group
+#' @param delta vector of delta values to add onto imputed values (non-mandatory)
 #' @return impdataset
 #' @example
 #' \dontrun{
-#' impdataset<-(Runmimix("asthma",c("base"),"fev","treat","id","time",
-#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL) )
+#' impdataset<-(mimix("asthma",c("base"),"fev","treat","id","time",
+#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1)) )
 #' }
 
-Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv) {
+mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv,delta=NULL) {
 
   # establish whether indivual or group by cretung a flag var
   if (!is.null(meth)) { flag_indiv <-0 }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
 
+   #check not both meth and methodundiv specified.
+
+  stopifnot(meth=="NULL" | methodindiv=="NULL")
 
   #
   #find no covars
@@ -38,6 +42,12 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
   #browser(1)
   print(paste0("ncovar_i = ",ncovar_i))
   print(paste0("covar= ",covar[1]))
+
+  # need to write a subroutine
+  # recode covariates to numeric from factor
+     # browser()
+  #converting covariates to numeric
+  #convertcovars(data,covar)
 
 
   #if prior =ridge then need fing default ridge parameter ,try 0.1sd(depvar)
@@ -97,6 +107,13 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
     # need to re-set meth for individual
     meth <- testlist[[9]][1]
 
+  }
+
+  if (meth == 6) {
+
+  Kd <- readline(prompt="Enter Kd value (=0 same as J2R, =1 same as CIR : ")
+  # must be number
+  Kd<- as.numeric(Kd)
   }
 
   #browser()
@@ -499,8 +516,8 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
            #put Kd tempval
            #Kd =0 eq0iv to J2R?
            #Kd =1 equiv to CIR
-           Kd<-0.8
-          # browser()
+           #Kd<-0.8
+
            mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,Kd)
 
           #this temporary  fpr test purposes until algo decided upon
@@ -669,9 +686,13 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         #10/03/20
         #browser()
         # assigning the columns where the missing values
-        #17/03  browser()
-        if(length(c_mata_miss)==0 ) { mata_new <- mata_Obs[,c(2:nct+1)]
-        }else {
+        #17/03
+        #browser()
+        # was nct (as in stata) = no ntimes + ncovar
+        # so if no missing then just copy full values into mata_new columns
+        if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
+        }else
+          {
           mata_new[,c_mata_miss] <- mata_y1
         }
         # if(length(c_mata_miss)!=0 )
@@ -696,13 +717,19 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
         #this works but bette to pre initialise data structure outsidr loop
         mata_new<-cbind(GI,II,mata_new,SNO)
 
+        #assume delta to be used if specified in input argument
+        if (length(delta != 0) ) {
+          #browser()
+        mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta)
+        }
+
         mata_all_newlist[[m_mg_iter]]=mata_new
         #mata_all_new<-rbind(mata_all_new,mata_new)
         #mata_all_new<- na.omit(mata_all_new)
         #stata equilv \ is row bind NOt cbind!!?
 
         #}
-      } #if patt ==0r if all  missing
+      } # ( m in  1:M) so insert delta module just before this
     } #for row[mg]
 
   } #for M StOP HERE!!
@@ -722,7 +749,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
   #return(list(mata_all_newlist,mg,M,meth))
   return(impdataset)
-} # for runmimix test
+} # for mimix test
 
 #' @title getimpdatasets
 #' @description to obtain the M imputed data set from the output list into one dataset
@@ -734,7 +761,7 @@ Runmimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seed
 
 
 getimpdatasets <- function(varlist){
-  browser()
+  #browser()
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
