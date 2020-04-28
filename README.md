@@ -35,7 +35,7 @@ It does have the methodvar option (where  different imputation methods are speci
 
 # installation
 
-within the R environment tyoe 
+within the R environment type 
 
 library(devtools) 
 
