@@ -66,7 +66,7 @@ mimix(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorv
 # examples
 
 
-## Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
+### Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
 
 impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ) )   
 
@@ -78,12 +78,12 @@ run regression on imputed data-sets, combining using Rubin's rules
 regressimp(impdatasetJ2R,"fev.12~treat+base")
 
 
-## Using the Causal method
+### Using the Causal method
 
 impdataCausal <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL)
 
 
-## Individual specific method, with delta adjustment
+### Individual specific method, with delta adjustment
 
 impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
 
