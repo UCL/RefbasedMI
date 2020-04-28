@@ -71,10 +71,13 @@ mimix(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorv
 impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ) )   
 
 check outputs for individual patient id
+
 varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+
 analyselist(5017,impdatasetJ2R,varlist)
 
 run regression on imputed data-sets, combining using Rubin's rules
+
 regressimp(impdatasetJ2R,"fev.12~treat+base")
 
 
