@@ -88,7 +88,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 #' @title Causal_loop
 #' @description process Causal method
-#' @details This is based on Suzie Cro's Stata program
+#' @details This is based on "White,Royes,Best" paper
 #' @param c_mata_miss vector of missing
 #' @param mata_Means fill-in here
 #' @param MeansC fill-in
@@ -97,7 +97,8 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 {
-   #browser()
+
+  # browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
@@ -106,7 +107,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
     # if 1st col missing then no value before so need to check for that
     # note mimix counter just no rows in each patt
     # so main looping is over missin fields, ie miss_count
-    # if 1st col must be ref
+    # if 1st col must be refn
     if (c_mata_miss[b] ==1) {
       #print will cause objectto return
       #print(paste0(miss_count))
@@ -118,7 +119,21 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
     } else  {
       #filling in column at a time
      # mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ Kd*( MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1])
-      mata_means[c_mata_miss[b]] <-  Kd*(mata_means[(c_mata_miss[b]-1)]- MeansC[[1]][(c_mata_miss[b])-1]) + MeansC[[1]][(c_mata_miss[b])]
+
+    # assuming  mata_means[t]- MeansC[[1]][t] is depature from overall mean , ie MyCov in sas macro
+    # find time of discontinuation (ignoring interim cases?)
+
+      # establish time of last visit ( asunming no interims for now!)
+      # eg c_mata_miss = (2,3,4) shows missing cols
+      #lastvisit is time t in Ian's paper
+      lastvisit <-min(c_mata_miss)-1
+      # departure from overall mean at time t (lastvist) , active mean - ref mean at last visit
+      ActRef_diff <-mata_means[lastvisit]-MeansC[[1]][lastvisit]
+
+      # 1/5/20 need to compere v CIR , J2R and doesnt use terms in  formula 7
+      mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+  ( Kd*ActRef_diff )
+      #mata_means[c_mata_miss[b]] <-   *(mata_means[(c_mata_miss[b]-1)]- MeansC[[1]][(c_mata_miss[b])-1]) + (mata_means[(c_mata_miss[b])]-MeansC[[1]][(c_mata_miss[b])])
+
     }
   }
   return(mata_means)
@@ -156,13 +171,40 @@ regressimp <- function(dataf,regmodel)  {
     #mod<-lm(HAMD17.TOTAL7~basval+HAMD17.TOTAL6,data=implist1x[[m]] )
     mod<-stats::lm(regmodel,data=implist1x[[m]] )
     est.list[[m]] <- stats::coef(summary(mod))[,1]
-    std.err.list[[m]] <- stats::coef(summary(mod))[,2] }
+    std.err.list[[m]] <- stats::coef(summary(mod))[,2]
+    }
   ## combine the results by rules of Barnard and Rubin (1999)
   ## with df.complete = 27, because a paired t-test in a dataset with
   ## N=28 cases has 27 degrees of freedom
+
   miResult <- norm2::miInference(est.list, std.err.list, df.complete=801)
   print(miResult)
+
+  # trying mcerror
+  #return(list(est.list,std.err.list))
 }
+
+
+
+#### test mice
+#### need to transform back to long data set and insert orig data at beginning
+# try hard cod to find working sytax
+#melt(setDT(impantiIndiv(wide), id.vars=c("SNO"), variable.name = "HAMD17.TOTAL.7"))
+
+#model_impdata <- function(dataf,regmodel,depvar,covar,timevar,treatvar)
+
+
+
+#fit <- with(data = imp, exp = lm(bmi ~ hyp + chl))
+#summary(pool(fit))
+#library(mice)
+
+#impmice<-mice(nhanes,print=F)
+
+#head(impmice)
+#Xmice<- complete(impmice,action="long",include = T)
+
+
 
 
 
@@ -176,8 +218,8 @@ regressimp <- function(dataf,regmodel)  {
 #' @return printout of descriptve stats
 #' @example
 #' \dontrun{
-#' varlist <- c("fev2","fev4","fev8","fev12","base")
-#' analyselist(5017,impdataset,varlist)
+#' varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+#' analyselist(5099,impdataset,varlist)
 #' }
 
 
@@ -195,21 +237,29 @@ analyselist <-function(id,datlist,varlist) {
 #' @param mata_imp the imputed values (as well as the complete)
 #' @param delta vector of delta values for each vist time
 #' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
-#' @example
-#' \dontrun{
-#' Adddelta(tst2, nocovar_i,mata_new,delta)
-#' }
+
 
 
 #define function 19/04 to add delta's to imputed values
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
  #browser()
   # create vector of 1 and 0s
-  #browser()
-  onezero<-sapply(vec_tst[1:(length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x," .missing")]))
+  #browser()  no space before .miss 12/5/20
+  onezero<-sapply(vec_tst[1:(length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
   # then 1st and last  ,set last0 as last of complete  before the missing values start
-  lastVisit <- min(which(onezero==1))
-  # so add appropriate delta to imputed values after last visit
+  # but as to go in if because min(0,0,..) cause warnings
+  #lastVisit <- min(which(unlist(onezero)==1))
+
+  # check not interim , ie no gaps in onezero seq
+  # in which case just leave wout delta adjustment but print warnnig msg
+  # if length = max then no gaps
+  # if all 0's the no missing so no adjustment required
+  if (sum(which(unlist(onezero)!=0) ) ) {
+    # no gaps
+    if ( length(which(unlist(onezero)==1)) == max(which(unlist(onezero)==1)) ){
+
+      lastVisit <- min(which(unlist(onezero)==1))
+      # so add appropriate delta to imputed values after last visit
   super_delta<-0
   for (v in lastVisit:(length(vec_tst)-ncovar)) {
     # when dlag used super_delta<- super_delta + delta[v]* dlag[v-1]
@@ -228,8 +278,11 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
     mata_imp[2+v] <- mata_imp[2+v] + super_delta
     #}
   }
+    }
+    }
   return(mata_imp)
 }
+
 
 
 

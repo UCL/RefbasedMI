@@ -19,16 +19,18 @@
 #' @param bbetween  value between iterations in mcmc
 #' @param methodindiv  2 element vector designating variables in data for individual method and reference group
 #' @param delta vector of delta values to add onto imputed values (non-mandatory)
+#' @param Kd Causal constant for use with Causal method
 #' @return impdataset
 #' @example
 #' \dontrun{
-#' impdataset<-(mimix("asthma",c("base"),"fev","treat","id","time",
-#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1)) )
+#' impdataset<-mimix("asthma",c("base"),"fev","treat","id","time",
+#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
 #' }
 
-mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv,delta=NULL) {
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffries",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
 
-  # establish whether indivual or group by cretung a flag var
+
+  # establish whether individual or group by creating a flag var
   if (!is.null(meth)) { flag_indiv <-0 }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
 
@@ -36,12 +38,27 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
 
   stopifnot(meth=="NULL" | methodindiv=="NULL")
 
+  # must be number
+  Kd<- as.numeric(Kd)
   #
+
+  # note if no covar then treat the first depvar level as a covar , eg covar = fev.0.
+  # sO must preform small routne tO transform datA set INTO baseline covars.
+
+  #rbind(setDT(testdfasthma)testdfasthma[,head(.SD,1), by = id
+  #           ][,c("time","fev"):=.(0,0)
+  #             ])[order(id,time)]
+
+ # if (length(covar) ==0) {
+  #   covar <- depvar
+
+  #}
   #find no covars
+# browser()
   ncovar_i = length(covar)
   #browser(1)
-  print(paste0("ncovar_i = ",ncovar_i))
-  print(paste0("covar= ",covar[1]))
+#  print(paste0("ncovar_i = ",ncovar_i))
+#  print(paste0("covar= ",covar[1]))
 
   # need to write a subroutine
   # recode covariates to numeric from factor
@@ -87,7 +104,9 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
 
   if (!is.null(meth) ) {
     testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth))
-    refer <- testlist[[9]]
+    refer <- testlist[[7]]
+
+
 
     # stopifnot(refer %in% ntreat)
     #no need for this?
@@ -105,18 +124,16 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
   else if (!is.null(methodindiv[1]) ) {
     testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth,methodindiv))
     # need to re-set meth for individual
-    meth <- testlist[[9]][1]
+    #meth <- testlist[[8]][1]
 
   }
 
-  if (meth == 6) {
 
-  Kd <- readline(prompt="Enter Kd value (=0 same as J2R, =1 same as CIR : ")
-  # must be number
-  Kd<- as.numeric(Kd)
-  }
+  #if (meth == 6) {
+  #Kd <- readline(prompt="Enter Kd value (=0 same as J2R, =1 same as CIR : ")
+  #}
 
-  #browser()
+ # browser()
   # find sd depvar
 
 
@@ -124,20 +141,31 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
   #testlist = preprodata(kmargs)
   #browser()
   # returns list from preprodata function
-  ntreat<-sort(unlist(testlist[[3]]))
+  ntreat<-sort(unlist(testlist[[2]]))
   #sort it !!
 
 
   #ntreat <-testlist$ntreat
   #stopifnot()
-  finaldatS<-testlist[[2]]
+  finaldatS<-testlist[[1]]
   #finaldatS <- testlist$finaldatS
-  mg<-testlist[[4]]
+  mg<-testlist[[3]]
   #mg <- testlist$ex1s
   # vital to get the mata_obs correctly sorted! so corresponds with mimix_group lookup
   # to be consistent with Stata move the base col after the fevs!
   #mata_Obs <- testlist$finaldatS
-  mata_Obs <- testlist[[2]]
+  mata_Obs <- testlist[[1]]
+
+  # move treatvar to end by deleting and merging back in
+
+  # extract treatvar and methodindiv vars
+  Obs_treat<-subset(mata_Obs,select=c(treatvar,methodindiv))
+  mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodindiv))]
+  # combine back the extracted cols
+  mata_Obs <- cbind(mata_ObsX,Obs_treat)
+
+
+
  # M <- testlist[[8]]
 
 
@@ -146,9 +174,19 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
   #tst2 <- mi_impute("id","time","fev","base")
   #list("fev","treat","id","time","base",10,2,"J2R",101)
   #pre move, tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
-  #browser()
+ #8/5/20
+#   browser()
   #tst2 <- mi_impute(kmargs[[4]],kmargs[[5]],kmargs[[2]],kmargs[[1]])
-  tst2 <- mi_impute(data,idvar,timevar,depvar,covar)
+  #no need to call a function
+  #tst2 <- mi_impute_vars(data,idvar,timevar,depvar,covar)
+
+
+  tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+
+  tst2<-c(covar,names(tst[,-1]))
+
+
+
   # put commas in
   tst3<-paste(tst2,collapse = ",")
 
@@ -160,7 +198,8 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
     # assign(paste0("prenormdat",val),subset(finaldatS,treatvar==val))
     assign(paste0("prenormdat",val),subset(finaldatS,finaldatS[,treatvar]==val))
   }
-
+#11/05/20
+#  browser()
 
 
   #*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA
@@ -210,7 +249,7 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
   #system.time(
 
   #try ser up as many Result data files as treatments instead of one big file?.
-  # browser()
+ # browser()
 
   for (val in 1:length(ntreat)) {
 
@@ -273,10 +312,12 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
   m_mg_iter<-0
   for (i in 1:nrow(mg))
   {
+    #9/5/20
+    #browser()
     # define mata_miss as vector of 1's denoting missing using col names ending i ".missing"
     # this section to be amended to cope with multiple covariates
 
-    mata_miss <- mg[i,grep("*..missing",colnames(mg)),drop=F]
+    mata_miss <- mg[i,grep("*..miss",colnames(mg)),drop=F]
     #mata_miss <- mimix_group[i,c(2,3,4,5)]     #defimne mata_miss
     #assumes covariate non missing
     # now >1 covariate code must be amended
@@ -285,11 +326,13 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
     numrows<- nrow(mata_miss)
 
     #mata_miss$covar.1 <-0                       #assuming cov col is non missing
-    #browser(2)
+   # browser(2)
     # so create matrix with names as covariates.1 and 0 row to signify no missing values
-    covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".missing")) )
-    mata_miss <- cbind(mata_miss,covarsdf)
-
+    # no need for his now changed covars in all_patt
+  #  if (length(covar)!=0) {
+   # covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".miss")) )
+  #  mata_miss <- cbind(mata_miss,covarsdf)
+   # }
 
     mata_nonmiss <- (ifelse(mata_miss==0,1,0))  #define mata-nonmiss from miss
 
@@ -307,7 +350,7 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
 
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
- #browser()
+
 
     if  (is.null(methodindiv[1]) ) {
       cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
@@ -333,7 +376,11 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
         en <-mg[i,"X1cum"]
         # id (SNO) is 1st col
         SNO<-mata_Obs[c(st:en),1]
-        mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
+        #9/5/20
+        #browser()
+        # this doesnt delete treat
+        #mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
+        mata_new<-mata_Obs[c(st:en),!(names(mata_Obs) %in% c(idvar))]
         #browser() # treat defined within fun
         GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
         #II  no imputations
@@ -596,32 +643,52 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
 
 
         #raw1 <- mata_obs[, c_mata_nonmiss]
-        preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
+       # preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
+
+        # drop id  cols from raw data
+        preraw <-(mata_Obs[c(startrow:stoprow),!(names(mata_Obs) %in% c(idvar))])
         raw1 <- preraw[,c_mata_nonmiss]
 
         ##### try inserting routine for all missing values here NOt really necessary!! ### 20/1/20 #####
         ## when all missing data, the length of c_mata_nonmiss must exclude the no. of covariates
         ## temporary fix set as 1, ie no. of covars 20/01/20
         # nOTE think no observed data includes no base line as well?
+
+        #9/5/20
+       # browser()
+        # all missing ? didnt think we did ths scenario, ie base depvar always complete?
         if (length(c_mata_nonmiss)==0)  {
           ## routine copied from mimix line 1229
-          U <- chol(Sigma)
+
+          # change 9/5/20 becaus error list obj cannot be coerced to double
+          U <- chol(Sigma[[1]])
 
           # generate inverse normal, same as used below
           #for debug 20/01
           #   print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count))
+          miss_count<-sum(mata_miss)
           Z <- stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+
+          # raw and m1 null fields so hut use m2
+          meanval = as.matrix(m2)
 
           mata_y1 = meanval+Z%*%(U)
           #set dimensions mata_new to mata_y1
-          mata_new <- dim(mata_y1)
+          #define new matrix from observed,  id column  (the last)
+          mata_new <- preraw
+          # mata_new has to be already defined
+          mata_new[,c_mata_miss] <- (mata_y1)
           GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
           #II  no imputations
           II <- array(data=m,dim=c(mg[i,"X1"],1))
+          # SNO just id col
+          SNO <- mata_Obs[c(startrow:stoprow),1]
           mata_new=cbind(GI,II,mata_new,SNO)
           mata_all_newlist[[m_mg_iter]]=mata_new
 
-        }
+          # 9/5/20 inser else here
+
+        } else {
 
 
         #so S12 must be declare as a matrix ! as number otherwise is class number
@@ -690,7 +757,8 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
         #browser()
         # was nct (as in stata) = no ntimes + ncovar
         # so if no missing then just copy full values into mata_new columns
-        if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
+        #if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
+        if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- preraw[,c(1:length(tst2))]
         }else
           {
           mata_new[,c_mata_miss] <- mata_y1
@@ -728,6 +796,9 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
         #mata_all_new<- na.omit(mata_all_new)
         #stata equilv \ is row bind NOt cbind!!?
 
+        #9/5/20 end else c_mata_nonmiss ==0 here
+        }
+
         #}
       } # ( m in  1:M) so insert delta module just before this
     } #for row[mg]
@@ -761,7 +832,8 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval
 
 
 getimpdatasets <- function(varlist){
-  #browser()
+  #9/5/20
+ # browser()
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
@@ -780,27 +852,4 @@ getimpdatasets <- function(varlist){
   # to get the list
   # implist1x <- split(impdatasets,impdatasets[,"II"])
   return(impdatasets)
-}
-
-
-#' @title mi_impute
-#' @description  create a vector defining imputation variables
-#' @details similar to mi_impute in mimix Stata programx
-#' @param data data set
-#' @param idvar patient id
-#' @param timevar time point for repeated measure
-#' @param depvar dependent variable
-#' @param covar covariates and base depvar must be complete
-#' @return list of variables
-
-
-
-
-mi_impute <-function(data,idvar,timevar,depvar,covar) {
-  #preprodata(depvar,treatvar,idvar,timevar,covar)
-  tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
-  #tst<-tidyr::pivot_wider(get(data),id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
-  # add ont covariates and add on to resp list
-  respvars<-c(names(tst[,-1]),covar)
-  return(respvars)
 }
