@@ -15,7 +15,7 @@ regressimp(dataf, regmodel)
 estimates of regression coefficients
 }
 \description{
-run regression on M imputed data set, combinging as Rubin's rules
+run regression on M imputed data set, combining as Rubin's rules
 }
 \details{
 This is approach followed from  norm2 user manual

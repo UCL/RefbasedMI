@@ -6,20 +6,21 @@
 \usage{
 mimix(
   data,
-  covar,
+  covar = NULL,
   depvar,
   treatvar,
   idvar,
   timevar,
   M = 1,
-  refer,
-  meth,
+  refer = NULL,
+  meth = NULL,
   seedval = 101,
-  priorvar,
+  priorvar = "jeffreys",
   burnin = 1000,
   bbetween = NULL,
-  methodindiv,
-  delta = NULL
+  methodindiv = NULL,
+  delta = NULL,
+  Kd = NULL
 )
 }
 \arguments{
@@ -49,12 +50,14 @@ mimix(
 
 \item{bbetween}{value between iterations in mcmc}
 
-\item{methodindiv}{2 element vector designating variables in data for individual method and reference group}
+\item{methodindiv}{2 element vector designating variables in data specifying individual method and reference group}
 
 \item{delta}{vector of delta values to add onto imputed values (non-mandatory)}
+
+\item{Kd}{Causal constant for use with Causal method}
 }
 \value{
-impdataset
+impdataset the m impute data-sets appended to the "missing values" data-set in wide format
 }
 \description{
 main wrapper for running mimix

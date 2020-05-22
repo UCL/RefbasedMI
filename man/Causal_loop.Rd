@@ -22,5 +22,5 @@ mata_means
 process Causal method
 }
 \details{
-This is based on Suzie Cro's Stata program
+This is based on "White,Royes,Best" paper
 }
