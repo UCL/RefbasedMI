@@ -24,89 +24,29 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   #browser()
   # if covar null (or 1st depvar complete) then ceate baseval covar
 
-  #if (length(covar) ==0) {
-
-  if (length(covar) ==999) {
-
-      #get 1st row each id group
-
-
-    rowgp<-get(data)[,head(.SD,1), by=idvar]
-    rowgpx<- as.data.frame(rowgp)[,c(idvar,depvar)]
-    names(rowgpx)[names(rowgpx)==(depvar)]<-"baseval"
-    #drop 1st row each id group ,assuming 1st time 0
-
-    depetedata<- get(data)[!(get(data)[,get(timevar)]==0),]
-    # now need to merge 1st row back onto depleted df creating new covar var
-    data<-merge(depetedata,rowgpx, by=(idvar))
-    # now create covar
-    covar <- c("baseval")
-    # depetedasthma<- testdfasthma[!(testdfasthma$time==0),]
-    #move from below
-    fevdata<- as.data.frame(data)[,c(idvar,depvar,timevar)]
-    uniqdat<-  unique(as.data.frame(data)[c(idvar,covar,treatvar)])
-    ntreatcol<- as.data.frame(data)[c(treatvar)]
-    ntimecol<- as.data.frame(data)[c(timevar)]
-    # this incomplete for now - need to complete later.
- }# else {
+  # extract relevant cols
     # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
     fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar)]
-    # now covar added to data list so need need for unique?
+  # extract covar cols 1 row per id to merge onto the wide data
     uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
     ntreatcol<- get(data)[c(treatvar)]
     ntimecol<- get(data)[c(timevar)]
- # }
-
-  # browser() for checking covar Null has to be done for indiv case as well below!
-  #  (is.na(covar))
-  ### checking covars complete, ie non- missing
-  #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))==0,error=stop("Error: not all covariates are complete !!")))
-
-  # this errr catcher invalid when cova NULL
-  # stopifnot(sum(is.na(get(data)[,covar]))==0)
-
-  #more informative in error msg to use this explicit and
-  #and put in one statement
-  stopifnot( (meth == "MAR" | meth=="J2R" | meth=="CIR" | meth=="CR" | meth=="LMCF" | meth=="Causal"),
-             #is.numeric(refer),
-             is.numeric(M),
-             is.character(depvar),
-             # treatvar could be char or numeric ? then refer must be same type
-             #is.character(treatvar),
-             is.character(idvar),
-             is.character(timevar)
-             #is.character(covar[[2]],
-             # only if covar exists  so if NULL noneed to errr check but check if covar Null then...
-             #is.character(covar)
-             )
-  # convert to numic
-  #mxdata[,treatvar]<-as.numeric(get(data)[,treatvar])
-# if covar=NULL
-  if (length(covar)!=0) {
-      stopifnot(is.character(covar))
-  }
 
 
- # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
-#  fevdata<- get(data)[c(idvar,depvar,timevar)]
-  # only want to widen the dose var, ie fev, so take the other variables
-  #reshape to wide and assign new names
-  # prefix must be supplied from input argument rather than hard coded, this canbe hard coded
 
   #replace tidyr function
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
+
+ # reshape from long to wide longitudinal data with as many depvars as time points
   sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
-  #sts4 is just response data, can join later treat and covar cols from finaldat
 
   #assumes no NA for these vars should add in checking routines !!
   #check how many covars used
 
   #nocovar=covar[[1]]
 
-  #tcovar<-unlist(covar)
-  #uniqdat<-unique(mxdata[c(idvar,unlist(tstcovar),treatvar)])
   print(paste0("covar=",covar))
-#  uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
+
   print(utils::head(uniqdat))
 
   finaldatOld<- merge(sts4,uniqdat,by=idvar)
@@ -119,12 +59,10 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
 
   # need find no. ntreat  to loop over
-  #ntreat<-unique(unique(mxdata$treatvar))
- # ntreatcol<-(dplyr::select(get(data),treatvar))
-#  ntreatcol<- get(data)[c(treatvar)]
+
   ntreat <- unique(ntreatcol)
  # ntimecol<-(dplyr::select(get(data),timevar))
-#  ntimecol<- get(data)[c(timevar)]
+ # ntimecol<- get(data)[c(timevar)]
   ntime<-unique(ntimecol)
 
 
@@ -138,12 +76,11 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
     # instead of below (covars could have name of depvar)
   #STSdummy<- apply(sts4[,grepl(paste0(depvar,"."),names(sts4))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
 
+  # process no covars
+
   testfevdata<- get(data)[c(idvar,depvar,timevar)]
   sts4dummy<-stats::reshape(testfevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   STSdummy<- apply(sts4dummy[,grepl(depvar,names(sts4dummy))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
-
-#9/5/20
-#browser()
 
   # append to names  try paste0 as otherwise space before miss
   colnames(STSdummy) <- paste0(colnames(STSdummy),'.miss')
@@ -158,14 +95,14 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
   # but also add on covars (should be no missing so dont contribute to patt)
   # ie should be  cols of 0's
+
+  # have to cope when no covars specified
   if (length(covar) !=0) {
     tmp_covpatt<-apply(as.data.frame(sts4Dpatt[,covar]),MARGIN=2,function(x) ifelse(!is.na(x),0,1))
     #add names
     colnames(tmp_covpatt) <- paste0(c(covar),".miss")
     # than combine below the dummies onto the finaldat
-  #8/5/20sts4Dpatt<-cbind(sts4D,tmp_covpatt,patt)
-
-    sts4Dpatt<-cbind(finaldat,tmp_covpatt,STSdummy,patt)
+     sts4Dpatt<-cbind(finaldat,tmp_covpatt,STSdummy,patt)
   }   else {
     sts4Dpatt<-cbind(finaldat,STSdummy,patt)
   }
@@ -190,7 +127,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   finaldatS <- finaldatSS[ndx,]
 
 
-  #need sort by patt and align with mg (lookup) ,t oget looku right merge using patt
+  #need sort by patt and align with mg (lookup) ,to get lookup right merge using patt
   finaldatS <- sts4Dpatt[order(sts4Dpatt[,treatvar],sts4Dpatt[,"patt"]),]
 
   # consistent with Stata to get right order, drop id and treat cols
@@ -201,7 +138,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   #dummypatt<-unique(xSTSdummy)
   pattmat<-unique(STSdummy[,1:ncol(STSdummy)])
 
-  #
+
   pows2d <- sapply(1:ncol(pattmat),function(i) pattmat[,i]*2^(i-1))
   patt<-rowSums(pows2d)
   #want  join this to ex from mimix_group table
@@ -209,7 +146,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   pattmatd<-cbind(pattmat,patt)
 
 
-  # and now find cumX1
+  # and now find cumX1 cumulative no. cases in each pattern/treatment group
 
   sts4Dpatt$X1<-1
 
@@ -234,12 +171,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
   stopifnot(refer %in% t(ntreat))
   print("summary missing pattern")
   print(ex1s)
-  #  return(list(sts4Dpatt,finaldatS,finaldat,ntreat,ex1s,ex1,ex1id,pattmat,patt,ntime,M,refer,meth))
 
-#  return(list(sts4Dpatt,finaldatS,ntreat,ex1s,ex1,pattmat,patt,ntime,M,refer,meth))
-
- # return(list(sts4Dpatt,finaldatS,ntreat,ex1s,pattmat,patt,ntime,M,refer,meth))
- #8/5/20
 
   #so finaldatS is sorted by treat,patt  data
   # test_ex1 is mg lookup table for missing dummies
@@ -268,9 +200,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth=NULL
 
 #preprocess data for individual method
 preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL,meth=NULL,methodindiv)  {
-  #extract relevant vars
-# 11/05/20
-#browser()
+
   #check covars complete
   stopifnot(sum(is.na(get(data)[,covar]))==0)
   #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))!=0,error=stop("Error: not all covariates are complete !!")))
@@ -297,9 +227,6 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   ntimecol<- get(data)[c(timevar)]
 
 
-  #select out the id and depvar to generate names for depvar#time
-  #fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
-##  fevdata<-get(data)[c(idvar,depvar,timevar)]
 
   #generate names depvar#time
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
@@ -313,15 +240,6 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   finaldat<-sts4
 
   #in order to aggregate by pattern need create dummy vars
-
-  # for sts4 array drop 1st col and create newvars for rest thes are the dummy missing patterns
-##  STSdummy<-apply(sts4[,2:ncol(sts4)],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
-  # append to names
-##  colnames(STSdummy) <- paste(colnames(STSdummy),'.missing')
-  # merge back on to data
-##  print(utils::head(STSdummy))
-##  sts4D<-cbind(finaldat,STSdummy)
-  # create powrs of 2
 
   #11/05/20
   testfevdata<- get(data)[c(idvar,depvar,timevar)]
@@ -361,9 +279,6 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
 
   #then combine depvar and covar patt!
   all_patt<-cbind(Overall_patt,patt)
-
-
-
 
 
 
@@ -441,7 +356,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   refencevars <- unique(get(data)[,methodindiv[2]])
   stopifnot(refencevars %in% t(ntreat))
   #print("summary missing pattern")
-#remove ex1 seems to cause problems!
+  #remove ex1 seems to cause problems!
 
   # main outputs have to be test_ex1 and finaldatS which should correspond
   return(list(finaldatS,ntreat,test_ex1,all_patt,pattmat,patt,ntime,M,methodindiv))

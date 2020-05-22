@@ -9,98 +9,92 @@
 #' @param depvar dependent variable
 #' @param treatvar treatment group , recoded to 1,2,..
 #' @param idvar patient id
+#' @param M number of imputations
 #' @param timevar time point for repeated measure
-#' @param M  number of imputations
 #' @param refer  reference group for j2r,cir,cr mrthods
 #' @param meth RBI method
 #' @param seedval  seed value to obtain same outputs
 #' @param priorvar  prior,defualt Jeffries, also uniform or ridge
 #' @param burnin  burnin value
 #' @param bbetween  value between iterations in mcmc
-#' @param methodindiv  2 element vector designating variables in data for individual method and reference group
+#' @param methodindiv  2 element vector designating variables in data specifying individual method and reference group
 #' @param delta vector of delta values to add onto imputed values (non-mandatory)
 #' @param Kd Causal constant for use with Causal method
-#' @return impdataset
+#' @return impdataset the m impute data-sets appended to the "missing values" data-set in wide format
 #' @example
 #' \dontrun{
-#' impdataset<-mimix("asthma",c("base"),"fev","treat","id","time",
-#'  10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
+#' mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
 #' }
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffries",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
 
+  # insert error checks  HERE
 
-  # establish whether individual or group by creating a flag var
-  if (!is.null(meth)) { flag_indiv <-0 }
+  #check not both meth and methodundiv specified.
+  stopifnot(meth=="NULL" | methodindiv=="NULL")
+  # establish whether specifying individual or group by creating a flag var
+  if (!is.null(meth)) {
+    flag_indiv <-0
+  # Causal constant must be number and check it exists if Causal specified
+  #stopifnot(meth=="Causal" & !missing(Kd))
+  if (toupper(meth)=="CAUSAL" | toupper(meth)== "CASUAL" | toupper(meth)== "CUASAL") {
+    if (missing(Kd))  {stop("Kd Causal constant not specified")}
+  } #Causal constant must be number
+    Kd<- as.numeric(Kd)
+  }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
 
-   #check not both meth and methodundiv specified.
+  #find no covars
+  ncovar_i = length(covar)
+  # if covars exist
+  # check that covars are complete AND integer !!
+  # if covar=NULL  17/05/20   #discuss.analyticsvidyha.com
+  if (length(covar)!=0) {
+    stopifnot(sum(!stats::complete.cases(get(data)[,covar]))==0)
+    stopifnot(sapply((get(data)[,covar]),is.numeric))
+    #stopifnot(is.numeric((get(data)[,covar])))
+    #stopifnot(apply((get(data)[,covar]),2,is.numeric) )
+    # really should be integer
+    # if need to convert
+    # test<-as.data.frame(apply((get(data)[,covar]),2,as.integer) )
+  }
 
-  stopifnot(meth=="NULL" | methodindiv=="NULL")
 
-  # must be number
-  Kd<- as.numeric(Kd)
-  #
+
+
 
   # note if no covar then treat the first depvar level as a covar , eg covar = fev.0.
   # sO must preform small routne tO transform datA set INTO baseline covars.
 
-  #rbind(setDT(testdfasthma)testdfasthma[,head(.SD,1), by = id
-  #           ][,c("time","fev"):=.(0,0)
-  #             ])[order(id,time)]
-
- # if (length(covar) ==0) {
-  #   covar <- depvar
-
-  #}
-  #find no covars
-# browser()
-  ncovar_i = length(covar)
-  #browser(1)
-#  print(paste0("ncovar_i = ",ncovar_i))
-#  print(paste0("covar= ",covar[1]))
-
-  # need to write a subroutine
-  # recode covariates to numeric from factor
-     # browser()
-  #converting covariates to numeric
-  #convertcovars(data,covar)
-
-
-  #if prior =ridge then need fing default ridge parameter ,try 0.1sd(depvar)
-  #browser()
-  #recode refer to number within treatvar if not already numeric/integer no need for this now treat recoded previously
-  # if ((class(mxdata[,treatvar])!="integer" & class(mxdata[,treatvar])!="numeric") )  {refer = which(unique(mxdata[,treatvar])==refer) }
-  #recode treatvar to number, doesnt like this
-  #for  (i in 1:length(unique(mxdata[,treatvar])) ) {mxdata[,treatvar]=i  }
-  # danger to use transform
-  #transform(mxdata,treatvar=as.numeric(treatvar) )
-  # if char convert to numeric, if numeric then leave
-  #  if (class(mxdata[,treatvar])=="char") {mxdata[,treatvar]<-as.numeric(mxdata[,treatvar])}
-  #treatvar <- as.numeric(treatvar)
-  # treatvar and refer convert to numeric and check refer in treatvar but as.nemeric not appropriate here
-  # need to recode instead
-  #treatvar<- as.numeric(treatvar)
-  #refer <- as.numeric(refer)
-  #set.seed(101)
-
-  # to recode refer, need use a lookup table
 
 
 
   set.seed(seedval)
-  #set.seed(unlist(tail(kmargs,n=1)))
 
-  #mxdata<- readdata(data)
+#21/05
+  # assign all characters in meth to UPPER case
+  # check i1st if meth exists! if statement needed otherwise meth change form Null to character(0)
+  if (!is.null(meth) | !length(meth)==0 ) {
+  meth <- toupper(meth)
+  stopifnot( (meth == "MAR" | meth=="MR"|
+              meth=="J2R" | meth=="J2" | meth=="JR"|
+              meth=="CIR" | meth=="CLIR" |
+              meth=="CR" |
+              meth=="LMCF" | meth=="LAST"  |
+              meth=="CAUSAL" | meth== "CASUAL" | meth== "CUASAL"),
 
+             is.numeric(M),
+             is.character(depvar),
+             # treatvar could be char or numeric ? then refer must be same type
+             #is.character(treatvar),
+             is.character(idvar),
+             is.character(timevar)
+             #is.character(covar[[2]],
+             # only if covar exists  so if NULL noneed to errr check but check if covar Null then...
+             #is.character(covar)
+            )
+  }
 
-  #do not read in last elemnt LAST otherwise get an unused argument error msg
-
-  #this outputs the summary pattern table
-  #testlist = do.call( preprodata,kmargs[-length(kmargs)])
-  #seed, prior not used
-  # testlit = do.call( preprodata,kmargs[c(-(length(kmargs)-1),-(length(kmargs)))])
-  # 15/03browser()
 
   if (!is.null(meth) ) {
     testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth))
@@ -112,13 +106,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     #no need for this?
     #meth <- testlist[[10]]
     #need to recode meth
-    meth<-  ifelse( ( meth=="j2r" | meth=="J2R" |meth=="j2R"|meth=="J2r" ),3,
-                    ifelse( ( meth=="CR" | meth=="cr" |meth=="Cr"|meth=="cR" ),2,
-                            ifelse( ( meth=="MAR" | meth=="mar" |meth=="Mar"|meth=="MAr"|meth=="Mr"|meth=="MR" ),1,
-                                    ifelse( ( meth=="CIR" | meth=="cir" |meth=="CIr"|meth=="cliR" ),4,
-                                            ifelse( ( meth=="LMCF" | meth=="lmcf" |meth=="Last"|meth=="last" ),5,
-                                              ifelse( ( meth=="Causal" | meth=="causal"),6,9))))))
-    #ifelse(mxdata$methodvar=="j2r",3,ifelse(mxdata$methodvar=="cir",4,9))
+    meth<-  ifelse( (  meth=="J2R" |meth=="J2"|meth=="JR" ),3,
+                    ifelse( ( meth=="CR"  ),2,
+                            ifelse( ( meth=="MAR" | meth=="MR" ),1,
+                                    ifelse( ( meth=="CIR" |meth=="CLIR" ),4,
+                                            ifelse( ( meth=="LMCF" | meth=="LAST" ),5,
+                                              ifelse( ( meth=="CAUSAL" | meth=="CASUAL" | meth=="CUASAL"),6,9))))))
+
 
   }
   else if (!is.null(methodindiv[1]) ) {
@@ -129,20 +123,11 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   }
 
 
-  #if (meth == 6) {
-  #Kd <- readline(prompt="Enter Kd value (=0 same as J2R, =1 same as CIR : ")
-  #}
-
- # browser()
-  # find sd depvar
 
 
-  # 10/02/20
-  #testlist = preprodata(kmargs)
-  #browser()
-  # returns list from preprodata function
   ntreat<-sort(unlist(testlist[[2]]))
   #sort it !!
+
 
 
   #ntreat <-testlist$ntreat
@@ -150,7 +135,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   finaldatS<-testlist[[1]]
   #finaldatS <- testlist$finaldatS
   mg<-testlist[[3]]
-  #mg <- testlist$ex1s
+
   # vital to get the mata_obs correctly sorted! so corresponds with mimix_group lookup
   # to be consistent with Stata move the base col after the fevs!
   #mata_Obs <- testlist$finaldatS
@@ -166,19 +151,6 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
 
- # M <- testlist[[8]]
-
-
-  # so tsts2 is th equiv to mi_impute so try to put in norm2
-  # est tis tomorrow 17/01
-  #tst2 <- mi_impute("id","time","fev","base")
-  #list("fev","treat","id","time","base",10,2,"J2R",101)
-  #pre move, tst2 <- mi_impute(kmargs[[3]],kmargs[[4]],kmargs[[1]],kmargs[[5]])
- #8/5/20
-#   browser()
-  #tst2 <- mi_impute(kmargs[[4]],kmargs[[5]],kmargs[[2]],kmargs[[1]])
-  #no need to call a function
-  #tst2 <- mi_impute_vars(data,idvar,timevar,depvar,covar)
 
 
   tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
@@ -198,8 +170,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     # assign(paste0("prenormdat",val),subset(finaldatS,treatvar==val))
     assign(paste0("prenormdat",val),subset(finaldatS,finaldatS[,treatvar]==val))
   }
-#11/05/20
-#  browser()
+
 
 
   #*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA
@@ -227,10 +198,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # create a matrix for param files, a beta  and sigma matrices
   #paramMatrix<-matrix(1:(nrow(ntreat)*M),nrow=M,dimnames=list(c(1:M),c(1:nrow(ntreat))))
 
-  #paramMatrix<-matrix(,nrow=(nrow(ntreat)*M),ncol=2)
+
 
   #create  emptylist for each treat and multiple m's
-#browser()
+
   paramBiglist <- vector('list',length(ntreat)*M)
   for (val in 1:length(ntreat)) {
     assign(paste0("paramBiglist",val),vector('list',M))
@@ -248,8 +219,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   cumiter<-0
   #system.time(
 
-  #try ser up as many Result data files as treatments instead of one big file?.
- # browser()
+
 
   for (val in 1:length(ntreat)) {
 
@@ -264,17 +234,14 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
       #need to error check when ridge or invwish used, the accompanying parameter values supplied.
 
-      # find sd of depvar over all times?
-      sd_depvar<- stats::sd((get(data)[,depvar]),na.rm=TRUE)
 
-      if ( priorvar[1] == "ridge" ) { if ( is.na(priorvar[2])) { priorvar[2]<-(sd_depvar*0.1) }}
+
+      if ( priorvar[1] == "ridge" ) {
+        # find sd of depvar over all times for ridge option
+        sd_depvar<- stats::sd((get(data)[,depvar]),na.rm=TRUE)
+        if ( is.na(priorvar[2])) { priorvar[2]<-(sd_depvar*0.1) }}
       # invwish not implemented!
-      if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
-
-      # emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2],prior.sscp=priorvar[3]))
-      #  mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2],prior.sscp=priorvar[3]))
-      # browser()
-      #if prior =ridge then need fing default ridge parameter ,try 0.1sd(depvar)
+      #if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
 
 
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
@@ -302,18 +269,19 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # ) # system.time
   print(paste0("mcmcNorm Loop finished, m = ",M))
 
-  # try and use lappy instead of loop for M
+
 
 
   # can repeat interactively from here
+
+  ############################################ start big loop #########################################
   # now loop over the lookup table mg, looping over every pattern - make sure mata_Obs sorted same way!
 
   # declare iterate for saving data
   m_mg_iter<-0
   for (i in 1:nrow(mg))
   {
-    #9/5/20
-    #browser()
+
     # define mata_miss as vector of 1's denoting missing using col names ending i ".missing"
     # this section to be amended to cope with multiple covariates
 
@@ -325,14 +293,6 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     #find no rows to create covar vector to cbind with mg
     numrows<- nrow(mata_miss)
 
-    #mata_miss$covar.1 <-0                       #assuming cov col is non missing
-   # browser(2)
-    # so create matrix with names as covariates.1 and 0 row to signify no missing values
-    # no need for his now changed covars in all_patt
-  #  if (length(covar)!=0) {
-   # covarsdf<- provideDimnames(matrix(0:0,ncol=length(covar)),base=list(paste0(""),paste0(covar,".miss")) )
-  #  mata_miss <- cbind(mata_miss,covarsdf)
-   # }
 
     mata_nonmiss <- (ifelse(mata_miss==0,1,0))  #define mata-nonmiss from miss
 
@@ -391,7 +351,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         # mata_all_new=rbind(mata_all_new,mata_new)
       } else {
         # need to distinguish between meth and methodindiv
-     # browser()
+
         if (flag_indiv==0 ) {
 
           referindex<- refer
@@ -431,8 +391,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
             # try not unisting because error only fr J2r merod when on patien in patt
             #
-            # 11/0420
-           # browser()
+
             mata_means_t <-lapply(mata_means_trt,FUN = function(x) x*mata_nonmiss)
             #mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
             # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
@@ -654,8 +613,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         ## temporary fix set as 1, ie no. of covars 20/01/20
         # nOTE think no observed data includes no base line as well?
 
-        #9/5/20
-       # browser()
+
         # all missing ? didnt think we did ths scenario, ie base depvar always complete?
         if (length(c_mata_nonmiss)==0)  {
           ## routine copied from mimix line 1229
@@ -693,10 +651,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
         #so S12 must be declare as a matrix ! as number otherwise is class number
         #try transpose as was failing compatible error
-        #tS12<-t(S12)
-        mS11<-as.matrix(S11)
-        mS12 <-as.matrix(S12)
-        #note y must have same no rows as Q
+               #note y must have same no rows as Q
         #solve Qx=y
         #t_mimix =cholsolve(Q=mS11,y=(mS12))
         #tryig solve instead ax=b
@@ -715,10 +670,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         # if (meth=='J2R')
         #  if  (mg[i,methodindiv[1]] == 3) {
         #{  1*1 MATRIX ?
-        #17/03
-        #   browser()
-        # try change 16/03
-        #meanval <- as.matrix(m2)+as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
+
 
         # } else if (mg[i,methodindiv[1]] == 4)   {
         # m2 careful as matrix needs to be vertical , test change 17/03
@@ -736,8 +688,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         U <- chol(conds)
         # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so
         miss_count=rowSums(mata_miss)
-        #  print("miss_count = ")
-        #  print (miss_count)
+
         # gen erate inverse normal
         Z<-stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
         # check same input parameters for inverse norm gen as in stata
@@ -750,11 +701,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
         #define new matrix from observed,  id column  (the last)
         mata_new <- preraw
-        #10/03/20
-        #browser()
+
         # assigning the columns where the missing values
-        #17/03
-        #browser()
+
         # was nct (as in stata) = no ntimes + ncovar
         # so if no missing then just copy full values into mata_new columns
         #if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
@@ -785,6 +734,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         #this works but bette to pre initialise data structure outsidr loop
         mata_new<-cbind(GI,II,mata_new,SNO)
 
+
         #assume delta to be used if specified in input argument
         if (length(delta != 0) ) {
           #browser()
@@ -799,7 +749,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         #9/5/20 end else c_mata_nonmiss ==0 here
         }
 
-        #}
+
       } # ( m in  1:M) so insert delta module just before this
     } #for row[mg]
 
@@ -833,7 +783,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 getimpdatasets <- function(varlist){
   #9/5/20
- # browser()
+ #browser()
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
@@ -849,7 +799,43 @@ getimpdatasets <- function(varlist){
   mata_all_newData1x <- do.call(rbind,mata_all_newlist[[1]])
   # then sort (by imputation and patient id) into M data sets and split into M lists
   impdatasets <- mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
-  # to get the list
-  # implist1x <- split(impdatasets,impdatasets[,"II"])
+
+
+  #############################################
+  # now recreate orig data set by selecting 1st imputed data set and setting NAs using .miss dummies
+  imp1st<-impdatasets[impdatasets$II=="1",]
+  col_miss<-(imp1st[,grepl(".miss",colnames(imp1st))])
+  # get header of missing
+  hd_miss <- colnames(imp1st[,grepl(".miss",colnames(imp1st))])
+
+  # strp .miss to gt orig vars names
+  hd_new <- gsub(pattern=".miss",replacement = "", hd_miss)
+  # converting the 1's in .miss columns to NAs then
+  # replace dummy 0,1 by 0,na
+  imp1st_NA <- apply(col_miss, MARGIN =2, function(x) ifelse(x==1,NA,x) )
+
+  #assign  0 imputation number to unimputed dataset
+  imp1st$II <-0
+  # overwrite .miss cols with 0,NA  instead of 0,1
+  imp1st[,hd_new]<-(imp1st[,hd_new] +imp1st_NA)
+
+  # now combine recreated original with impute data
+  impdatasetsmiss<-rbind(imp1st,impdatasets)
+
+  # no reason to keep the dummies
+  # and they cause a warning on setting  as.mids() function
+  impdatasets <- impdatasetsmiss[,-grep(".miss",colnames(impdatasetsmiss))]
+
+
+  #impdatasets <- as.mids(tmpdatasets, .id="SNO",.imp="II")
+
+
   return(impdatasets)
 }
+
+
+
+# so no almost reday for mice!
+#fit<-with(data= as.mids(impanticausalun, .id="SNO",.imp="II"), expr = lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+POOLED.INVESTIGATOR+PATIENT.SEX))
+#summary(pool(fit))
+

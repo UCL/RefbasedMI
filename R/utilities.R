@@ -1,5 +1,7 @@
 
-
+# to install if not already installed
+#if(!require(norm2)) install.packages('norm2')
+#if(!require(mice)) install.packages('mice')
 #for select  function
 #install.packages("dplyr")
 #library(dplyr)
@@ -143,7 +145,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 
 
 #' @title regressimp
-#' @description run regression on M imputed data set, combinging as Rubin's rules
+#' @description run regression on M imputed data set, combining as Rubin's rules
 #' @details This is approach followed from  norm2 user manual
 #' @export regressimp
 #' @param dataf data-frame
@@ -186,28 +188,6 @@ regressimp <- function(dataf,regmodel)  {
 
 
 
-#### test mice
-#### need to transform back to long data set and insert orig data at beginning
-# try hard cod to find working sytax
-#melt(setDT(impantiIndiv(wide), id.vars=c("SNO"), variable.name = "HAMD17.TOTAL.7"))
-
-#model_impdata <- function(dataf,regmodel,depvar,covar,timevar,treatvar)
-
-
-
-#fit <- with(data = imp, exp = lm(bmi ~ hyp + chl))
-#summary(pool(fit))
-#library(mice)
-
-#impmice<-mice(nhanes,print=F)
-
-#head(impmice)
-#Xmice<- complete(impmice,action="long",include = T)
-
-
-
-
-
 #' @title analyselist
 #' @description find descriptive stats on the  M imputed data set
 #' @details select on patient id and find their means etc
@@ -227,7 +207,7 @@ analyselist <-function(id,datlist,varlist) {
   datano <- subset(datlist,id==datlist$SNO)
    # numbers denote the descriptive stats to display
    t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
-}
+ }
 
 #' @title AddDelta
 #' @description add delta's to imputed values
@@ -244,8 +224,13 @@ analyselist <-function(id,datlist,varlist) {
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
  #browser()
   # create vector of 1 and 0s
-  #browser()  no space before .miss 12/5/20
-  onezero<-sapply(vec_tst[1:(length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
+  #browser()  no space before .miss 12/5/20, stat at 3rd col skipping GI II
+  #onezero<-sapply(vec_tst[3:(2+length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
+  onezero<- sapply(vec_tst, function(x) return(mata_imp[1,paste0(x,".miss")]))
+
+  #drop covariates (which should be complete anyway)
+  dropcovar <- ncovar+1
+  onezero<-onezero[c(dropcovar:length(onezero))]
   # then 1st and last  ,set last0 as last of complete  before the missing values start
   # but as to go in if because min(0,0,..) cause warnings
   #lastVisit <- min(which(unlist(onezero)==1))
@@ -254,38 +239,47 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
   # in which case just leave wout delta adjustment but print warnnig msg
   # if length = max then no gaps
   # if all 0's the no missing so no adjustment required
-  if (sum(which(unlist(onezero)!=0) ) ) {
-    # no gaps
-    if ( length(which(unlist(onezero)==1)) == max(which(unlist(onezero)==1)) ){
-
-      lastVisit <- min(which(unlist(onezero)==1))
+  #if (sum(which(unlist(onezero)!=0) ) ) {
+    # check no gaps, ie interims, not quite right!
+    #if ( length(which(unlist(onezero)==1)) == max(which(unlist(onezero)==1)) ){
+    #  lastVisit <- min(which(unlist(onezero)==1)) }
+  lastvisit <- min(which(unlist(onezero)==1))-1
       # so add appropriate delta to imputed values after last visit
   super_delta<-0
-  for (v in lastVisit:(length(vec_tst)-ncovar)) {
+   v<-0
+
+  # for (v in lastVisit:length(onezero)) {
     # when dlag used super_delta<- super_delta + delta[v]* dlag[v-1]
     # we only increment delta when missing, so skip if non imssing
     # 1st row should be same value for all rows in the same pattern group, gives warning othewise
-    if (mata_imp[1,2+v+1+length(vec_tst)]==1) {
+
+    # range of values to be changed in mata_imp given by the cols start:end
+    start<- 2+ncovar+1
+    end <- 2+length(vec_tst)
+  #mata_imp[,start:end]
+    #loop ove selected range in mata_imp
+
+  for (j in (start+lastvisit):end) {
+
+    #4:8
+    #if (mata_imp[1,start+v]==1) {
+      # adjust from last visit (ignore interims for now)
+      #for (v in lastVisit:length(onezero)) {
+      # count from start to end
+      v<- v+1
        super_delta <- super_delta + delta[v]
-    }
-    #browser()
+       mata_imp[j] <- mata_imp[j] + super_delta
+  }
+       #browser()
     # mata_new values start in col 3 so must add 2 to index
     # needs adjusting for when interim case non missing! test dummy missing vars
    # jump<-length(vec_tst)
    # mata_imp[2+v]<- ifelse(mata_imp[2+v+1+jump]==1,mata_imp[2+v] + super_delta,mata_imp[2+v])
    #{
     #print(paste0("interim missing, check delta adjustment ",onezero))
-    mata_imp[2+v] <- mata_imp[2+v] + super_delta
-    #}
-  }
-    }
-    }
-  return(mata_imp)
+   # mata_imp[2+v] <- mata_imp[2+v] + super_delta
+
+    return(mata_imp)
 }
-
-
-
-
-
 
 
