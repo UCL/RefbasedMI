@@ -1,3 +1,20 @@
+#' ###################################################################################
+#' Rmimix.R                                                                          #
+#' R program to mimic stata program mimix                                            #
+#' ie reference based imputation                                                     #
+#' Note 1st part is to set up a summary table based on missing data pattern-         #
+#' mg  mimix_group                                                                   #
+#' reflects the pattern and treatment group configuration of the raw data            #
+#' then acts as a looping mechanism                                                  #
+#' norm2 is used as MCMC multivariate normal                                         #
+#' this version 22/5/2020                                                            #
+#' calls functions listed in functions.R file                                        #
+#' function preprodata prepares data and and finds mg (the mimix group)              #
+#' function Runmimix  performs major analysis                                        #
+#' the required packages as listed in utilities file                                 #
+#' v0.0.3                                                                            #
+#' Author : Kevin McGrath                                                            #
+#' ###################################################################################
 
 
 #' @title mimix
