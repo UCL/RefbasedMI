@@ -7,11 +7,16 @@
 #' reflects the pattern and treatment group configuration of the raw data            #
 #' then acts as a looping mechanism                                                  #
 #' norm2 is used as MCMC multivariate normal                                         #
-#' this version 22/5/2020                                                            #
-#' calls functions listed in functions.R file                                        #
 #' function preprodata prepares data and and finds mg (the mimix group)              #
-#' function Runmimix  performs major analysis                                        #
+#' function preproIndivdata prepate data for individual-specific option              #
+#' function ifmethodindiv alterative logic to Runmimix for individual-specific       #
+#' program Runmimix  performs major analysis function mimix                          #
 #' the required packages as listed in utilities file                                 #
+#' outputs the M imputed data sets concatenated as one data-set appended to          #
+#' the original (wide format ) unimputed data-set                                    #
+#' converted to mids data set enables                                                #
+#' Modelling under Rubin's rules by the mice functions with,pool                     #
+#' this version 22/5/2020                                                            #
 #' v0.0.3                                                                            #
 #' Author : Kevin McGrath                                                            #
 #' ###################################################################################
@@ -40,7 +45,7 @@
 #' @return impdataset the m impute data-sets appended to the "missing values" data-set in wide format
 #' @example
 #' \dontrun{
-#' mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
+#'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
 #' }
 
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
