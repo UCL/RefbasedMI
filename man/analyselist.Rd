@@ -11,7 +11,7 @@ analyselist(id, datlist, varlist)
 
 \item{datlist}{imputed dataset of M imputations}
 
-\item{varlist}{list of derived variables}
+\item{varlist}{list of derived variables ,varlist <- c("fev.2","fev.4","fev.8","fev.12","base")}
 }
 \value{
 printout of descriptve stats

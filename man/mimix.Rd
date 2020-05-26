@@ -63,5 +63,28 @@ impdataset the m impute data-sets appended to the "missing values" data-set in w
 main wrapper for running mimix
 }
 \details{
+###################################################################################
+Rmimix.R                                                                          #
+R program to mimic stata program mimix                                            #
+ie reference based imputation                                                     #
+Note 1st part is to set up a summary table based on missing data pattern-         #
+mg  mimix_group                                                                   #
+reflects the pattern and treatment group configuration of the raw data            #
+then acts as a looping mechanism                                                  #
+norm2 is used as MCMC multivariate normal                                         #
+function preprodata prepares data and and finds mg (the mimix group)              #
+function preproIndivdata prepate data for individual-specific option              #
+function ifmethodindiv alterative logic to Runmimix for individual-specific       #
+program Runmimix  performs major analysis function mimix                          #
+the required packages as listed in utilities file                                 #
+outputs the M imputed data sets concatenated as one data-set appended to          #
+the original (wide format ) unimputed data-set                                    #
+converted to mids data set enables                                                #
+Modelling under Rubin's rules by the mice functions with,pool                     #
+this version 22/5/2020                                                            #
+v0.0.3                                                                            #
+Author : Kevin McGrath                                                            #
+###################################################################################
+
 This is based on Suzie Cro's Stata program
 }
