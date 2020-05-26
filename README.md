@@ -78,7 +78,13 @@ analyselist(5017,impdatasetJ2R,varlist)
 
 run regression on imputed data-sets, combining using Rubin's rules
 
-regressimp(impdatasetJ2R,"fev.12~treat+base")
+# set file as a mids class, specifying id and imputation number columns  
+impdata= as.mids(impdatasetJ2R, .id="SNO",.imp="II")
+
+# fit specified model to each imputed data set and pool results together (Rubin's rules), functions from mice package
+fit<-with(impdata, lm(fev.12~treat+base))
+summary(pool(fit))
+
 
 
 ### Using the Causal method
