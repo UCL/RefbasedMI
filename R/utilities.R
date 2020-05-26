@@ -30,8 +30,8 @@
 #' @title LMCF_loop
 #' @description process LMCF method
 #' @details This is based on Suzie Cro's Stata program
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2 
+#' @param c_mata_miss vector of col locaton of missing values , eg 5 6
+#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2
 #' @return mata_means
 
 LMCF_loop <- function(c_mata_miss,mata_Means)
@@ -49,9 +49,9 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 #' @title CIR_loop
 #' @description process CIR method
 #' @details This is based on Suzie Cro's Stata program
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2   
-#' @param MeansC vector of means after mcmc draws using variance from reference group 
+#' @param c_mata_miss vector of col locaton of missing values , eg 5 6
+#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2
+#' @param MeansC vector of means after mcmc draws using variance from reference group
 #' @return mata_means
 
 
@@ -91,9 +91,9 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 #' @title Causal_loop
 #' @description process Causal method
 #' @details This is based on "White,Royes,Best" paper
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2   
-#' @param MeansC vector of means after mcmc draws using variance from reference group 
+#' @param c_mata_miss vector of col locaton of missing values , eg 5 6
+#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2
+#' @param MeansC vector of means after mcmc draws using variance from reference group
 #' @param  Kd parameter that makes it between J2R and CIR, value 1 equiv to CIR
 #' @return mata_means
 
@@ -101,7 +101,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
 {
 
-   browser()
+  # browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 

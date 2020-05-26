@@ -1,7 +1,7 @@
 #' ###################################################################################
 #' Rmimix.R                                                                          #
 #' R program to mimic stata program mimix                                            #
-#' ie reference based imputation                                                     #
+#' Reference-based imputation for longitudinal clinical trials with protocol deviatn #                                             #
 #' Note 1st part is to set up a summary table based on missing data pattern-         #
 #' mg  mimix_group                                                                   #
 #' reflects the pattern and treatment group configuration of the raw data            #
@@ -16,7 +16,7 @@
 #' the original (wide format ) unimputed data-set                                    #
 #' converted to mids data set enables                                                #
 #' Modelling under Rubin's rules by the mice functions with,pool                     #
-#' this version 22/5/2020                                                            #
+#' this version 25/5/2020                                                            #
 #' v0.0.3                                                                            #
 #' Author : Kevin McGrath                                                            #
 #' ###################################################################################
