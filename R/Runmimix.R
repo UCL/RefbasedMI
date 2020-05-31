@@ -1,30 +1,9 @@
-# ###################################################################################
-# mimix.R                                                                           #
-# R program to mimic stata program mimix                                            #
-# Reference-based imputation for longitudinal clinical trials with protocol deviatn #
-# Note 1st part is to set up a summary table based on missing data pattern-         #
-# mg  mimix_group                                                                   #
-# reflects the pattern and treatment group configuration of the raw data            #
-# then acts as a looping mechanism                                                  #
-# norm2 is used as MCMC multivariate normal                                         #
-# function preprodata prepares data and and finds mg (the mimix group)              #
-# function preproIndivdata prepate data for individual-specific option              #
-# function ifmethodindiv alterative logic to Runmimix for individual-specific       #
-# program Runmimix  performs major analysis function mimix                          #
-# the required packages as listed in utilities file                                 #
-# outputs the M imputed data sets concatenated as one data-set appended to          #
-# the original (wide format ) unimputed data-set                                    #
-# converted to mids data set enables                                                #
-# Modelling under Rubin's rules by the mice functions with,pool                     #
-# this version 25/5/2020                                                            #
-# v0.0.3                                                                            #
-# Author : Kevin McGrath                                                            #
-# ###################################################################################
-
-
 #' @title mimix
 #' @description main wrapper for running mimix
 #' @details This is based on Suzie Cro's Stata program
+#' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   #
+#' @details reflects the pattern and treatment group configuration of the raw data
+#' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
 #' @export mimix
 #' @param data  datset in wide format
 #' @param covar covariates and base depvar must be complete (no missing vaules)
@@ -46,7 +25,7 @@
 #' @example
 #' \dontrun{
 #'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
-#' }
+#'}
 
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
 
@@ -855,6 +834,17 @@ getimpdatasets <- function(varlist){
   return(impdatasets)
 }
 
+#' mimix: A package for Reference-based imputation for longitudinal clinical trials with protocol deviation
+#' 
+#' similar to the Stata mimix function
+#' 
+#' The mimix package contains the functions preprodata and preproIndivdata to 
+#'  process long longitudinal data into wide data format
+#'  
+#'  Also the function Addelta to add delta adjustment to the imputed estimates 
+#' @docType package
+#' @name mimix
+NULL     
 
 
 # so no almost reday for mice!
