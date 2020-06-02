@@ -1,11 +1,10 @@
-# mimix
-<h2>Multiple imputation sensitivity analysis for longitudinal trials using R</h2> 
+# mimix: an R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
-We aim to port the functionality of the Stata program **mimix**  into R 
+We have ported the functionality of the Stata program **mimix**  into R. 
 
 The purpose of mimix is as described in the paper
 
-Reference-based sensitivity analysis via multiple imputation for longitudinal trials with protocol deviation
+> Reference-based sensitivity analysis via multiple imputation for longitudinal trials with protocol deviation
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
@@ -20,9 +19,9 @@ The 5 methods (plus Causal) available for sensitivity analysis are
 | Last mean carried forward	    | LMCF|  n |
 | Causal	                       | Causal|  y |
 
-for explanation of the Causal model refer to 
+For explanation of the Causal model refer to 
 
-https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
+> https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 and an option for Delta adjustment to the imputed values
 
@@ -37,11 +36,11 @@ It does have the methodvar option (where  different imputation methods are speci
 
 within the R environment type 
 
-library(devtools) 
+    library(devtools) 
 
 followed by 
 
-install_github("UCL/mimix")
+    install_github("UCL/mimix")
 
 
 # usage
