@@ -13,7 +13,7 @@ The purpose of mimix is as described in the paper
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
-and (within Stata) type  ssc install mimix
+and (within Stata) type  "ssc install mimix" to install code  and "help mimix" to read help documetation
  
 
 The 5 methods (plus Causal) available for sensitivity analysis are
