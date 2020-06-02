@@ -1,4 +1,9 @@
-# mimix: an R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
+<a href ="https://www.ctu.mrc.ac.uk/"><img src="MRCCTU_at_UCL_Logo.png" width="50%" /></a>
+
+# mimix
+ *0.0.4*
+
+# an R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
 We have ported the functionality of the Stata program **mimix**  into R. 
 
@@ -27,7 +32,7 @@ For explanation of the Causal model refer to
 > https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 
-For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs user-guide at 
+For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs and user-guide at 
 https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
 
