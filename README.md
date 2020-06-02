@@ -30,9 +30,7 @@ For explanation of the Causal model refer to
 For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs user-guide at 
 https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
-The R program does not provide the interim option available in Stata (where the individual has data observed later ) .
 
-It does have the methodvar option (where different imputation methods are individual-specific). 
 
 # installation
 
