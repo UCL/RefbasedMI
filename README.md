@@ -8,6 +8,9 @@ The purpose of mimix is as described in the paper
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
+and (within Stata) type  ssc install mimix
+ 
+
 The 5 methods (plus Causal) available for sensitivity analysis are
  
 |  Method         | option cmd             | reference group required |
@@ -23,14 +26,13 @@ For explanation of the Causal model refer to
 
 > https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
-and an option for Delta adjustment to the imputed values
 
-see the explanation of Delta adjustment within the SAS 5macros folder ,also
+For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs user-guide at 
 https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
 The R program does not provide the interim option available in Stata (where the individual has data observed later ) .
 
-It does have the methodvar option (where  different imputation methods are specific for different individuals). 
+It does have the methodvar option (where different imputation methods are individual-specific). 
 
 # installation
 
@@ -41,6 +43,7 @@ within the R environment type
 followed by 
 
     install_github("UCL/mimix")
+
 
 
 # usage
