@@ -58,70 +58,39 @@ mimix(data,covar,depvar,treatvar,idvar,timevar,..... options.....
 
 Arguments in function mimix() 
 
-data	
+data	       dataset in wide (longitudinal data) format
 
-dataset in wide (longitudinal data) format
+covar       baseline covariates and/or baseline depvar, must be complete (no missing vaules) and treated as numeric
 
-covar
+depvar	     dependent variable
 
-baseline covariates and/or baseline depvar, must be complete (no missing vaules) and treated as numeric
+treatvar   	treatment group , recoded to 1,2,..
 
-depvar	
+idvar	      patient id
 
-dependent variable
+timevar	    time point for repeated measure
 
-treatvar	
+M	          number of imputations
+ 
+refer	      reference group for j2r,cir,cr methods
 
-treatment group , recoded to 1,2,..
+meth	       RBI method
 
-idvar	
+seedval	    seed value to obtain same outputs
 
-patient id
+priorvar    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
 
-timevar	
+burnin	     burnin value
 
-time point for repeated measure
+bbetween	   value between iterations in mcmc
 
-M	
+methodindiv  2 element vector designating variables in data specifying individual method and reference group
 
-number of imputations
+delta       vector of delta values to add onto imputed values (non-mandatory)
 
-refer	
+K0	         Causal constant for use with Causal method
 
-reference group for j2r,cir,cr methods
-
-meth	
-RBI method
-
-seedval	
-seed value to obtain same outputs
-
-priorvar	
-prior, default jeffreys, uniform  or ridge
-
-burnin	
-
-burnin value
-
-bbetween	
-
-value between iterations in mcmc
-
-methodindiv	
-
-2 element vector designating variables in data specifying individual method and reference group
-
-delta
-
-vector of delta values to add onto imputed values (non-mandatory)
-
-K0	
-
-Causal constant for use with Causal method
-
-K1	
-
-exponential decaying Causal constant for use with Causal method
+K1	         exponential decaying Causal constant for use with Causal method
 
 
 
