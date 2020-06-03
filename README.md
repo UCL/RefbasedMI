@@ -58,39 +58,39 @@ mimix(data,covar,depvar,treatvar,idvar,timevar,..... options.....
 
 Arguments in function mimix() 
 
-data	       dataset in wide (longitudinal data) format
+**data**	       dataset in wide (longitudinal data) format
 
-covar       baseline covariates and/or baseline depvar, must be complete (no missing vaules) and treated as numeric
+**covar**       baseline covariates and/or baseline depvar, must be complete (no missing vaules) and treated as numeric
 
-depvar	     dependent variable
+**depvar**	     dependent variable
 
-treatvar   	treatment group , recoded to 1,2,..
+**treatvar**   	treatment group , recoded to 1,2,..
 
-idvar	      patient id
+**idvar**	      patient id
 
-timevar	    time point for repeated measure
+**timevar**	    time point for repeated measure
 
-M	          number of imputations
+**M**	          number of imputations
  
-refer	      reference group for j2r,cir,cr methods
+**refer**	      reference group for j2r,cir,cr methods
 
-meth	       RBI method
+**meth**	       RBI method
 
-seedval	    seed value to obtain same outputs
+**seedval**	    seed value to obtain same outputs
 
-priorvar    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
+**priorvar**    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
 
-burnin	     burnin value
+**burnin**	     burnin value
 
-bbetween	   value between iterations in mcmc
+**bbetween**	   value between iterations in mcmc
 
-methodindiv  2 element vector designating variables in data specifying individual method and reference group
+**methodindiv**  2 element vector designating variables in data specifying individual method and reference group
 
-delta       vector of delta values to add onto imputed values (non-mandatory)
+**delta**       vector of delta values to add onto imputed values (non-mandatory)
 
-K0	         Causal constant for use with Causal method
+**K0**	         Causal constant for use with Causal method
 
-K1	         exponential decaying Causal constant for use with Causal method
+**K1**	         exponential decaying Causal constant for use with Causal method
 
 
 
