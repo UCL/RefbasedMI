@@ -53,22 +53,62 @@ followed by
 
 # usage
 
-covariates and basevalue response must be non-missing, also all covariates to be converted to numeric, for example 
-antidepressant$PATIENT.SEX <- as.numeric(antidepressant$PATIENT.SEX)
-
-otherwise you get the following warning 
-*Warning messages:
-1: In emNorm.default(prnormobj, prior = priorvar[1], prior.df = priorvar[2]) :
-  Factors in argument "y" converted to mode "numeric".
-2: In emNorm.default(prnormobj, prior = priorvar[1], prior.df = priorvar[2]) :
-  Factors in argument "y" converted to mode "numeric".
-3*
+mimix(data,covar,depvar,treatvar,idvar,timevar,..... options..... 
 
 
-arguments in function mimix() showing default values
-NOTE - either meth and methodIndiv to be specified but NOT both
+Arguments in function mimix() showing default values
+data	
+datset in wide format
 
-mimix(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorvar,burnin=1000,bbetween=NULL,methodindiv,delta=NULL) 
+covar	
+covariates and base depvar must be complete (no missing vaules) and treated as numeric
+
+depvar	
+dependent variable
+
+treatvar	
+treatment group , recoded to 1,2,..
+
+idvar	
+patient id
+
+timevar	
+time point for repeated measure
+
+M	
+number of imputations
+
+refer	
+reference group for j2r,cir,cr methods
+
+meth	
+RBI method
+
+seedval	
+seed value to obtain same outputs
+
+priorvar	
+prior, default jeffreys, uniform  or ridge
+
+burnin	
+burnin value
+
+bbetween	
+value between iterations in mcmc
+
+methodindiv	
+2 element vector designating variables in data specifying individual method and reference group
+
+delta	
+vector of delta values to add onto imputed values (non-mandatory)
+
+K0	
+Causal constant for use with Causal method
+
+K1	
+exponential decaying Causal constant for use with Causal method
+
+
 
 # examples
 
@@ -76,12 +116,6 @@ mimix(data,covar,depvar,treatvar,idvar,timevar,M=1,refer,meth,seedval=101,priorv
 ### Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
 
 impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ) )   
-
-check outputs for individual patient id
-
-varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
-
-analyselist(5017,impdatasetJ2R,varlist)
 
 run regression on imputed data-sets, combining using Rubin's rules
 
@@ -97,10 +131,13 @@ summary(pool(fit))
 
 ### Using the Causal method
 
-impdataCausal <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL)
+Example
+impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",
+                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,,1,1)
 
 
 ### Individual specific method, with delta adjustment
+NOTE - either meth and methodIndiv to be specified but NOT both
 
 impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
 
