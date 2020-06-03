@@ -3,7 +3,7 @@
 # mimix
  *0.0.5*
 
-# an R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
+# An R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
 We have ported the functionality of the Stata program **mimix**  into R. 
 
@@ -35,7 +35,8 @@ For explanation of the Causal model refer to
 For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs and user-guide at 
 https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
-
+For details of the norm2 package which supplies the function mcmcNorm - the MCMC algorithm for incomplete multivariate normal data
+https://rdrr.io/cran/norm2/src/R/norm2.R
 
 # installation
 
@@ -50,35 +51,43 @@ followed by
     install_github("UCL/mimix")
 
 
-
 # usage
 
 mimix(data,covar,depvar,treatvar,idvar,timevar,..... options..... 
 
 
-Arguments in function mimix() showing default values
-data	
-datset in wide format
+Arguments in function mimix() 
 
-covar	
-covariates and base depvar must be complete (no missing vaules) and treated as numeric
+data	
+
+dataset in wide (longitudinal data) format
+
+covar
+
+baseline covariates and/or baseline depvar, must be complete (no missing vaules) and treated as numeric
 
 depvar	
+
 dependent variable
 
 treatvar	
+
 treatment group , recoded to 1,2,..
 
 idvar	
+
 patient id
 
 timevar	
+
 time point for repeated measure
 
 M	
+
 number of imputations
 
 refer	
+
 reference group for j2r,cir,cr methods
 
 meth	
@@ -91,21 +100,27 @@ priorvar
 prior, default jeffreys, uniform  or ridge
 
 burnin	
+
 burnin value
 
 bbetween	
+
 value between iterations in mcmc
 
 methodindiv	
+
 2 element vector designating variables in data specifying individual method and reference group
 
-delta	
+delta
+
 vector of delta values to add onto imputed values (non-mandatory)
 
 K0	
+
 Causal constant for use with Causal method
 
 K1	
+
 exponential decaying Causal constant for use with Causal method
 
 
@@ -139,6 +154,6 @@ impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREA
 ### Individual specific method, with delta adjustment
 NOTE - either meth and methodIndiv to be specified but NOT both
 
-impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("jeffreys"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
+impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
 
 
