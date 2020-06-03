@@ -21,7 +21,8 @@ mimix(
   bbetween = NULL,
   methodindiv = NULL,
   delta = NULL,
-  Kd = NULL
+  K0 = 1,
+  K1 = 0.5
 )
 }
 \arguments{
@@ -55,7 +56,9 @@ mimix(
 
 \item{delta}{vector of delta values to add onto imputed values (non-mandatory)}
 
-\item{Kd}{Causal constant for use with Causal method}
+\item{K0}{Causal constant for use with Causal method}
+
+\item{K1}{exponential decaying Causal constant for use with Causal method}
 }
 \value{
 impdataset the m impute data-sets appended to the "missing values" data-set in wide format

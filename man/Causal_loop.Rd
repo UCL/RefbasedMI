@@ -4,7 +4,7 @@
 \alias{Causal_loop}
 \title{Causal_loop}
 \usage{
-Causal_loop(c_mata_miss, mata_Means, MeansC, Kd)
+Causal_loop(c_mata_miss, mata_Means, MeansC, K0, K1)
 }
 \arguments{
 \item{c_mata_miss}{vector of col locaton of missing values , eg 5 6}
@@ -13,7 +13,9 @@ Causal_loop(c_mata_miss, mata_Means, MeansC, Kd)
 
 \item{MeansC}{vector of means after mcmc draws using variance from reference group}
 
-\item{Kd}{parameter that makes it between J2R and CIR, value 1 equiv to CIR}
+\item{K0}{Causal constant for use with Causal method}
+
+\item{K1}{exponential decaying Causal constant for use with Causal method  0<k1<1}
 }
 \value{
 mata_means
