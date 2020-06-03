@@ -1,7 +1,7 @@
 <a href ="https://www.ctu.mrc.ac.uk/"><img src="MRCCTU_at_UCL_Logo.png" width="50%" /></a>
 
 # mimix
- *0.0.4*
+ *0.0.5*
 
 # an R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
@@ -13,7 +13,7 @@ The purpose of mimix is as described in the paper
 by Suzie Cro, Tim P. Morris, Michael G. Kenward, and James R. Carpenter
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
 
-and (within Stata) type  "ssc install mimix" to install code  and "help mimix" to read help documetation
+and (within Stata) type  "ssc install mimix" to install code  and "help mimix" to read help documentation
  
 
 The 5 methods (plus Causal) available for sensitivity analysis are
@@ -40,6 +40,8 @@ https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip
 # installation
 
 within the R environment type 
+
+    if(!require(devtools)) install.packages('devtools') 
 
     library(devtools) 
 
