@@ -94,14 +94,15 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 #' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
 #' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2   
 #' @param MeansC vector of means after mcmc draws using variance from reference group 
-#' @param  Kd parameter that makes it between J2R and CIR, value 1 equiv to CIR
+#' @param K0 Causal constant for use with Causal method     
+#' @param K1 exponential decaying Causal constant for use with Causal method  0<k1<1
 #' @return mata_means
 
 
-Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
+Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 {
 
-  # browser()
+   #browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
@@ -134,9 +135,17 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,Kd)
       ActRef_diff <-mata_means[lastvisit]-MeansC[[1]][lastvisit]
 
       # 1/5/20 need to compere v CIR , J2R and doesnt use terms in  formula 7
-      mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+  ( Kd*ActRef_diff )
+  # this was eqn 5 soln   2/6/20
+  #mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+  ( Kd*ActRef_diff )
       #mata_means[c_mata_miss[b]] <-   *(mata_means[(c_mata_miss[b]-1)]- MeansC[[1]][(c_mata_miss[b])-1]) + (mata_means[(c_mata_miss[b])]-MeansC[[1]][(c_mata_miss[b])])
 
+      # try eq 6 Above ok! so dont interfere
+      # to implement eq 6 need calc current vist - lastvisit and use it to exponentiate 
+      # the unit visit  diferences are  c_mata_miss[b]-lastvisit
+  
+      # 2/6/20 eqn7 but specify k0,k1
+       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+( K0*(K1^(c_mata_miss[b]-lastvisit))*ActRef_diff )
+      
     }
   }
   return(mata_means)

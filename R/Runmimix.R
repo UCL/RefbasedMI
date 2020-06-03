@@ -20,14 +20,15 @@
 #' @param bbetween  value between iterations in mcmc
 #' @param methodindiv  2 element vector designating variables in data specifying individual method and reference group
 #' @param delta vector of delta values to add onto imputed values (non-mandatory)
-#' @param Kd Causal constant for use with Causal method
+#' @param K0 Causal constant for use with Causal method
+#' @param K1 exponential decaying Causal constant for use with Causal method
 #' @return impdataset the m impute data-sets appended to the "missing values" data-set in wide format
 #' @example
 #' \dontrun{
 #'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
 #'}
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,Kd=NULL) {
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,K0=1,K1=0.5) {
 
   # insert error checks  HERE
 
@@ -39,9 +40,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # Causal constant must be number and check it exists if Causal specified
   #stopifnot(meth=="Causal" & !missing(Kd))
   if (toupper(meth)=="CAUSAL" | toupper(meth)== "CASUAL" | toupper(meth)== "CUASAL") {
-    if (missing(Kd))  {stop("Kd Causal constant not specified")}
+    if (missing(K1))  {stop("K1 Causal constant not specified")}
+    if (!(K1>=0 & K1<=1)) {stop("K1 Causal constant not in range 0..1 ")}
   } #Causal constant must be number
-    Kd<- as.numeric(Kd)
+    K1<- as.numeric(K1)
   }
   if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
 
@@ -525,7 +527,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
            #Kd =1 equiv to CIR
            #Kd<-0.8
 
-           mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,Kd)
+           mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
 
           #this temporary  fpr test purposes until algo decided upon
            SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
