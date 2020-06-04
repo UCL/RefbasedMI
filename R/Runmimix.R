@@ -5,19 +5,19 @@
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
 #' @export mimix
-#' @param data  datset in wide format
-#' @param covar covariates and base depvar must be complete (no missing vaules)
-#' @param depvar dependent variable
-#' @param treatvar treatment group , recoded to 1,2,..
-#' @param idvar patient id
-#' @param M number of imputations
-#' @param timevar time point for repeated measure
-#' @param refer  reference group for j2r,cir,cr mrthods
-#' @param meth RBI method
-#' @param seedval  seed value to obtain same outputs
-#' @param priorvar  prior,defualt Jeffries, also uniform or ridge
-#' @param burnin  burnin value
-#' @param bbetween  value between iterations in mcmc
+#' @param data  Dataset in wide format
+#' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
+#' @param depvar Dependent (outcome) variable
+#' @param treatvar Treatment group, coded 1,2,..
+#' @param idvar Participant id
+#' @param M Number of imputations to be created
+#' @param timevar Time point for repeated measure
+#' @param refer  Reference group for J2R, CIR, CR methods
+#' @param meth Reference-based imputation method: must be ...
+#' @param seedval  Seed value. Specify this so that a new run of the command will give the same imputed values.
+#' @param priorvar  Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge
+#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
+#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
 #' @param methodindiv  2 element vector designating variables in data specifying individual method and reference group
 #' @param delta vector of delta values to add onto imputed values (non-mandatory)
 #' @param K0 Causal constant for use with Causal method
