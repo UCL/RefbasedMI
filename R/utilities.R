@@ -102,7 +102,6 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 {
 
-   #browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
@@ -214,7 +213,7 @@ regressimp <- function(dataf,regmodel)  {
 
 
 analyselist <-function(id,datlist,varlist) {
-  datano <- subset(datlist,id==datlist$SNO)
+  datano <- subset(datlist,id==datlist$.id)
    # numbers denote the descriptive stats to display
    t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
  }
@@ -224,15 +223,18 @@ analyselist <-function(id,datlist,varlist) {
 #' @details adding delta values after wthdrawal
 #' @param vec_tst  vector of visit names
 #' @param ncovar number covariates
-#' @param mata_imp the imputed values (as well as the complete)
-#' @param delta vector of delta values for each vist time
+#' @param mata_imp the imputed values (as well as the complete) 
+#' @param delta vector of delta values (a values in Roger's) for each vist time
+#' @param dlag vector of dlag values (b values in Roger's) for each vist time
 #' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 
 
 
 #define function 19/04 to add delta's to imputed values
-AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
+AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
  #browser()
+  # need read dlag in mimix argument, so temp here
+  
   # create vector of 1 and 0s
   #browser()  no space before .miss 12/5/20, stat at 3rd col skipping GI II
   #onezero<-sapply(vec_tst[3:(2+length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
@@ -247,6 +249,14 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
 
   # check not interim , ie no gaps in onezero seq
   # in which case just leave wout delta adjustment but print warnnig msg
+  # determine whether interim by noting if a zero appears after any one, 
+  # ie if 1st occurence of 1 to left of any 0  
+  if (max(which(unlist(onezero)==0)) >  min(which(unlist(onezero)==1))) {
+    # do nothing as interim 
+  } 
+  else
+  { 
+  
   # if length = max then no gaps
   # if all 0's the no missing so no adjustment required
   #if (sum(which(unlist(onezero)!=0) ) ) {
@@ -255,9 +265,13 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
     #  lastVisit <- min(which(unlist(onezero)==1)) }
   lastvisit <- min(which(unlist(onezero)==1))-1
       # so add appropriate delta to imputed values after last visit
-  super_delta<-0
+  
+  #lastvisit is p in JamesRogers paper 
+   super_delta<-0
    v<-0
 
+   
+   
   # for (v in lastVisit:length(onezero)) {
     # when dlag used super_delta<- super_delta + delta[v]* dlag[v-1]
     # we only increment delta when missing, so skip if non imssing
@@ -277,7 +291,7 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
       #for (v in lastVisit:length(onezero)) {
       # count from start to end
       v<- v+1
-       super_delta <- super_delta + delta[v]
+       super_delta <- super_delta + delta[j-start+1]*dlag[v]
        mata_imp[j] <- mata_imp[j] + super_delta
   }
        #browser()
@@ -288,7 +302,9 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta)  {
    #{
     #print(paste0("interim missing, check delta adjustment ",onezero))
    # mata_imp[2+v] <- mata_imp[2+v] + super_delta
-
+    
+} 
+  #if not interim
     return(mata_imp)
 }
 

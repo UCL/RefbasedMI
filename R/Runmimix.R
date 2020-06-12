@@ -5,47 +5,52 @@
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
 #' @export mimix
-#' @param data  Dataset in wide format
-#' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
-#' @param depvar Dependent (outcome) variable
-#' @param treatvar Treatment group, coded 1,2,..
-#' @param idvar Participant id
-#' @param M Number of imputations to be created
-#' @param timevar Time point for repeated measure
-#' @param refer  Reference group for J2R, CIR, CR methods
-#' @param meth Reference-based imputation method: must be ...
-#' @param seedval  Seed value. Specify this so that a new run of the command will give the same imputed values.
-#' @param priorvar  Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge
-#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
-#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
-#' @param methodindiv  2 element vector designating variables in data specifying individual method and reference group
-#' @param delta vector of delta values to add onto imputed values (non-mandatory)
+#' @param data  datset in wide format
+#' @param covar covariates and base depvar must be complete (no missing vaules)
+#' @param depvar dependent variable
+#' @param treatvar treatment group , recoded to 1,2,..
+#' @param idvar patient id
+#' @param M number of imputations
+#' @param timevar time point for repeated measure
+#' @param refer  reference group for j2r,cir,cr methods
+#' @param method RBI method
+#' @param seed  seed value to obtain same outputs
+#' @param prior  prior,default jeffreys, also uniform or ridge
+#' @param burnin  burnin value
+#' @param bbetween  value between iterations in mcmc
+#' @param methodvar  2 element vector designating variables in data specifying individual method and reference group
+#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper)
+#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper)
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
 #' @return impdataset the m impute data-sets appended to the "missing values" data-set in wide format
 #' @example
 #' \dontrun{
-#'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),0.6)
+#'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),NULL,1,0.6)
 #'}
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,meth=NULL,seedval=101,priorvar="jeffreys",burnin=1000,bbetween=NULL,methodindiv=NULL,delta=NULL,K0=1,K1=0.5) {
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1) {
 
   # insert error checks  HERE
-
+ # meth<-method
+#  methodindiv<methodvar
   #check not both meth and methodundiv specified.
-  stopifnot(meth=="NULL" | methodindiv=="NULL")
+  stopifnot(method=="NULL" | methodvar=="NULL")
   # establish whether specifying individual or group by creating a flag var
-  if (!is.null(meth)) {
+  if (!is.null(method)) {
     flag_indiv <-0
   # Causal constant must be number and check it exists if Causal specified
   #stopifnot(meth=="Causal" & !missing(Kd))
-  if (toupper(meth)=="CAUSAL" | toupper(meth)== "CASUAL" | toupper(meth)== "CUASAL") {
+  if (toupper(method)=="CAUSAL" | toupper(method)== "CASUAL" | toupper(method)== "CUASAL") {
+    if (missing(K0))  {stop("K0 Causal constant not specified")}
     if (missing(K1))  {stop("K1 Causal constant not specified")}
-    if (!(K1>=0 & K1<=1)) {stop("K1 Causal constant not in range 0..1 ")}
+    if (!(K0>=0 & K0<=1)) {warning("K1 Causal constant not in range 0..1 ")}
+    if (!(K1>=0 & K1<=1)) {warning("K1 Causal constant not in range 0..1 ")}
   } #Causal constant must be number
+    K0<- as.numeric(K0)
     K1<- as.numeric(K1)
   }
-  if (is.null(meth) & !is.null(methodindiv[1]) ) {flag_indiv<-1 }
+  if (is.null(method) & !is.null(methodvar[1]) ) {flag_indiv<-1 }
 
   #find no covars
   ncovar_i = length(covar)
@@ -63,28 +68,24 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   }
 
 
-
-
-
   # note if no covar then treat the first depvar level as a covar , eg covar = fev.0.
   # sO must preform small routne tO transform datA set INTO baseline covars.
 
 
 
-
-  set.seed(seedval)
+  set.seed(seed)
 
 #21/05
   # assign all characters in meth to UPPER case
   # check i1st if meth exists! if statement needed otherwise meth change form Null to character(0)
-  if (!is.null(meth) | !length(meth)==0 ) {
-  meth <- toupper(meth)
-  stopifnot( (meth == "MAR" | meth=="MR"|
-              meth=="J2R" | meth=="J2" | meth=="JR"|
-              meth=="CIR" | meth=="CLIR" |
-              meth=="CR" |
-              meth=="LMCF" | meth=="LAST"  |
-              meth=="CAUSAL" | meth== "CASUAL" | meth== "CUASAL"),
+  if (!is.null(method) | !length(method)==0 ) {
+  method <- toupper(method)
+  stopifnot( (method == "MAR" | method=="MR"|
+              method=="J2R" | method=="J2" | method=="JR"|
+              method=="CIR" | method=="CLIR" |
+              method=="CR" |
+              method=="LMCF" | method=="LAST"  |
+              method=="CAUSAL" | method== "CASUAL" | method== "CUASAL"),
 
              is.numeric(M),
              is.character(depvar),
@@ -99,8 +100,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   }
 
 
-  if (!is.null(meth) ) {
-    testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth))
+  if (!is.null(method) ) {
+    testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,method))
     refer <- testlist[[7]]
 
 
@@ -109,17 +110,17 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     #no need for this?
     #meth <- testlist[[10]]
     #need to recode meth
-    meth<-  ifelse( (  meth=="J2R" |meth=="J2"|meth=="JR" ),3,
-                    ifelse( ( meth=="CR"  ),2,
-                            ifelse( ( meth=="MAR" | meth=="MR" ),1,
-                                    ifelse( ( meth=="CIR" |meth=="CLIR" ),4,
-                                            ifelse( ( meth=="LMCF" | meth=="LAST" ),5,
-                                              ifelse( ( meth=="CAUSAL" | meth=="CASUAL" | meth=="CUASAL"),6,9))))))
+    method<-  ifelse( (  method=="J2R" |method=="J2"|method=="JR" ),3,
+                    ifelse( ( method=="CR"  ),2,
+                            ifelse( ( method=="MAR" | method=="MR" ),1,
+                                    ifelse( ( method=="CIR" |method=="CLIR" ),4,
+                                            ifelse( ( method=="LMCF" | method=="LAST" ),5,
+                                              ifelse( ( method=="CAUSAL" | method=="CASUAL" | method=="CUASAL"),6,9))))))
 
 
   }
-  else if (!is.null(methodindiv[1]) ) {
-    testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,meth,methodindiv))
+  else if (!is.null(methodvar[1]) ) {
+    testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,method,methodvar))
     # need to re-set meth for individual
     #meth <- testlist[[8]][1]
 
@@ -146,9 +147,12 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
   # move treatvar to end by deleting and merging back in
 
+  #browser()
   # extract treatvar and methodindiv vars
-  Obs_treat<-subset(mata_Obs,select=c(treatvar,methodindiv))
-  mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodindiv))]
+  # fix 12/06 
+  # Obs_treat<-subset(mata_Obs,select=c(treatvar,methodvar))
+  Obs_treat<-mata_Obs[,c(treatvar,methodvar)]
+  mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodvar))]
   # combine back the extracted cols
   mata_Obs <- cbind(mata_ObsX,Obs_treat)
 
@@ -168,7 +172,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   #create input data sets for each tment from which to model
   #browser()
   for (val in 1:length(ntreat)) {
-    print(paste0("prenormdat",val))
+    #print(paste0("prenormdat",val))
     # this fails as treatvar not substantiated
     # assign(paste0("prenormdat",val),subset(finaldatS,treatvar==val))
     assign(paste0("prenormdat",val),subset(finaldatS,finaldatS[,treatvar]==val))
@@ -230,7 +234,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     prnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
     #create  emptylist for each treat
 
-    paste0("Looping for treatment = ",val," performing mcmcNorm for m = 1 to ",M)
+    print(paste0(" treatment = ",val," performing mcmcNorm for m = 1 to ",M) )
     for(m in 1:M) {
 
       # supppress warnings regarding solution  near boundary, see norm2 user guide, also mimix about this problem
@@ -239,18 +243,18 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
 
-      if ( priorvar[1] == "ridge" ) {
+      if ( prior[1] == "ridge" ) {
         # find sd of depvar over all times for ridge option
         sd_depvar<- stats::sd((get(data)[,depvar]),na.rm=TRUE)
-        if ( is.na(priorvar[2])) { priorvar[2]<-(sd_depvar*0.1) }}
+        if ( is.na(prior[2])) { prior[2]<-(sd_depvar*0.1) }}
       # invwish not implemented!
       #if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
 
 
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
-      emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2]))
+      invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
       #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
-      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = priorvar[1],prior.df = priorvar[2]))
+      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
 
       # msg from emNorm
       #Note: Finite-differencing procedure strayed outside
@@ -264,13 +268,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
       paramBiglist[[cumiter]] <- mcmcResultT$param
       assign(paste0("paramBiglist",val,"_",m), mcmcResultT$param)
     }
-
+    print(paste0("mcmcNorm Loop finished, m = ",M))
   }
 
   #store paraBiglist in a single structure
 
   # ) # system.time
-  print(paste0("mcmcNorm Loop finished, m = ",M))
+  #print(paste0("mcmcNorm Loop finished, m = ",M))
 
 
 
@@ -315,10 +319,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     #cat("\ntrtgp = ", trtgp)
 
 
-    if  (is.null(methodindiv[1]) ) {
+    if  (is.null(methodvar[1]) ) {
       cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
-    }else if(!is.null(methodindiv[1]) ) {
-      cat("\ntrtgp = ", trtgp,"method= ",as.character(mg[i,methodindiv[1]]),"refgp=",as.character(mg[i,methodindiv[2]]),"patt = ",pattern,"no patients = ", cnt)
+    }else if(!is.null(methodvar[1]) ) {
+      cat("\ntrtgp = ", trtgp,"method= ",as.character(mg[i,methodvar[1]]),"refgp=",as.character(mg[i,methodvar[2]]),"patt = ",pattern,"number participants = ", cnt)
     }
 
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
@@ -361,7 +365,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
           # 'MAR'
-          if (meth== 1)  {
+          if (method== 1)  {
 
             #mata_means <- get(paste0("param",trtgp,m))[1]
             mata_means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
@@ -381,7 +385,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
             Sigma<-Sigmatrt
           }
           # 'J2R'
-          else if (meth == 3 ) {
+          else if (method == 3 ) {
 
             # changed saving the result into  just the param file, list of 2 so can use list index here
             #treatmnets are 1.. M then M+1 ..2M .. etc
@@ -440,7 +444,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
             Sigma<-SigmaRefer
           }
           # 'CR'
-          else if (meth==2) {
+          else if (method==2) {
             # no need to use Sigmatrt here
             mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
             #mata_means <- get(paste0("param",refer,m))[1]
@@ -455,7 +459,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
             Sigma<-SigmaRefer
           }
           # 'CIR'
-          else if (meth==4)
+          else if (method==4)
 
           {
             # need to use Sigmatrt as in j2r
@@ -494,7 +498,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
             Sigma<- SigmaRefer
           }
           # 'LMCF'
-          else if (meth==5) {
+          else if (method==5) {
 
             #mata_Means <-  get(paste0("param",trtgp,m))[1]
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
@@ -515,7 +519,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
             Sigma<- Sigmatrt
           }  #if meth=5
           # causal method uses same matrices as CIR with K parameter
-         else if (meth==6)  {
+         else if (method==6)  {
            mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
            # convert from list to matrix
            mata_Means <- mata_Means[[1]]
@@ -548,7 +552,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
           # call function for  indiv
 
-        indparamlist  <- ifmethodindiv(methodindiv,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss)
+        indparamlist  <- ifmethodindiv(methodvar,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss,K0,K1)
         mata_means<- indparamlist[[1]]
         Sigma <- indparamlist[[2]]
         }
@@ -741,7 +745,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         #assume delta to be used if specified in input argument
         if (length(delta != 0) ) {
           #browser()
-        mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta)
+        mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
         }
 
         mata_all_newlist[[m_mg_iter]]=mata_new
@@ -769,9 +773,16 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # then sort (by imputation and patient id) into M data sets and split into M lists
   #  impdatasets <- mata_all_newData1x[order(mata_all_newData1x$II,mata_all_newData1x$SNO),]
   #  impdatasets2 <- mata_all_newlist[order(mata_all_newlist$II,mata_all_newlist$SNO),]
-  impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,meth))
+  impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
 
+  # if regression requested
+  #If (regress = TRUE) {
+  #     impdatamids <- as.mids(impdataset,  .id="SNO",.imp="II")
+  #     fit<-with(data= impdatamids, expr = lm(impdatamids[,length(mpdatamids)-4]~impdatamids[,treatvar])
+  #     paste0(summary(pool(fit)))
+  #}
   #return(list(mata_all_newlist,mg,M,meth))
+  
   return(impdataset)
 } # for mimix test
 
@@ -793,7 +804,7 @@ getimpdatasets <- function(varlist){
   mata_all_newlist<-  varlist[1]
   mg<-(varlist[2])
   M<- unlist(varlist[3])
-  meth<- unlist(varlist[4])
+  method<- unlist(varlist[4])
 
   #dimlist <- (nrow(mg[[1]])*M)
 
@@ -831,7 +842,13 @@ getimpdatasets <- function(varlist){
 
 
   #impdatasets <- as.mids(tmpdatasets, .id="SNO",.imp="II")
+  # change II, SNo to be consistent with mids format
 
+  names( impdatasets)[names(impdatasets)=="II"]<-".imp"
+  names( impdatasets)[names(impdatasets)=="SNO"]<-".id"
+  # change row names to e sequential
+  rownames(impdatasets)<-NULL
+  
 
   return(impdatasets)
 }
