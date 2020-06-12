@@ -848,6 +848,8 @@ getimpdatasets <- function(varlist){
   names( impdatasets)[names(impdatasets)=="SNO"]<-".id"
   # change row names to e sequential
   rownames(impdatasets)<-NULL
+  #drop GI
+  impdatasets$GI <-NULL
   
 
   return(impdatasets)
