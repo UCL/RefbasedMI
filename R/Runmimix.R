@@ -155,7 +155,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodvar))]
   # combine back the extracted cols
   mata_Obs <- cbind(mata_ObsX,Obs_treat)
-
+  #set name for treatvar otherwise defaults to Obs_treat 
+  # this ok when methodvar null and tested ok when not null 12/06 names just become methodva and referncevar 
+  names(mata_Obs)[names(mata_Obs)=="Obs_treat"]<-treatvar
 
 
 
