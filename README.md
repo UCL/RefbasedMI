@@ -1,7 +1,7 @@
 <a href ="https://www.ctu.mrc.ac.uk/"><img src="MRCCTU_at_UCL_Logo.png" width="50%" /></a>
 
 # mimix
- *0.0.5*
+ *0.0.6*
 
 # An R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
@@ -32,7 +32,7 @@ For explanation of the Causal model refer to
 > https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 
-For an explanation of the Delta adjustment of imputed values see James Rogers SAS programs and user-guide at 
+For an explanation of the Delta adjustment of imputed values see James Roger's SAS programs and user-guide at 
 https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
 
 For details of the norm2 package which supplies the function mcmcNorm - the MCMC algorithm for incomplete multivariate normal data
@@ -74,19 +74,21 @@ Arguments in function mimix()
  
 **refer**	      reference group for j2r,cir,cr methods
 
-**meth**	       RBI method
+**method**	       RBI method
 
-**seedval**	    seed value to obtain same outputs
+**seed**	    seed value to obtain same outputs
 
-**priorvar**    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
+**priorr**    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
 
 **burnin**	     burnin value
 
 **bbetween**	   value between iterations in mcmc
 
-**methodindiv**  2 element vector designating variables in data specifying individual method and reference group
+**methodvar**  2 element vector designating variables in data specifying individual method and reference group
 
-**delta**       vector of delta values to add onto imputed values (non-mandatory)
+**delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
+
+**dlag          vector of dlag values (b values in Roger's oaper)
 
 **K0**	         Causal constant for use with Causal method
 
@@ -99,16 +101,17 @@ Arguments in function mimix()
 
 ### Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
 
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ) )   
+impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )   
 
 run regression on imputed data-sets, combining using Rubin's rules
 
 set file as a mids class, specifying id and imputation number columns  
-impdata= as.mids(impdatasetJ2R, .id="SNO",.imp="II")
 
-fit specified model to each imputed data set and pool results together (Rubin's rules), functions from mice package
-fit<-with(impdata, lm(fev.12~treat+base))
+fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
+functions from mice package
 
+library(mice)
+fit<-with(as.mids(impdatasetJ2R), lm(fev.12~treat+base))
 summary(pool(fit))
 
 
@@ -123,6 +126,7 @@ impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREA
 ### Individual specific method, with delta adjustment
 NOTE - either meth and methodIndiv to be specified but NOT both
 
-impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ))
+impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ),c(1,1,2,2))
+
 
 
