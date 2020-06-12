@@ -78,7 +78,7 @@ Arguments in function mimix()
 
 **seed**	    seed value to obtain same outputs
 
-**priorr**    prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
+**prior**     prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
 
 **burnin**	     burnin value
 
@@ -105,13 +105,14 @@ impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,
 
 run regression on imputed data-sets, combining using Rubin's rules
 
-set file as a mids class, specifying id and imputation number columns  
 
 fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
 functions from mice package
 
 library(mice)
+
 fit<-with(as.mids(impdatasetJ2R), lm(fev.12~treat+base))
+
 summary(pool(fit))
 
 
