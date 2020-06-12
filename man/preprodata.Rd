@@ -13,7 +13,7 @@ preprodata(
   timevar,
   M,
   refer,
-  meth = NULL
+  method = NULL
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ preprodata(
 
 \item{refer}{refernce group}
 
-\item{meth}{RBI method}
+\item{method}{RBI method}
 }
 \value{
 list of outputs

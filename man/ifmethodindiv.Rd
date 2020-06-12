@@ -5,7 +5,7 @@
 \title{ifmethodindiv}
 \usage{
 ifmethodindiv(
-  methodindiv,
+  methodvar,
   mg,
   m,
   M,
@@ -15,11 +15,13 @@ ifmethodindiv(
   c_mata_nonmiss,
   c_mata_miss,
   mata_miss,
-  mata_nonmiss
+  mata_nonmiss,
+  K0,
+  K1
 )
 }
 \arguments{
-\item{methodindiv}{c(method,reference) cols}
+\item{methodvar}{c(method,reference) cols}
 
 \item{mg}{pattern lookup table}
 
@@ -40,6 +42,10 @@ ifmethodindiv(
 \item{mata_miss}{position of missing values in repeated time visits}
 
 \item{mata_nonmiss}{positions of nonmissing values}
+
+\item{K0}{Causal constant for use with Causal method}
+
+\item{K1}{exponential decaying Causal constant for use with Causal method}
 }
 \value{
 mata_means

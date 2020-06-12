@@ -14,15 +14,16 @@ mimix(
   timevar,
   M = 1,
   refer = NULL,
-  meth = NULL,
-  seedval = 101,
-  priorvar = "jeffreys",
+  method = NULL,
+  seed = 101,
+  prior = "jeffreys",
   burnin = 1000,
   bbetween = NULL,
-  methodindiv = NULL,
+  methodvar = NULL,
   delta = NULL,
+  dlag = NULL,
   K0 = 1,
-  K1 = 0.5
+  K1 = 1
 )
 }
 \arguments{
@@ -40,21 +41,23 @@ mimix(
 
 \item{M}{number of imputations}
 
-\item{refer}{reference group for j2r,cir,cr mrthods}
+\item{refer}{reference group for j2r,cir,cr methods}
 
-\item{meth}{RBI method}
+\item{method}{RBI method}
 
-\item{seedval}{seed value to obtain same outputs}
+\item{seed}{seed value to obtain same outputs}
 
-\item{priorvar}{prior,defualt Jeffries, also uniform or ridge}
+\item{prior}{prior,default jeffreys, also uniform or ridge}
 
 \item{burnin}{burnin value}
 
 \item{bbetween}{value between iterations in mcmc}
 
-\item{methodindiv}{2 element vector designating variables in data specifying individual method and reference group}
+\item{methodvar}{2 element vector designating variables in data specifying individual method and reference group}
 
-\item{delta}{vector of delta values to add onto imputed values (non-mandatory)}
+\item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper)}
+
+\item{dlag}{vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper)}
 
 \item{K0}{Causal constant for use with Causal method}
 

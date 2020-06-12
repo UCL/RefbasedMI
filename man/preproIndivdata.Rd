@@ -13,8 +13,8 @@ preproIndivdata(
   timevar,
   M,
   refer = NULL,
-  meth = NULL,
-  methodindiv
+  method = NULL,
+  methodvar
 )
 }
 \arguments{
@@ -34,9 +34,9 @@ preproIndivdata(
 
 \item{refer}{reference group must be NULL}
 
-\item{meth}{RBI method  must be NULL}
+\item{method}{RBI method  must be NULL}
 
-\item{methodindiv}{list of c(method, reference) column location in data specifying individual RBI methods and references}
+\item{methodvar}{list of c(method, reference) column location in data specifying individual RBI methods and references}
 }
 \value{
 list of outputs
@@ -45,5 +45,5 @@ list of outputs
 process data into wide format for individual-specified method
 }
 \details{
-checks methodindiv finds missingness pattern
+checks methodvar finds missingness pattern
 }

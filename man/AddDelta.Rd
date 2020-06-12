@@ -4,7 +4,7 @@
 \alias{AddDelta}
 \title{AddDelta}
 \usage{
-AddDelta(vec_tst, ncovar, mata_imp, delta)
+AddDelta(vec_tst, ncovar, mata_imp, delta, dlag)
 }
 \arguments{
 \item{vec_tst}{vector of visit names}
@@ -13,7 +13,9 @@ AddDelta(vec_tst, ncovar, mata_imp, delta)
 
 \item{mata_imp}{the imputed values (as well as the complete)}
 
-\item{delta}{vector of delta values for each vist time}
+\item{delta}{vector of delta values (a values in Roger's) for each vist time}
+
+\item{dlag}{vector of dlag values (b values in Roger's) for each vist time}
 }
 \value{
 mata_imp the adjusted imputed vaues (and unadjusted non-missing)
