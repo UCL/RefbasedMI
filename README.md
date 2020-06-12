@@ -88,7 +88,7 @@ Arguments in function mimix()
 
 **delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
 
-**dlag          vector of dlag values (b values in Roger's oaper)
+**dlag**        vector of dlag values (b values in Roger's paper)
 
 **K0**	         Causal constant for use with Causal method
 
@@ -124,7 +124,7 @@ impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREA
 
 
 ### Individual specific method, with delta adjustment
-NOTE - either meth and methodIndiv to be specified but NOT both
+NOTE - either method or methodvar to be specified but NOT both
 
 impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ),c(1,1,2,2))
 
