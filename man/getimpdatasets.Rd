@@ -10,7 +10,7 @@ getimpdatasets(varlist)
 \item{varlist}{list of data containing imputed values from the M pattern groups}
 }
 \value{
-impdataset
+impdatasets
 }
 \description{
 to obtain the M imputed data set from the output list into one dataset

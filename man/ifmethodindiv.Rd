@@ -6,6 +6,7 @@
 \usage{
 ifmethodindiv(
   methodvar,
+  referencevar,
   mg,
   m,
   M,
@@ -21,7 +22,9 @@ ifmethodindiv(
 )
 }
 \arguments{
-\item{methodvar}{c(method,reference) cols}
+\item{methodvar}{individual method col}
+
+\item{referencevar}{individual reference col}
 
 \item{mg}{pattern lookup table}
 
@@ -31,7 +34,7 @@ ifmethodindiv(
 
 \item{paramBiglist}{list of Beta and Sigma parameters from mcmc}
 
-\item{i}{in loop throug mg rows}
+\item{i}{in loop through mg rows}
 
 \item{treatvar}{treatment group}
 
@@ -48,7 +51,7 @@ ifmethodindiv(
 \item{K1}{exponential decaying Causal constant for use with Causal method}
 }
 \value{
-mata_means
+list of outputs
 }
 \description{
 alternative logic for individual method

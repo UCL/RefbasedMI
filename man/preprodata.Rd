@@ -12,7 +12,7 @@ preprodata(
   idvar,
   timevar,
   M,
-  refer,
+  reference,
   method = NULL
 )
 }
@@ -31,7 +31,7 @@ preprodata(
 
 \item{M}{number imputations}
 
-\item{refer}{refernce group}
+\item{reference}{reference group}
 
 \item{method}{RBI method}
 }

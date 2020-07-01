@@ -24,5 +24,15 @@ mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 add delta's to imputed values
 }
 \details{
-adding delta values after wthdrawal
+Adding delta values after wthdrawal
+Specifying delta and dlag allows imputations to differ sytematically from RBI methods.
+They provide an increment which is added on to all values imputed after
+treatment discontinuation, but not to interim missing values. Values of delta are cumulated after treatment
+discontinuation. For example, for an individual who  discontinued treatment at the 2nd time point, we take
+the vector of delta's starting at the 3rd time point and add their cumulative sums to the imputed values.
+Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is
+multipled elementwise by the vector dlag. The formula for the increment at time k for an individual who
+discontinued after time p is b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k  where delta=(a_1,a_2,...) and
+dlag=(b_1,b_2,...). A common increment of 3 at all time points after treatment discontinuation is achieved
+by delta=c(3,3,3,...) and dlag=c(1,0,0,...).
 }

@@ -4,7 +4,7 @@
 \name{antidepressant}
 \alias{antidepressant}
 \title{antidepressant.
-A data set ..}
+A data set containing  antidepressant trial data as described in paper by White,Royes,Best}
 \format{
 dataframe containing 688 rows and 14 columns
 \describe{
@@ -20,8 +20,8 @@ dataframe containing 688 rows and 14 columns
 \item{HAMD17.TOTAL}{}
 \item{change}{}
 \item{miss_flag}{}
-\item{methodvar}{}
-\item{referencevar}{}
+\item{methodcol}{}
+\item{referencecol}{}
 }
 }
 \usage{
@@ -29,6 +29,6 @@ antidepressant
 }
 \description{
 antidepressant.
-A data set ..
+A data set containing  antidepressant trial data as described in paper by White,Royes,Best
 }
 \keyword{datasets}

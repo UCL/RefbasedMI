@@ -22,3 +22,9 @@ find descriptive stats on the  M imputed data set
 \details{
 select on patient id and find their means etc
 }
+\examples{
+\dontrun{
+varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+analyselist(5099,impdataset,varlist)
+}
+}

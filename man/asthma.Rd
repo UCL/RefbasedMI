@@ -11,7 +11,7 @@ An object of class \code{data.frame} with 732 rows and 5 columns.
 asthma
 }
 \description{
-A dataset containg  asthma trial data as used in the Stata mimix help file
+A dataset containing  asthma trial data as used in the Stata mimix help file
 }
 \details{
 @format A data frame containing 732 rows and 5 columns

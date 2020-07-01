@@ -20,3 +20,8 @@ run regression on M imputed data set, combining as Rubin's rules
 \details{
 This is approach followed from  norm2 user manual
 }
+\examples{
+\dontrun{
+regressimp(impdataset,"fev.12~treat+base")
+}
+}

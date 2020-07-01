@@ -13,13 +13,14 @@ mimix(
   idvar,
   timevar,
   M = 1,
-  refer = NULL,
+  reference = NULL,
   method = NULL,
   seed = 101,
   prior = "jeffreys",
   burnin = 1000,
   bbetween = NULL,
   methodvar = NULL,
+  referencevar = NULL,
   delta = NULL,
   dlag = NULL,
   K0 = 1,
@@ -27,44 +28,46 @@ mimix(
 )
 }
 \arguments{
-\item{data}{datset in wide format}
+\item{data}{Dataset in wide format}
 
-\item{covar}{covariates and base depvar must be complete (no missing vaules)}
+\item{covar}{Covariates - may include the baseline value of depvar. Must be complete (no missing values).}
 
-\item{depvar}{dependent variable}
+\item{depvar}{Dependent (outcome) variable}
 
-\item{treatvar}{treatment group , recoded to 1,2,..}
+\item{treatvar}{Treatment group, coded 1,2,..}
 
-\item{idvar}{patient id}
+\item{idvar}{Participant id}
 
-\item{timevar}{time point for repeated measure}
+\item{timevar}{Time point for repeated measure}
 
-\item{M}{number of imputations}
+\item{M}{Number of imputations to be created}
 
-\item{refer}{reference group for j2r,cir,cr methods}
+\item{reference}{Reference group for J2R, CIR, CR methods}
 
-\item{method}{RBI method}
+\item{method}{Reference-based imputation method: must be ...}
 
-\item{seed}{seed value to obtain same outputs}
+\item{seed}{Seed value. Specify this so that a new run of the command will give the same imputed values.}
 
-\item{prior}{prior,default jeffreys, also uniform or ridge}
+\item{prior}{Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge}
 
-\item{burnin}{burnin value}
+\item{burnin}{Number of burn-in iterations when fitting multivariate normal distributions.}
 
-\item{bbetween}{value between iterations in mcmc}
+\item{bbetween}{Number of iterations between imputed data sets when fitting multivariate normal distributions.}
 
 \item{methodvar}{2 element vector designating variables in data specifying individual method and reference group}
 
-\item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper)}
+\item{referencevar}{2 element vector designating variables in data specifying individual method and reference group}
 
-\item{dlag}{vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper)}
+\item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points}
+
+\item{dlag}{vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points}
 
 \item{K0}{Causal constant for use with Causal method}
 
 \item{K1}{exponential decaying Causal constant for use with Causal method}
 }
 \value{
-impdataset the m impute data-sets appended to the "missing values" data-set in wide format
+impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 }
 \description{
 main wrapper for running mimix
@@ -74,7 +77,7 @@ similar to the Stata mimix function
 \details{
 This is based on Suzie Cro's Stata program
 
-sets up a summary table based on missing data pattern- mg  mimix_group                                                                   #
+sets up a summary table based on missing data pattern- mg  mimix_group
 
 reflects the pattern and treatment group configuration of the raw data
 
@@ -84,4 +87,9 @@ The mimix package contains the functions preprodata and preproIndivdata to
 process long longitudinal data into wide data format
 
 Also the function Addelta to add delta adjustment to the imputed estimates
+}
+\examples{
+\dontrun{
+ mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6)
+}
 }

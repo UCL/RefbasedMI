@@ -12,9 +12,10 @@ preproIndivdata(
   idvar,
   timevar,
   M,
-  refer = NULL,
+  reference = NULL,
   method = NULL,
-  methodvar
+  methodvar,
+  referencevar
 )
 }
 \arguments{
@@ -32,11 +33,13 @@ preproIndivdata(
 
 \item{M}{number imputations}
 
-\item{refer}{reference group must be NULL}
+\item{reference}{reference group must be NULL}
 
 \item{method}{RBI method  must be NULL}
 
-\item{methodvar}{list of c(method, reference) column location in data specifying individual RBI methods and references}
+\item{methodvar}{column location in data specifying individual RBI methods}
+
+\item{referencevar}{column location in data specifying individual reference group for RBI method}
 }
 \value{
 list of outputs
