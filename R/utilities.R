@@ -143,8 +143,29 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
       # the unit visit  diferences are  c_mata_miss[b]-lastvisit
   
       # 2/6/20 eqn7 but specify k0,k1
-       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+( K0*(K1^(c_mata_miss[b]-lastvisit))*ActRef_diff )
-      
+    #   mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+( K0*(K1^(c_mata_miss[b]-lastvisit))*ActRef_diff )
+    
+      # try Ians  formula from emsil
+       # reference mean MeansC[[1]][c_mata_miss[b]] at time u
+       # active mean time t  (t lastvist)  mata_means[lastvisit)]
+       # refernce mean time t (t lasvist)
+    #  browser()
+     #18/06
+         v_u=as.numeric(sub('.*\\.','',colnames(mata_means[c_mata_miss]))[b])
+       
+       # test whether index lastvisit has a "*.number" format (ie whether base covariate)  
+       #if (grep('.*\\.','',colnames(mata_means[lastvisit]))==0L  ) 
+       if (suppressWarnings(is.na(as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))))) {
+            v_t<-0
+       } 
+       else
+       {
+            v_t <-  as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))
+       }   
+       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+       
+       
+       
     }
   }
   return(mata_means)
@@ -160,7 +181,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 #' @param dataf data-frame
 #' @param regmodel regression model specfication
 #' @return estimates of regression coefficients
-#' @example
+#' @examples
 #' \dontrun{
 #' regressimp(impdataset,"fev.12~treat+base")
 #' }
@@ -205,7 +226,7 @@ regressimp <- function(dataf,regmodel)  {
 #' @param datlist imputed dataset of M imputations
 #' @param varlist list of derived variables ,varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
 #' @return printout of descriptve stats
-#' @example
+#' @examples
 #' \dontrun{
 #' varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
 #' analyselist(5099,impdataset,varlist)
@@ -220,7 +241,17 @@ analyselist <-function(id,datlist,varlist) {
 
 #' @title AddDelta
 #' @description add delta's to imputed values
-#' @details adding delta values after wthdrawal
+#' @details Adding delta values after wthdrawal
+#'  Specifying delta and dlag allows imputations to differ sytematically from RBI methods. 
+#'  They provide an increment which is added on to all values imputed after 
+#'  treatment discontinuation, but not to interim missing values. Values of delta are cumulated after treatment 
+#'  discontinuation. For example, for an individual who  discontinued treatment at the 2nd time point, we take 
+#'  the vector of delta's starting at the 3rd time point and add their cumulative sums to the imputed values. 
+#'  Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is 
+#'  multipled elementwise by the vector dlag. The formula for the increment at time k for an individual who 
+#'  discontinued after time p is b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k  where delta=(a_1,a_2,...) and 
+#'  dlag=(b_1,b_2,...). A common increment of 3 at all time points after treatment discontinuation is achieved 
+#'  by delta=c(3,3,3,...) and dlag=c(1,0,0,...).
 #' @param vec_tst  vector of visit names
 #' @param ncovar number covariates
 #' @param mata_imp the imputed values (as well as the complete) 
@@ -229,12 +260,12 @@ analyselist <-function(id,datlist,varlist) {
 #' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 
 
-
-#define function 19/04 to add delta's to imputed values
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
  #browser()
   # need read dlag in mimix argument, so temp here
+  # if dlag = NULL create vector of 1's...
   
+   
   # create vector of 1 and 0s
   #browser()  no space before .miss 12/5/20, stat at 3rd col skipping GI II
   #onezero<-sapply(vec_tst[3:(2+length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
@@ -251,10 +282,17 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
   # in which case just leave wout delta adjustment but print warnnig msg
   # determine whether interim by noting if a zero appears after any one, 
   # ie if 1st occurence of 1 to left of any 0  
-  if (max(which(unlist(onezero)==0)) >  min(which(unlist(onezero)==1))) {
-    # do nothing as interim 
+  #browser() 16/06/20
+  #set lastvisit before discontinuation 
+  lastvisit <- max(which(unlist(onezero)==0))
+  # check whether any missing after this 
+  if (lastvisit >  max(which(unlist(onezero)==1)))
+  {
+  #if (max(which(unlist(onezero)==0)) >  min(which(unlist(onezero)==1))) {
+    # do nothing as no discontinutions
   } 
-  else
+    else
+      #do for discontinuations
   { 
   
   # if length = max then no gaps
@@ -263,7 +301,10 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
     # check no gaps, ie interims, not quite right!
     #if ( length(which(unlist(onezero)==1)) == max(which(unlist(onezero)==1)) ){
     #  lastVisit <- min(which(unlist(onezero)==1)) }
-  lastvisit <- min(which(unlist(onezero)==1))-1
+  # want to ignore interims but not discontinuations  so 
+  # the max position of non-missing is where the missing needs to start +1 so not this    
+  #lastvisit <- min(which(unlist(onezero)==1))-1
+   # lastvisit <- max(which(unlist(onezero)==0))
       # so add appropriate delta to imputed values after last visit
   
   #lastvisit is p in JamesRogers paper 
@@ -303,8 +344,14 @@ AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
     #print(paste0("interim missing, check delta adjustment ",onezero))
    # mata_imp[2+v] <- mata_imp[2+v] + super_delta
     
-} 
-  #if not interim
+}   #if not interim
+  
+  
+  # need report after final call
+  if (sum(is.na(mata_imp)) !=0 ) { cat(paste0("\nWARNING!!! unimputed data values, possibly due to mis-specified delta")) }
+
+  #cat(paste0("\nnumber of final na values = ", sum(is.na(subset(mata_imp,mata_imp$II>0)))))
+  
     return(mata_imp)
 }
 

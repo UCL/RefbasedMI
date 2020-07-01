@@ -1,35 +1,36 @@
 #' @title mimix
 #' @description main wrapper for running mimix
 #' @details This is based on Suzie Cro's Stata program
-#' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   #
+#' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
 #' @export mimix
-#' @param data  datset in wide format
-#' @param covar covariates and base depvar must be complete (no missing vaules)
-#' @param depvar dependent variable
-#' @param treatvar treatment group , recoded to 1,2,..
-#' @param idvar patient id
-#' @param M number of imputations
-#' @param timevar time point for repeated measure
-#' @param refer  reference group for j2r,cir,cr methods
-#' @param method RBI method
-#' @param seed  seed value to obtain same outputs
-#' @param prior  prior,default jeffreys, also uniform or ridge
-#' @param burnin  burnin value
-#' @param bbetween  value between iterations in mcmc
+#' @param data  Dataset in wide format
+#' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
+#' @param depvar Dependent (outcome) variable
+#' @param treatvar Treatment group, coded 1,2,..
+#' @param idvar Participant id
+#' @param timevar Time point for repeated measure
+#' @param M Number of imputations to be created
+#' @param reference  Reference group for J2R, CIR, CR methods
+#' @param method Reference-based imputation method: must be ...
+#' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
+#' @param prior  Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge
+#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
+#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
 #' @param methodvar  2 element vector designating variables in data specifying individual method and reference group
-#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper)
-#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper)
+#' @param referencevar  2 element vector designating variables in data specifying individual method and reference group
+#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points
+#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
-#' @return impdataset the m impute data-sets appended to the "missing values" data-set in wide format
-#' @example
+#' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
+#' @examples
 #' \dontrun{
-#'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),NULL,1,0.6)
+#'  mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6)
 #'}
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1) {
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1) {
 
   # insert error checks  HERE
  # meth<-method
@@ -50,7 +51,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     K0<- as.numeric(K0)
     K1<- as.numeric(K1)
   }
-  if (is.null(method) & !is.null(methodvar[1]) ) {flag_indiv<-1 }
+  if (is.null(method) & !is.null(methodvar) ) {flag_indiv<-1 }
 
   #find no covars
   ncovar_i = length(covar)
@@ -71,8 +72,18 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # note if no covar then treat the first depvar level as a covar , eg covar = fev.0.
   # sO must preform small routne tO transform datA set INTO baseline covars.
 
-
-
+ # build in checks specifically  for delta
+ 
+  ntimecol<- get(data)[c(timevar)]
+  ntime<-nrow(unique(ntimecol))
+  # only run if delta specified
+  if (!is.null(delta)) {
+   
+     stopifnot(length(delta)==ntime)
+     #set dlag to default if 1 1 1 ...if NULL
+     if (is.null(dlag)) {dlag <- rep(1,length(delta))} 
+  }
+    
   set.seed(seed)
 
 #21/05
@@ -101,8 +112,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
   if (!is.null(method) ) {
-    testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,method))
-    refer <- testlist[[7]]
+    testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method))
+    reference <- testlist[[7]]
 
 
 
@@ -119,15 +130,15 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
   }
-  else if (!is.null(methodvar[1]) ) {
-    testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,refer,method,methodvar))
+  else if (!is.null(methodvar) ) {
+    testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar))
     # need to re-set meth for individual
     #meth <- testlist[[8]][1]
 
   }
 
 
-
+#browser()
 
   ntreat<-sort(unlist(testlist[[2]]))
   #sort it !!
@@ -151,8 +162,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # extract treatvar and methodindiv vars
   # fix 12/06 
   # Obs_treat<-subset(mata_Obs,select=c(treatvar,methodvar))
-  Obs_treat<-mata_Obs[,c(treatvar,methodvar)]
-  mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodvar))]
+  Obs_treat<-mata_Obs[,c(treatvar,methodvar,referencevar)]
+  mata_ObsX<- mata_Obs[,!(names(mata_Obs) %in% c(treatvar,methodvar,referencevar))]
   # combine back the extracted cols
   mata_Obs <- cbind(mata_ObsX,Obs_treat)
   #set name for treatvar otherwise defaults to Obs_treat 
@@ -236,7 +247,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
     prnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
     #create  emptylist for each treat
 
-    print(paste0(" treatment = ",val," performing mcmcNorm for m = 1 to ",M) )
+    cat(paste0("\n treatment = ",val,"\n performing mcmcNorm for m = 1 to ",M) )
     for(m in 1:M) {
 
       # supppress warnings regarding solution  near boundary, see norm2 user guide, also mimix about this problem
@@ -270,7 +281,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
       paramBiglist[[cumiter]] <- mcmcResultT$param
       assign(paste0("paramBiglist",val,"_",m), mcmcResultT$param)
     }
-    print(paste0("mcmcNorm Loop finished, m = ",M))
+    cat(paste0("\n mcmcNorm Loop finished, m = ",M,"\n"))
   }
 
   #store paraBiglist in a single structure
@@ -287,6 +298,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   # now loop over the lookup table mg, looping over every pattern - make sure mata_Obs sorted same way!
 
   # declare iterate for saving data
+  cat("\n Starting imputation")
   m_mg_iter<-0
   for (i in 1:nrow(mg))
   {
@@ -312,28 +324,29 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
     # count of pattern by treatment
-    cnt<- mg$X1[i]
-
+    cnt<- mg$cases[i]
+#browser()
     # treatment grp
     trtgp<- mg[i,treatvar]
 
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
+    
 
-
-    if  (is.null(methodvar[1]) ) {
-      cat("\ntrtgp = ", trtgp,"patt = ",pattern,"no patients = ", cnt)
-    }else if(!is.null(methodvar[1]) ) {
-      cat("\ntrtgp = ", trtgp,"method= ",as.character(mg[i,methodvar[1]]),"refgp=",as.character(mg[i,methodvar[2]]),"patt = ",pattern,"number participants = ", cnt)
+ #browser()
+    if  (!is.null(method) ) {
+      cat("\n",treatvar ," = ", trtgp,"patt = ",pattern,"number cases = ", cnt)
+       }else if(!is.null(methodvar) ) {
+      cat("\n",treatvar ," = ", trtgp,methodvar," = ",as.character(mg[i,methodvar]),referencevar," = ",as.character(mg[i,referencevar]),"patt = ",pattern,"number cases = ", cnt)
     }
 
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
     #unneceassary now recoded
 
     trtgpindex<-which(trtgp==ntreat)
-    referindex<-which(refer==ntreat)
-
-    # multiple  simulations start here within the pattern loop #########
+    referindex<-which(reference==ntreat)
+  
+        # multiple  simulations start here within the pattern loop #########
     for ( m in  1:M)  {
       #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
       #if `pat' == 0{
@@ -341,8 +354,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
       # if no missing values
       if(length(c_mata_miss)==0 ) {
         # start and end row positions
-        st<-mg[i,"X1cum"]-mg[i,"X1"]+1
-        en <-mg[i,"X1cum"]
+        st<-mg[i,"cumcases"]-mg[i,"cases"]+1
+        en <-mg[i,"cumcases"]
         # id (SNO) is 1st col
         SNO<-mata_Obs[c(st:en),1]
         #9/5/20
@@ -351,9 +364,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         #mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
         mata_new<-mata_Obs[c(st:en),!(names(mata_Obs) %in% c(idvar))]
         #browser() # treat defined within fun
-        GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
+        GI <- array(data=mg[i,treatvar],dim=c(mg[i,"cases"],1))
         #II  no imputations
-        II <- array(data=m,dim=c(mg[i,"X1"],1))
+        II <- array(data=m,dim=c(mg[i,"cases"],1))
         mata_new=cbind(GI,II,mata_new,SNO)
         #names(mata_all_new)<-names(mata_new)
         mata_all_newlist[[m_mg_iter]]=mata_new
@@ -363,7 +376,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
         if (flag_indiv==0 ) {
 
-          referindex<- refer
+          referindex<- reference
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
           # 'MAR'
@@ -554,7 +567,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
           # call function for  indiv
 
-        indparamlist  <- ifmethodindiv(methodvar,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss,K0,K1)
+        indparamlist  <- ifmethodindiv(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss,K0,K1)
         mata_means<- indparamlist[[1]]
         Sigma <- indparamlist[[2]]
         }
@@ -579,7 +592,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         # need to repictae mata_means to same numbe rrows as data pattern group
 
         # causing problems replace with simpler
-        mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$X1[i]),]
+        mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$cases[i]),]
 
 
 
@@ -599,12 +612,12 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
 
 
-        j <- mg[i,"X1"]
+        j <- mg[i,"cases"]
 
         #for debug
         #print(paste0(" count in patt = ", j))
 
-        k <- mg[i,"X1cum"]
+        k <- mg[i,"cumcases"]
         startrow <-(k-j+1)
         stoprow  <-(k)
 
@@ -634,7 +647,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
           #for debug 20/01
           #   print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count))
           miss_count<-sum(mata_miss)
-          Z <- stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+          Z <- stats::qnorm(matrix(stats::runif( mg[i,"cases"]* miss_count,0,1),mg[i,"cases"],miss_count))
 
           # raw and m1 null fields so hut use m2
           meanval = as.matrix(m2)
@@ -645,9 +658,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
           mata_new <- preraw
           # mata_new has to be already defined
           mata_new[,c_mata_miss] <- (mata_y1)
-          GI <- array(data=mg[i,treatvar],dim=c(mg[i,"X1"],1))
+          GI <- array(data=mg[i,treatvar],dim=c(mg[i,"cases"],1))
           #II  no imputations
-          II <- array(data=m,dim=c(mg[i,"X1"],1))
+          II <- array(data=m,dim=c(mg[i,"cases"],1))
           # SNO just id col
           SNO <- mata_Obs[c(startrow:stoprow),1]
           mata_new=cbind(GI,II,mata_new,SNO)
@@ -686,7 +699,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         # this works for accupuncture data but not asthma, because when one patient raw daa is 1 by n matrix so m2 needs to be horizontal, ie not a matrix
 
         #19/03  11/04 works for CR but then not for J2R for 5333 patt=7 one patient
-        if (mg[i,"X1"] == 1) {
+        if (mg[i,"cases"] == 1) {
             meanval = (m2) + as.matrix(raw1 - m1)%*%as.matrix(t_mimix)
         }  else {
         meanval = as.matrix(m2) + (as.matrix(raw1 - m1)%*%as.matrix(t_mimix))
@@ -695,11 +708,11 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
         #24/02browser()
         U <- chol(conds)
-        # mg[i,X1] is equiv to Stata counter, miss_count is no. of missing, so
+        # mg[i,cases] is equiv to Stata counter, miss_count is no. of missing, so
         miss_count=rowSums(mata_miss)
 
         # gen erate inverse normal
-        Z<-stats::qnorm(matrix(stats::runif( mg[i,"X1"]* miss_count,0,1),mg[i,"X1"],miss_count))
+        Z<-stats::qnorm(matrix(stats::runif( mg[i,"cases"]* miss_count,0,1),mg[i,"cases"],miss_count))
         # check same input parameters for inverse norm gen as in stata
 
         #for debug 20/01
@@ -733,9 +746,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
         SNO <- mata_Obs[c(startrow:stoprow),1]
         #SNO <- mata_ObsX[,ncol(mata_Obs)]
         # GI treatment grp column 1 (here),II imputation number col, mata_new matrix then SNO is id col.
-        GI <- array(data=mg[i,1],dim=c(mg[i,"X1"],1))
+        GI <- array(data=mg[i,1],dim=c(mg[i,"cases"],1))
         #II  no imputations
-        II <- array(data=m,dim=c(mg[i,"X1"],1))
+        II <- array(data=m,dim=c(mg[i,"cases"],1))
 
         #doesnt need SNO, as id already in
         #mata_new<-cbind(GI,II,mata_new,SNO)
@@ -746,7 +759,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
 
         #assume delta to be used if specified in input argument
         if (length(delta != 0) ) {
-          #browser()
+         # browser()
+          
         mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
         }
 
@@ -788,11 +802,12 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,refer=NULL,me
   return(impdataset)
 } # for mimix test
 
+
 #' @title getimpdatasets
 #' @description to obtain the M imputed data set from the output list into one dataset
 #' @details This combines the imputations found from the M pattern groups
 #' @param varlist  list of data containing imputed values from the M pattern groups
-#' @return impdataset
+#' @return impdatasets
 
 
 
@@ -853,6 +868,12 @@ getimpdatasets <- function(varlist){
   #drop GI
   impdatasets$GI <-NULL
   
+  # report and check number na's
+  
+  cat(paste0("\n\nnumber of original na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp==0)))))
+  cat(paste0("\nnumber of final na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp>0)))))
+  #browser()
+  if (sum(is.na(subset(impdatasets,impdatasets$.imp>0))) !=0 ) { cat(paste0("\nWARNING! unimputed data values")) }
 
   return(impdatasets)
 }
@@ -870,7 +891,7 @@ getimpdatasets <- function(varlist){
 NULL     
 
 
-# so no almost reday for mice!
-#fit<-with(data= as.mids(impanticausalun, .id="SNO",.imp="II"), expr = lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+POOLED.INVESTIGATOR+PATIENT.SEX))
-#summary(pool(fit))
+
+
+
 

@@ -1,6 +1,6 @@
 #' asthma.
 #'
-#' A dataset containg  asthma trial data as used in the Stata mimix help file
+#' A dataset containing  asthma trial data as used in the Stata mimix help file
 #'
 #'   @format A data frame containing 732 rows and 5 columns
 #'   \describe{
@@ -15,7 +15,7 @@
 
 
 #' antidepressant.
-#'  A data set ..
+#'  A data set containing  antidepressant trial data as described in paper by White,Royes,Best
 #'
 #' @format  dataframe containing 688 rows and 14 columns
 #'  \describe{
@@ -31,7 +31,7 @@
 #'  \item{HAMD17.TOTAL}{}
 #'  \item{change}{}
 #'  \item{miss_flag}{}
-#'  \item{methodvar}{}
-#'  \item{referencevar}{}
+#'  \item{methodcol}{}
+#'  \item{referencecol}{}
 #'  }
 "antidepressant"

@@ -10,15 +10,13 @@
 #' @param idvar patient id
 #' @param timevar time variable for repeated visit
 #' @param M number imputations
-#' @param refer refernce group
+#' @param reference reference group
 #' @param method RBI method
-#'
-#'
 #' @return list of outputs
 
 
 #preprocess data for group method
-preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,method=NULL)  {
+preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,method=NULL)  {
   #extract relevant vars
 
   #browser()
@@ -164,12 +162,20 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,method=NU
   ex1$exid <- 1:nrow(ex1)
   ex1id <-merge(ex1,pattmatd,by="patt")
   ex1s<-ex1id[order(ex1id$exid),]
-
+  names(ex1)[names(ex1)=="X1"]<-"cases"
+  names(ex1)[names(ex1)=="X1cum"]<-"cumcases"
 #8/5/20
   test_ex1<-merge(ex1,all_patt,by="patt")[order(merge(ex1,all_patt,by="patt")$exid),]
-
-  stopifnot(refer %in% t(ntreat))
-  print("summary missing pattern")
+ #browser()
+  stopifnot(reference %in% t(ntreat))
+  #rename to more user-friendly
+  names(ex1s)[names(ex1s)=="X1"]<-"cases"
+  names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
+  ex1s$exid<-NULL
+  
+  cat(paste0("     ","summary missing pattern\n"))
+  
+  #print(paste0("summary missing pattern"))
  # browser()
   # setting roew names NULL automatically produces seqeential index 
   rownames(ex1s)<- NULL
@@ -179,7 +185,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,method=NU
   #so finaldatS is sorted by treat,patt  data
   # test_ex1 is mg lookup table for missing dummies
   # all_patt is missing pattern table
-    return(list(finaldatS,ntreat,test_ex1,all_patt,ntime,M,refer,method))
+    return(list(finaldatS,ntreat,test_ex1,all_patt,ntime,M,reference,method))
 
 }
 
@@ -193,23 +199,24 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer,method=NU
 #' @param idvar patient id
 #' @param timevar time variable for repeated visit
 #' @param M number imputations
-#' @param refer reference group must be NULL
+#' @param reference reference group must be NULL
 #' @param method RBI method  must be NULL
-#' @param methodvar list of c(method, reference) column location in data specifying individual RBI methods and references
+#' @param methodvar column location in data specifying individual RBI methods 
+#' @param referencevar  column location in data specifying individual reference group for RBI method
 #' @return list of outputs
 
 
 
 
 #preprocess data for individual method
-preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL,method=NULL,methodvar)  {
-
+preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=NULL,method=NULL,methodvar,referencevar)  {
+ #browser()
   #check covars complete
   stopifnot(sum(is.na(get(data)[,covar]))==0)
   #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))!=0,error=stop("Error: not all covariates are complete !!")))
   #more informative in error msg to use this explicit and
   #and put in one statement
-  methodL <- unique(get(data)[,methodvar[1]])
+  methodL <- unique(get(data)[,methodvar])
   # stopifnot( (methodL == "MAR" | methodL=="j2r" | methodL=="cir" | methodL=="CR" | methodL=="LMCF"| methodL=="null"),
   #is.numeric(refer),
   #     is.numeric(M),
@@ -223,7 +230,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   # convert to numic should be done outside function in main.
 
   #11/05/20
-  fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar,methodvar)]
+  fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar,methodvar,referencevar)]
   # now covar added to data list so need need for unique?
   uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
   ntreatcol<- get(data)[c(treatvar)]
@@ -287,10 +294,11 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
 
   #patt has just been created so use $ notation wheras treatvar from input argument and need to by methodindiv[1] as well
 
-  finaldatSS <-sts4Dpatt[order(patt),]
+  # this not neceassary ? 16/06/20
+  #finaldatSS <-sts4Dpatt[order(patt),]
 
-  ndx = order(finaldatSS[,treatvar],finaldatSS[,methodvar[1]],finaldatSS[,methodvar[2]])
-  finaldatS <- finaldatSS[ndx,]
+  #ndx = order(finaldatSS[,treatvar],finaldatSS[,methodvar],finaldatSS[,referencevar])
+  #finaldatS <- finaldatSS[ndx,]
 
 
   #12/05/20
@@ -298,7 +306,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   #need sort by patt and align with mg (lookup) ,t oget looku right merge using patt
   #finaldatS <- sts4Dpatt[order(sts4Dpatt[,treatvar],sts4Dpatt[,"patt"]),]
   # has to be also sorted into methodvar 1 and 2 grps
-  finaldatS <- sts4Dpatt[order(sts4Dpatt[,treatvar],sts4Dpatt[,c(methodvar[1])],sts4Dpatt[,c(methodvar[2])],sts4Dpatt[,"patt"]),]
+  finaldatS <- sts4Dpatt[order(sts4Dpatt[,treatvar],sts4Dpatt[,methodvar],sts4Dpatt[,referencevar],sts4Dpatt[,"patt"]),]
 
   # consistent with Stata to get right order, drop id and treat cols
   drops <-c(idvar,treatvar)
@@ -324,21 +332,30 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   #X1 is a count variable of 1's'
   sts4Dpatt$X1<-1
 
-  ex1<-Hmisc::summarize(sts4Dpatt$X1, by=Hmisc::llist(sts4Dpatt[,treatvar],sts4Dpatt[,c(methodvar[1])],sts4Dpatt[,c(methodvar[2])],sts4Dpatt$patt),FUN=sum)
- #to rename
-  newnames <- c( treatvar,"methodvar","referencevar","patt","X1")
+  ex1<-Hmisc::summarize(sts4Dpatt$X1, by=Hmisc::llist(sts4Dpatt[,treatvar],sts4Dpatt[,methodvar],sts4Dpatt[,referencevar],sts4Dpatt$patt),FUN=sum)
+ #to rename BUT is this generic??
+ #newnames <- c( treatvar,"methodvar","referencevar","patt","X1")
+  newnames <- c( treatvar,methodvar,referencevar,"patt","X1")
   names(ex1)<-newnames
   # rename(ex1,treat="sts4Dpatt[, c(treatvar)]",patt='sts4Dpatt$patt',methodvar=`sts4Dpatt[, c(methodindiv[1])]`,referencevar=`sts4Dpatt[, c(methodindiv[2])]`)
   # and now find cumX1
   ex1$X1cum <- cumsum(ex1$X1)
 
+  names(ex1)[names(ex1)=="X1"]<-"cases"
+  names(ex1)[names(ex1)=="X1cum"]<-"cumcases"
   # create index number to preserve ordr after merge  , #want  join this to ex from mimix_group table
   ex1$exid <- 1:nrow(ex1)
   ex1id <-merge(ex1,pattmatd,by="patt")
   ex1s<-ex1id[order(ex1id$exid),]
  # print(ex1)
-  print("summary missing pattern")
+  #print("summary missing pattern")
   rownames(ex1s)<- NULL
+  names(ex1s)[names(ex1s)=="X1"]<-"cases"
+  names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
+  ex1s$exid<-NULL
+  
+  cat(paste0("     ","summary missing pattern\n"))
+
   print(ex1s)
   # dont need finaldat,exlid
 
@@ -361,13 +378,13 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
   #error chk
 
   # find unique values for referencevar to check against ntreat values
-  refencevars <- unique(get(data)[,methodvar[2]])
+  refencevars <- unique(get(data)[,referencevar])
   stopifnot(refencevars %in% t(ntreat))
   #print("summary missing pattern")
   #remove ex1 seems to cause problems!
 
   # main outputs have to be test_ex1 and finaldatS which should correspond
-  return(list(finaldatS,ntreat,test_ex1,all_patt,pattmat,patt,ntime,M,methodvar))
+  return(list(finaldatS,ntreat,test_ex1,all_patt,pattmat,patt,ntime,M,methodvar,referencevar))
   # return(list(sts4Dpatt,finaldatS,ntreat,ex1s,pattmat,patt,ntime,M,methodindiv))
 }
 
@@ -376,12 +393,13 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
 #' @title ifmethodindiv
 #' @description alternative logic for individual method
 #' @details checks methodindiv not null
-#' @param methodvar  c(method,reference) cols
+#' @param methodvar  individual method col
+#' @param referencevar  individual reference col
 #' @param mg  pattern lookup table
 #' @param m where we are in the imputations
 #' @param M number of total imputations.
 #' @param paramBiglist  list of Beta and Sigma parameters from mcmc
-#' @param i in loop throug mg rows
+#' @param i in loop through mg rows
 #' @param treatvar treatment group
 #' @param c_mata_nonmiss  0,1 vector of nonmissing
 #' @param c_mata_miss 0,1 vector of missing
@@ -389,12 +407,12 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,refer=NULL
 #' @param mata_nonmiss positions of nonmissing values
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
-#' @return mata_means
+#' @return list of outputs
 
 
 
 # alternative logic for individual method
-ifmethodindiv <- function(methodvar,mg,m,M,paramBiglist,i,treatvar, c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss,K0,K1)
+ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar, c_mata_nonmiss,c_mata_miss,mata_miss,mata_nonmiss,K0,K1)
 {
 
 
@@ -406,15 +424,15 @@ ifmethodindiv <- function(methodvar,mg,m,M,paramBiglist,i,treatvar, c_mata_nonmi
 
   #} else
   #browser()
-  if(!is.na(methodvar[1])) {
+  if(!is.na(methodvar)) {
     # methodvar needs editing this bit
     trtgp <- mg[i,treatvar]
     #the refernce group comes from the indvidual colunm!
-    refergp <- mg[i,methodvar[2]]
+    refergp <- mg[i,referencevar]
   }
 
   # without this (mg[i,methodvar[1]]) will be cir etc
-  methindiv<- mg[i,methodvar[1]]
+  methindiv<- mg[i,methodvar]
 
   methindiv<-  ifelse( ( methindiv=="j2r" | methindiv=="J2R" |methindiv=="j2R"|methindiv=="J2r" ),3,
                        ifelse( ( methindiv=="CR" | methindiv=="cr" |methindiv=="Cr"|methindiv=="cR" ),2,
