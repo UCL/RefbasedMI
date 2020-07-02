@@ -2,13 +2,17 @@
 
 ######################################### asthma data-set testing J2R method #############################################
 # testing all options, m=5 imputations , method = J2R, referEnce treatment gp =1,seed = 101,  Delta specified
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1 ),NULL )
+impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1 ),NULL )
 
 # convert imputed dataset to mids format (from mice package)
-impdata= as.mids(impdatasetJ2R)
+impdatamids= as.mids(impdatasetJ2R)
+
+#  converting mids type not  pmm to mimix and  and predictormatrix not relevant 
+impdatamids$method[impdatamids$method %in% "pmm"] <- "mimix"
+impdatamids$predictorMatrix<-"N/A"
 
 # fit specified model to each imputed data set and pool results together (Rubin's rules), functions from mice package
-fit<-with(impdata, lm(fev.12~treat+base))
+fit<-with(impdatamids, lm(fev.12~treat+base))
 summary(pool(fit))
 
 # previously regressimp(impdatasetJ2R[impdatasetJ2R$II!="0",],"fev.12~treat+base")
@@ -131,6 +135,10 @@ analyselist(5017,impdatasetJ2Rnodelta,varlist)
 analyselist(5115,impdatasetJ2Rnodelta,varlist)
 analyselist(5051,impdatasetJ2Rnodelta,varlist)
 
+#convert to mids object (in mice package)
+#impdatamids<-as.mids(impdatasets)
+#impdatamids$method[IndivDtmids$method %in% "pmm"] <- "mimix"
+#impdatamids$predictorMatrix<-"N/A"
 
 library(mice)
 fit<-with(data= as.mids(impdatasetJ2Rdelta), expr = lm(fev.12~treat+base))
