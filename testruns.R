@@ -2,7 +2,7 @@
 
 ######################################### asthma data-set testing J2R method #############################################
 # testing all options, m=5 imputations , method = J2R, referEnce treatment gp =1,seed = 101,  Delta specified
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1 ),NULL )
+impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",200,1,"J2R",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1 ),NULL )
 
 # convert imputed dataset to mids format (from mice package)
 impdatamids= as.mids(impdatasetJ2R)
@@ -18,24 +18,59 @@ summary(pool(fit))
 # previously regressimp(impdatasetJ2R[impdatasetJ2R$II!="0",],"fev.12~treat+base")
 
 # to examine estimates for individual ids
-varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+varlist <- c("fev.2","fev.4","fev.8","fev.12")
 # print estimates for individuals  , note 5051 interim example
+analyselist(5017,impdatasetJ2R,varlist)
+analyselist(5127,impdatasetJ2R,varlist)
 analyselist(5099,impdatasetJ2R,varlist)
-analyselist(5456,impdatasetJ2R,varlist)
 analyselist(5051,impdatasetJ2R,varlist)
+analyselist(5094,impdatasetJ2R,varlist)
+analyselist(5333,impdatasetJ2R,varlist)
+analyselist(5456,impdatasetJ2R,varlist)
+
+
+# select 1 id from each pattern group 
+analyselist(5017,impdatasetJ2jeffreys,varlist)
+analyselist(5127,impdatasetJ2jeffreys,varlist)
+analyselist(5099,impdatasetJ2jeffreys,varlist)
+analyselist(5051,impdatasetJ2jeffreys,varlist)
+analyselist(5094,impdatasetJ2jeffreys,varlist)
+analyselist(5333,impdatasetJ2jeffreys,varlist)
+
+#id=5017 (pattern OXXX) gets exactly the same imputations as J2R but should be different, 
+#id= 5115 (pattern OOXO) i.e. only interim missing
+#patt 0  treat 1  5001  0000
+#        treat 2  5003  0000
+#patt 14 treat 1  5017  0xxx
+#patt 14 treat 2  5127  0xxx
+#patt 12 treat 1  5044 00xx
+#patt 12 treat 2  5099 00xx
+#patt 13 treat 1  5051 x0xx
+#patt 13       2
+#patt 8        1  5074 000x
+#patt 8        2  5094 000x
+#patt 4 treat  2  5115 00x0
+#patt 7 treat  1  5333 xxx0
+
+
 
 ##################################################### no delta option #########################################
-impdatasetJ2R_Nd<-mimix("asthma",c("base"),"fev","treat","id","time",100,1,"J2R",301,"jeffreys",1000,NULL,NULL,, )
+impdatasetJ2R_Nd<-mimix("asthma",c("base"),"fev","treat","id","time",200,1,"J2R",101,"jeffreys",1000,NULL,NULL,, )
 analyselist(5099,impdatasetJ2R_Nd,varlist)
 fit<-with(data= as.mids(impdatasetJ2R_Nd, .id="SNO",.imp="II"), expr = lm(fev.12~treat))
 summary(pool(fit))
 
 ################################################ differnt priors ################################################
-impdatasetJ2jeffreys<-(mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",101,"jeffreys",1000,NULL,NULL,NULL,0.5 ) )
+impdatasetJ2jeffreys<-(mimix("asthma",c("base"),"fev","treat","id","time",200,1,"J2R",101,"jeffreys",1000,NULL,NULL,NULL) )
+analyselist(5017,impdatasetJ2jeffreys,varlist)
+analyselist(5127,impdatasetJ2jeffreys,varlist)
 analyselist(5099,impdatasetJ2jeffreys,varlist)
+analyselist(5051,impdatasetJ2jeffreys,varlist)
+analyselist(5094,impdatasetJ2jeffreys,varlist)
+analyselist(5333,impdatasetJ2jeffreys,varlist)
 
 
-impdatasetJ2Rridge<-(mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2r",101,"ridge",1000,NULL,NULL,c(0.5,0.5,1,1 ) ) )
+impdatasetJ2Rridge<-(mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2r",101,"ridge",1000,NULL,NULL,NULL,c(0.5,0.5,1,1 ) ) )
 analyselist(5017,impdatasetJ2Rridge,varlist)
 
 
@@ -163,14 +198,24 @@ asthmafev4<-(subset(asthma[,c("fev","time")],time==4))
 asthmafev8<-(subset(asthma[,c("fev","time")],time==8))
 asthmafev12<-(subset(asthma[,c("fev","time")],time==12))
 
+testimp(asthmafev2,impdatasetJ2R,5,"fev.2","fev")
+testimp(asthmafev4,impdatasetJ2R,5,"fev.4","fev")
+testimp(asthmafev8,impdatasetJ2R,5,"fev.8","fev")
+testimp(asthmafev12,impdatasetJ2R,5,"fev.12","fev")
+
+
 # original data set with missing values in long format so select out time point
 antidepHamd17vis5<-(subset(antidepressant[,c("HAMD17.TOTAL","VISIT.NUMBER")],VISIT.NUMBER==5))
 antidepHamd17vis6<-(subset(antidepressant[,c("HAMD17.TOTAL","VISIT.NUMBER")],VISIT.NUMBER==6))
 antidepHamd17vis7<-(subset(antidepressant[,c("HAMD17.TOTAL","VISIT.NUMBER")],VISIT.NUMBER==7))
 antidepHamd17vis4<-(subset(antidepressant[,c("HAMD17.TOTAL","VISIT.NUMBER")],VISIT.NUMBER==4))
 
+testimp(antidepHamd17vis4,impantiJ2R,100,"HAMD17.TOTAL.4","HAMD17.TOTAL")
+testimp(antidepHamd17vis5,impantiJ2R,100,"HAMD17.TOTAL.5","HAMD17.TOTAL")
+testimp(antidepHamd17vis6,impantiJ2R,100,"HAMD17.TOTAL.6","HAMD17.TOTAL")
+testimp(antidepHamd17vis7,impantiJ2R,100,"HAMD17.TOTAL.7","HAMD17.TOTAL")
 
-# then define test function 
+#  define test function 
 testimp <- function(dataf,imputdata,M,var,TOTALvar)
 {
   #expand orig dataset same length as imputed 
@@ -194,11 +239,6 @@ testimp <- function(dataf,imputdata,M,var,TOTALvar)
   #if (all.equal(datacompna[,1],datacompna[,3]) ) {cat("original data unchanged")}   
   # return(dummydataf)  
 }
-
-testimp(asthmafev2,impdatasetJ2R,5,"fev.2","fev")
-testimp(asthmafev4,impdatasetJ2R,5,"fev.4","fev")
-testimp(asthmafev8,impdatasetJ2R,5,"fev.8","fev")
-testimp(asthmafev12,impdatasetJ2R,5,"fev.12","fev")
 
 
 ##################################### test whether causal(0,0) gives same as J2R.
@@ -279,7 +319,7 @@ antidepressant$PATIENT.SEX <- as.numeric(antidepressant$PATIENT.SEX)
 
 ############################################# Test Causal method, when Kd = 0 same as J2R, Kd=1 same as CIR
 impantiCausal_2NoDelta <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,,1,0.7)
-impantiCausal_2 <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,c(0.5,0.5,1,1 ),c(-3,-4,-5,-6),1,2)
+impantiCausal_2 <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,c(0.5,0.5,1,1 ),c(-3,-4,-5,-6),1,2)
 impantiCausal_1 <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",5,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,,1)
 impantiJ2R <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"J2R",101,c("jeffreys"),1000,NULL,NULL,,1)
 impantiCIR <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"CIR",101,c("jeffreys"),1000,NULL,NULL,NULL)
