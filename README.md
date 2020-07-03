@@ -86,7 +86,7 @@ Arguments in function mimix()
 
 **methodvar**   variable in data specifying individual method 
 
-**referencevar   variable in data specifying individual reference group
+**referencevar**   variable in data specifying individual reference group
 
 **delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
 
