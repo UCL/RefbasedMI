@@ -241,6 +241,8 @@ testimp <- function(dataf,imputdata,M,var,TOTALvar)
 }
 
 
+
+
 ##################################### test whether causal(0,0) gives same as J2R.
 impantiCausal_2NoDelta00 <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,,0,0)
 impantiJ2R <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"J2R",101,c("jeffreys"),1000,NULL,NULL,NULL,,1)
@@ -248,13 +250,19 @@ impantiJ2R <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","T
 all.equal(impantiCausal_2NoDelta00,impantiJ2R)
 
 
-varlist <-c("HAMD17.TOTAL.4","HAMD17.TOTAL.5","HAMD17.TOTAL.6","HAMD17.TOTAL.7")
-analyselist("3618",impantiCausal_2,varlist)
-analyselist("2104",impantiCausal_2,varlist)
-analyselist("2230",impantiCausal_2,varlist)
-analyselist("3618",impantiJ2R ,varlist)
-analyselist("2104",impantiJ2R ,varlist)
-analyselist("2230",impantiJ2R ,varlist)
+varlistdepr <-c("HAMD17.TOTAL.4","HAMD17.TOTAL.5","HAMD17.TOTAL.6","HAMD17.TOTAL.7")
+
+analyselist("3618",impantiCausal_2NoDelta00,varlistdepr)
+analyselist("2104",impantiCausal_2NoDelta00,varlistdepr)
+analyselist("2230",impantiCausal_2NoDelta00,varlistdepr)
+
+
+analyselist("3618",impantiCausal_2,varlistdepr)
+analyselist("2104",impantiCausal_2,varlistdepr)
+analyselist("2230",impantiCausal_2,varlistdepr)
+analyselist("3618",impantiJ2R ,varlistdepr)
+analyselist("2104",impantiJ2R ,varlistdepr)
+analyselist("2230",impantiJ2R ,varlistdepr)
 
 ################################################ test whether causal(1,1) gives same as CIR?.
 impantiCausal_2NoDelta11 <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,,1,1)
