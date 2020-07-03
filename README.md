@@ -113,10 +113,12 @@ functions from mice package
 
 library(mice)
 
-# convert to mids class
+convert to mids class
+
 impdatamids<-(as.mids(impdatasetJ2R)
 
-#  converting mids type not  pmm to mimix and  and predictormatrix not relevant 
+converting mids type not  pmm to mimix and predictormatrix not relevant 
+
 impdatamids$method[impdatamids$method %in% "pmm"] <- "mimix"
 
 impdatamids$predictorMatrix<-"N/A"
