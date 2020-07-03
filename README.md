@@ -84,7 +84,9 @@ Arguments in function mimix()
 
 **bbetween**	   value between iterations in mcmc
 
-**methodvar**  2 element vector designating variables in data specifying individual method and reference group
+**methodvar**   variable in data specifying individual method 
+
+**referencevar   variable in data specifying individual reference group
 
 **delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
 
@@ -111,7 +113,15 @@ functions from mice package
 
 library(mice)
 
-fit<-with(as.mids(impdatasetJ2R), lm(fev.12~treat+base))
+# convert to mids class
+impdatamids<-(as.mids(impdatasetJ2R)
+
+#  converting mids type not  pmm to mimix and  and predictormatrix not relevant 
+impdatamids$method[impdatamids$method %in% "pmm"] <- "mimix"
+
+impdatamids$predictorMatrix<-"N/A"
+
+fit<-with(impdatamids, lm(fev.12~treat+base))
 
 summary(pool(fit))
 
@@ -121,13 +131,14 @@ summary(pool(fit))
 
 Example
 impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",
-                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,,1,1)
+                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,1,1)
 
 
 ### Individual specific method, with delta adjustment
 NOTE - either method or methodvar to be specified but NOT both
 
-impdataInd <- mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,c("methodvar","referencevar"),c(0.5,0.5,1,1 ),c(1,1,2,2))
+impdataInd <- 
+mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,"methodcol","referencecol",c(0.5,0.5,1,1 ),c(1,1,2,2),1,1)
 
 
 
