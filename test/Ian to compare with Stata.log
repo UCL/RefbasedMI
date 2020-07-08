@@ -1,0 +1,481 @@
+> # Ian's testing program for Rmimix: to compare with Stata
+> # 8jul2020: 3 arms, 2 covariates, added causal vs CIR
+> 
+> # Install mimix if required
+> if(!require(mimix)) {
++   if(!require(devtools)) install.packages('devtools') 
++   library(devtools) 
++   install_github("UCL/mimix")
++ }
+> 
+> # Load mimix
+> library(mimix)
+> packageVersion("mimix")
+[1] ‘0.0.7’
+> library(mice)
+> packageVersion("mice")
+[1] ‘3.7.7’
+> 
+> setwd("C:/ado/ian/test_Rmimix")
+> 
+> # Open data
+> load("C:/ado/ian/Rmimix/data/asthma.RData")
+> asthma$treat[1:200]<-3
+> asthma$base2 <- asthma$base^2
+> asthma$fev<-asthma$fev*1000
+> head(asthma)
+    id time treat  base  fev    base2
+1 5001    2     3 2.925 2870 8.555625
+2 5001    4     3 2.925 2660 8.555625
+3 5001    8     3 2.925 2690 8.555625
+4 5001   12     3 2.925 2580 8.555625
+5 5003    2     3 2.465 2610 6.076225
+6 5003    4     3 2.465 2450 6.076225
+> table(asthma$treat)
+
+  1   2   3 
+272 260 200 
+> 
+> 
+> # J2R
+> impJ2R1 <- mimix(data="asthma",
++   covar=c("base","base2"),
++   depvar="fev",
++   treatvar="treat",
++   idvar="id",
++   timevar="time",
++   M=100,
++   reference=1,
++   method="J2R",
++   seed=101,
++   prior="jeffreys",
++   burnin=1000,
++   bbetween=NULL,
++   methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # CR
+> impCR1 <- mimix(data="asthma",
++                covar=c("base","base2"),
++                depvar="fev",
++                treatvar="treat",
++                idvar="id",
++                timevar="time",
++                M=100,
++                reference=1,
++                method="CR",
++                seed=101,
++                prior="jeffreys",
++                burnin=1000,
++                bbetween=NULL,
++                methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # CIR
+> impCIR1 <- mimix(data="asthma",
++                covar=c("base","base2"),
++                depvar="fev",
++                treatvar="treat",
++                idvar="id",
++                timevar="time",
++                M=2,
++                reference=1,
++                method="CIR",
++                seed=101,
++                prior="jeffreys",
++                burnin=1000,
++                bbetween=NULL,
++                methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # same again with reference = active
+> 
+> # J2R
+> impJ2R2 <- mimix(data="asthma",
++                 covar=c("base","base2"),
++                 depvar="fev",
++                 treatvar="treat",
++                 idvar="id",
++                 timevar="time",
++                 M=100,
++                 reference=2,
++                 method="J2R",
++                 seed=101,
++                 prior="jeffreys",
++                 burnin=1000,
++                 bbetween=NULL,
++                 methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # CR
+> impCR2 <- mimix(data="asthma",
++                covar=c("base","base2"),
++                depvar="fev",
++                treatvar="treat",
++                idvar="id",
++                timevar="time",
++                M=100,
++                reference=2,
++                method="CR",
++                seed=101,
++                prior="jeffreys",
++                burnin=1000,
++                bbetween=NULL,
++                methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 100
+ mcmcNorm Loop finished, m = 100
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # CIR
+> impCIR2 <- mimix(data="asthma",
++                 covar=c("base","base2"),
++                 depvar="fev",
++                 treatvar="treat",
++                 idvar="id",
++                 timevar="time",
++                 M=2,
++                 reference=2,
++                 method="CIR",
++                 seed=101,
++                 prior="jeffreys",
++                 burnin=1000,
++                 bbetween=NULL,
++                 methodvar=NULL
++ )
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+number of final na values = 0> 
+> # analyse
+> fit <- with(as.mids(impJ2R1), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term  estimate std.error statistic       df   p.value
+1       (Intercept) 562.26236  611.3546 0.9196992 103.4895 0.3598687
+2 as.factor(treat)2 148.18230  132.9442 1.1146199 127.9541 0.2671025
+3 as.factor(treat)3  88.70611  152.0945 0.5832303 112.0560 0.5609102
+4              base 606.19167  581.8482 1.0418382 112.8454 0.2997136
+5             base2  16.89742  137.1985 0.1231603 112.4736 0.9022000
+> fit <- with(as.mids(impCR1), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term  estimate std.error  statistic        df    p.value
+1       (Intercept) 420.29433  595.8315  0.7053912  95.77669 0.48227888
+2 as.factor(treat)2 205.95985  128.5901  1.6016771 120.57268 0.11184380
+3 as.factor(treat)3 247.67477  133.0553  1.8614420 139.32786 0.06478882
+4              base 763.53098  564.7923  1.3518793 105.40089 0.17930784
+5             base2 -22.85291  133.0921 -0.1717075 105.23955 0.86399722
+> fit <- with(as.mids(impCIR1), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term  estimate std.error  statistic        df    p.value
+1       (Intercept) 416.40487  689.4116  0.6040003  2.885846 0.59000815
+2 as.factor(treat)2 179.38001  139.3764  1.2870182  5.154298 0.25285415
+3 as.factor(treat)3 239.45227  120.9921  1.9790740 61.987268 0.05225407
+4              base 816.07909  651.0408  1.2534991  3.262540 0.29233101
+5             base2 -38.66551  153.6617 -0.2516276  3.239285 0.81645876
+> fit <- with(as.mids(impJ2R2), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term   estimate std.error  statistic        df    p.value
+1       (Intercept)  190.94584 425.76405  0.4484781 126.67214 0.65457442
+2 as.factor(treat)2   90.09190 115.72806  0.7784794  85.64394 0.43843201
+3 as.factor(treat)3  -16.03999 129.77028 -0.1236029  79.86063 0.90194024
+4              base 1004.89530 403.43998  2.4908174 139.92039 0.01391432
+5             base2  -41.45483  95.86231 -0.4324414 136.57498 0.66610267
+> fit <- with(as.mids(impCR2), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term   estimate std.error   statistic       df     p.value
+1       (Intercept)   26.21627 401.73483  0.06525766 139.1804 0.948062494
+2 as.factor(treat)2  186.63496  92.65175  2.01437051 146.2710 0.045803691
+3 as.factor(treat)3  182.61979 100.88866  1.81011220 146.8118 0.072323556
+4              base 1096.01252 393.45009  2.78564562 140.3754 0.006080804
+5             base2  -67.50665  93.46059 -0.72230072 137.1348 0.471339532
+> fit <- with(as.mids(impCIR2), lm(fev.12~as.factor(treat)+base+base2))
+> summary(pool(fit))
+               term   estimate std.error  statistic         df    p.value
+1       (Intercept)  -74.28278 476.50538 -0.1558907   4.709907 0.88257839
+2 as.factor(treat)2  191.97272  83.53374  2.2981460 170.230914 0.02276975
+3 as.factor(treat)3  187.07872  92.43498  2.0238953 133.059629 0.04498304
+4              base 1233.41057 473.44782  2.6051669   4.469854 0.05348150
+5             base2 -106.15933 108.97548 -0.9741579   4.986211 0.37483553
+> 
