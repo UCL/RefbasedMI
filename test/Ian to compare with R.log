@@ -1,0 +1,366 @@
+-----------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\ado\ian\Rmimix\test\Ian to compare with R.log
+  log type:  text
+ opened on:   8 Jul 2020, 12:38:38
+Log file Ian to compare with R.log opened on  8 Jul 2020 at 12:38:38
+
+. /* 
+> Ian to compare with R.do
+> mimix results for comparison with R 
+> Ian 8jul2020
+> */
+. forvalues ref=2/3 {
+  2.         foreach method in J2R CR CIR {
+  3.                 di as input _new(3) "Method `method', ref `ref'"
+  4.                 set seed 101
+  5.                 use "C:\ado\ian\test_Rmimix\asthma.dta", clear
+  6.                 replace treat=4 in 1/200
+  7.                 tab treat, nol
+  8.                 gen base2=base^2
+  9.                 replace fev=fev*1000
+ 10.                 mimix fev treat, id(id) time(time) method(`method') refgroup(`ref') covariates(b
+> ase base2) ///
+>                         clear m(100) seed(101)
+ 11.                 mi estimate, mcerror: reg fev i.treat base base2 if time==12
+ 12.         }
+ 13. }
+
+
+
+Method J2R, ref 2
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using J2R
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.5310
+                                                Largest FMI       =     0.3514
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =     101.06
+                                                        avg       =     111.27
+                                                        max       =     128.52
+Model F test:       Equal FMI                   F(   4,  166.9)   =      13.04
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |   147.9937   131.5408     1.13   0.263    -112.2722    408.2596
+             |   6.148396   2.284388     0.05   0.020     7.202568    8.143502
+             |
+          4  |   78.93645   156.0917     0.51   0.614    -230.6744    388.5473
+             |   9.082186   4.134768     0.06   0.044     13.73374      10.874
+             |
+             |
+        base |    635.942   579.2463     1.10   0.275    -511.8225    1783.706
+             |   31.41431   12.58146     0.06   0.028     44.74909    35.82982
+             |
+       base2 |   12.34555   135.5599     0.09   0.928    -256.2128    280.9039
+             |   7.240124   2.880935     0.05   0.042     8.089982      10.401
+             |
+       _cons |   523.9174   611.2311     0.86   0.393    -688.5915    1736.426
+             |   35.77348    14.9314     0.06   0.032     42.85492    50.83071
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+
+
+Method CR, ref 2
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using CR
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.4044
+                                                Largest FMI       =     0.3866
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =      94.03
+                                                        avg       =     114.28
+                                                        max       =     140.19
+Model F test:       Equal FMI                   F(   4,  168.9)   =      16.59
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |   207.1955   124.8145     1.66   0.099    -39.80287    454.1939
+             |   5.960796   2.210746     0.05   0.011     7.195839    7.702045
+             |
+          4  |   245.3374   131.0375     1.87   0.063    -13.72781    504.4025
+             |   5.371999   2.059956     0.04   0.006     5.460452    7.887866
+             |
+             |
+        base |   797.1904   559.4676     1.42   0.157    -312.2054    1906.586
+             |   31.98018   13.18841     0.07   0.021     45.73967    37.46263
+             |
+       base2 |  -28.51842   130.7998    -0.22   0.828    -287.8279    230.7911
+             |   7.363726   3.039062     0.06   0.045     8.454972    10.67344
+             |
+       _cons |   378.9589   592.2589     0.64   0.524      -796.98    1554.898
+             |   36.35747   15.39737     0.06   0.040     44.40523    51.59859
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+
+
+Method CIR, ref 2
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using CIR
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.4943
+                                                Largest FMI       =     0.3816
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =      95.02
+                                                        avg       =     112.57
+                                                        max       =     129.14
+Model F test:       Equal FMI                   F(   4,  167.9)   =      16.10
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |   201.0321   123.9053     1.62   0.107    -44.11499    446.1792
+             |   5.755667    2.17192     0.05   0.012     7.290054    7.180065
+             |
+          4  |    264.611    136.407     1.94   0.055    -5.339279    534.5613
+             |    6.54837   2.940795     0.05   0.006     7.016285    10.35459
+             |
+             |
+        base |    803.181   557.8864     1.44   0.153    -302.9564    1909.318
+             |   31.66017   12.90126     0.07   0.021     46.34098    35.25935
+             |
+       base2 |  -31.28898   130.4248    -0.24   0.811    -289.8264    227.2485
+             |   7.286647   2.995263     0.06   0.045     7.999742    10.81071
+             |
+       _cons |   378.9068   590.3121     0.64   0.522     -793.008    1550.821
+             |   36.00131   15.05028     0.06   0.039     42.08014     52.1572
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+
+
+Method J2R, ref 3
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using J2R
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.5439
+                                                Largest FMI       =     0.4100
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =      89.52
+                                                        avg       =     122.66
+                                                        max       =     145.63
+Model F test:       Equal FMI                   F(   4,  167.3)   =      32.02
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |   91.16896   112.1471     0.81   0.418    -131.5174    313.8553
+             |   6.908611   3.125592     0.06   0.035     8.631535     10.1535
+             |
+          4  |   -11.0825   124.3545    -0.09   0.929    -258.1525    235.9875
+             |   7.861247   4.065641     0.06   0.050      12.1198    10.77848
+             |
+             |
+        base |   1019.222   398.5523     2.56   0.012     231.5283    1806.916
+             |   15.15056   5.268965     0.05   0.002     18.96766    18.01249
+             |
+       base2 |  -45.82346   94.44682    -0.49   0.628    -232.5131    140.8662
+             |   3.717105   1.375137     0.04   0.028     4.597984    4.676425
+             |
+       _cons |   179.8539   410.0975     0.44   0.662    -630.8592    990.5669
+             |   16.54062   5.358858     0.04   0.030      21.2332    18.14641
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+
+
+Method CR, ref 3
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using CR
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.2313
+                                                Largest FMI       =     0.1699
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =     140.70
+                                                        avg       =     143.38
+                                                        max       =     145.76
+Model F test:       Equal FMI                   F(   4,  173.3)   =      41.59
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |   192.2509   93.37935     2.06   0.041     7.691211    376.8106
+             |   3.579286   1.140086     0.04   0.004     4.057007    4.441595
+             |
+          4  |   189.9135   101.6416     1.87   0.064    -10.96807    390.7951
+             |   3.856047   1.474714     0.05   0.007     5.235048    4.477095
+             |
+             |
+        base |   1111.396   392.7337     2.83   0.005     335.0778    1887.715
+             |   15.53074   5.859686     0.06   0.001     20.87407    18.06276
+             |
+       base2 |  -72.11208   93.02441    -0.78   0.440    -256.0183    111.7942
+             |   3.788424   1.483647     0.04   0.026     4.597554    5.052182
+             |
+       _cons |   9.513834    400.185     0.02   0.981    -781.5539    800.5815
+             |   15.91791   5.411433     0.04   0.032     18.59273    19.98322
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+
+
+Method CIR, ref 3
+(200 real changes made)
+
+ Randomised |
+  treatment |
+ assignment |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        272       37.16       37.16
+          3 |        260       35.52       72.68
+          4 |        200       27.32      100.00
+------------+-----------------------------------
+      Total |        732      100.00
+(585 real changes made)
+Performing imputation procedure for group 1 of 3...
+Performing imputation procedure for group 2 of 3...
+Performing imputation procedure for group 3 of 3...
+
+Imputed dataset now loaded in memory
+Imputed data created in variable fev using CIR
+
+Multiple-imputation estimates                   Imputations       =        100
+Linear regression                               Number of obs     =        183
+                                                Average RVI       =     0.2110
+                                                Largest FMI       =     0.1712
+                                                Complete DF       =        178
+DF adjustment:   Small sample                   DF:     min       =     140.42
+                                                        avg       =     144.44
+                                                        max       =     152.05
+Model F test:       Equal FMI                   F(   4,  173.4)   =      41.93
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+         fev |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       treat |
+     Active  |    221.656   92.30972     2.40   0.018     39.28075    404.0313
+             |   3.148872   .8697796     0.04   0.002     3.203232     3.95918
+             |
+          4  |    211.918   102.2724     2.07   0.040     9.789983     414.046
+             |   3.877859   1.108847     0.04   0.004     4.018085    4.889371
+             |
+             |
+        base |   1134.856   395.7839     2.87   0.005     352.4813     1917.23
+             |    15.7722   5.977748     0.06   0.001     20.87902    18.78084
+             |
+       base2 |  -77.25139   93.68039    -0.82   0.411    -262.4578     107.955
+             |   3.829253   1.502953     0.04   0.025       4.7684    5.002296
+             |
+       _cons |  -44.16625   403.5981    -0.11   0.913    -842.0219    753.6894
+             |   16.23891   5.863582     0.04   0.032      19.5172    20.65344
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+. 
+end of do-file
+Log file Ian to compare with R.log completed on  8 Jul 2020 at 12:49:49
+      name:  <unnamed>
+       log:  C:\ado\ian\Rmimix\test\Ian to compare with R.log
+  log type:  text
+ closed on:   8 Jul 2020, 12:49:49
+-----------------------------------------------------------------------------------------------------
