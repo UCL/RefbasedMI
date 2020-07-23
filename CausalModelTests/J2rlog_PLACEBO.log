@@ -1,0 +1,128 @@
+----------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\ad.ucl.ac.uk\home0\rmjlkm0\Documents\J2rlog_PLACEBO.log
+  log type:  text
+ opened on:  23 Jul 2020, 10:11:30
+
+. import delimited "\\ad.ucl.ac.uk\home0\rmjlkm0\Documents\SASantidepmethodvar.csv", cle
+> ar 
+(14 vars, 688 obs)
+
+. *ren treatmentname tmentno
+. * best recode drug/treatment otherwise drug ges recoded as 1 because 1st?
+. *drop tmentno
+. gen tmentno=.
+(688 missing values generated)
+
+. replace tmentno =2 if (treatmentname=="PLACEBO") 
+(352 real changes made)
+
+. replace tmentno =1 if (treatmentname=="DRUG")
+(336 real changes made)
+
+. 
+end of do-file
+
+. do "C:\Users\rmjlkm0\AppData\Local\Temp\STD2424_000000.tmp"
+
+. label define tmentlabel 2 "PLACEBO" 1 "DRUG"
+
+. label values tmentno tmentlabel
+
+. 
+end of do-file
+
+. do "C:\Users\rmjlkm0\AppData\Local\Temp\STD2424_000000.tmp"
+
+. * create dummies from factor
+. tabulate pooledinvestigator, generate(pooledinvestigator)
+
+     POOLED |
+INVESTIGATO |
+          R |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          6 |         40        5.81        5.81
+          9 |         20        2.91        8.72
+         11 |         16        2.33       11.05
+         12 |         48        6.98       18.02
+         13 |         52        7.56       25.58
+         17 |         32        4.65       30.23
+         18 |         32        4.65       34.88
+         19 |         36        5.23       40.12
+         24 |         16        2.33       42.44
+         25 |         64        9.30       51.74
+         28 |        152       22.09       73.84
+         30 |         40        5.81       79.65
+         36 |         36        5.23       84.88
+         37 |         32        4.65       89.53
+         38 |         16        2.33       91.86
+        124 |         24        3.49       95.35
+        999 |         32        4.65      100.00
+------------+-----------------------------------
+      Total |        688      100.00
+
+. 
+. mimix change tmentno,id(patientnumber) time(visitnumber) covar(basval pooledinvestigat
+> or1 pooledinvestigator2 pooledinvestigator3 pooledinvestigator4 pooledinvestigator5  /
+> //
+>              pooledinvestigator6  ///
+>              pooledinvestigator7 pooledinvestigator8 pooledinvestigator9  pooledinvest
+> igator10 pooledinvestigator11 pooledinvestigator12   pooledinvestigator13 ///
+>                          pooledinvestigator14               pooledinvestigator15 poole
+> dinvestigator16  ) method(J2R) ref(2)  m(200) seed(101) regress clear
+Performing imputation procedure for group 1 of 2...
+Performing imputation procedure for group 2 of 2...
+
+Performing regress procedure ...
+
+i.tmentno         _Itmentno_1-2       (naturally coded; _Itmentno_1 omitted)
+
+Multiple-imputation estimates                   Imputations       =        200
+Linear regression                               Number of obs     =        172
+                                                Average RVI       =     0.2321
+                                                Largest FMI       =     0.4708
+                                                Complete DF       =        153
+DF adjustment:   Small sample                   DF:     min       =      74.47
+                                                        avg       =     132.30
+                                                        max       =     147.86
+Model F test:       Equal FMI                   F(  18,  149.9)   =       6.60
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+--------------------------------------------------------------------------------------
+              change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------------+----------------------------------------------------------------
+         _Itmentno_2 |   2.024902   .9440647     2.14   0.034     .1559999    3.893805
+              basval |  -.3051731   .0945212    -3.23   0.002    -.4923208   -.1180253
+ pooledinvestigator1 |  -3.055943   2.923151    -1.05   0.298    -8.840307     2.72842
+ pooledinvestigator2 |  -4.450933   3.401669    -1.31   0.193    -11.17762    2.275758
+ pooledinvestigator3 |  -1.482109   3.446409    -0.43   0.668     -8.29269    5.328472
+ pooledinvestigator4 |   -1.42066   2.742042    -0.52   0.605    -6.842178    4.000858
+ pooledinvestigator5 |   .6443703    2.59682     0.25   0.804    -4.490055    5.778796
+ pooledinvestigator6 |  -2.058402   2.834087    -0.73   0.469    -7.659439    3.542634
+ pooledinvestigator7 |  -2.762666   3.031803    -0.91   0.364    -8.762882     3.23755
+ pooledinvestigator8 |  -1.193942    2.81822    -0.42   0.672    -6.764721    4.376838
+ pooledinvestigator9 |  -6.823257   3.719128    -1.83   0.069    -14.18326    .5367465
+pooledinvestigator10 |   1.115933   2.622027     0.43   0.671    -4.069968    6.301834
+pooledinvestigator11 |  -10.88183   2.325445    -4.68   0.000    -15.48168   -6.281977
+pooledinvestigator12 |  -3.534975   2.765359    -1.28   0.203    -9.002908    1.932958
+pooledinvestigator13 |    -4.1281   2.845488    -1.45   0.149    -9.754383    1.498183
+pooledinvestigator14 |   5.530963   3.792356     1.46   0.149    -2.024679    13.08661
+pooledinvestigator15 |  -2.668748   3.432224    -0.78   0.438    -9.451324    4.113827
+pooledinvestigator16 |  -6.287008   3.103411    -2.03   0.045    -12.42016   -.1538572
+               _cons |   1.983893   2.502341     0.79   0.429     -2.96654    6.934326
+--------------------------------------------------------------------------------------
+
+Imputed dataset now loaded in memory
+Imputed data created in variable change using J2R
+
+. 
+end of do-file
+
+. do "C:\Users\rmjlkm0\AppData\Local\Temp\STD2424_000000.tmp"
+
+. log off
+      name:  <unnamed>
+       log:  \\ad.ucl.ac.uk\home0\rmjlkm0\Documents\J2rlog_PLACEBO.log
+  log type:  text
+ paused on:  23 Jul 2020, 10:18:05
+----------------------------------------------------------------------------------------
