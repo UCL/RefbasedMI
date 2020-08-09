@@ -5,7 +5,7 @@
 
 # An R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
-We have ported the functionality of the Stata program **mimix**  into R. 
+We have ported the functionality of the Stata program **mimix**  into R plus added some extra functionaity including options for the Causal model, plus Delta adjustment  . 
 
 The purpose of mimix is as described in the paper
 
