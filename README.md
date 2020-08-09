@@ -27,9 +27,9 @@ The 5 methods (plus Causal) available for sensitivity analysis are
 | Last mean carried forward	    | LMCF|  n |
 | Causal	                       | Causal|  y |
 
-For explanation of the Causal model refer to 
+For an explanation of the Causal model see the paper by White,Royes and Best where the maintained treatment effect after treatment discontinuation is either constant (specified by K0) or decays exponentially by being multiplied by specifying a K1 value ( 0<= K1 <=1 ) in every period. Values of K0=1 , K1=0 are equivalent to method J2R, whilst values K0=1,K1=1 are equivalent to method CIR.       
 
-> https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
+https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 
 For an explanation of the Delta adjustment of imputed values see James Roger's SAS programs and user-guide at 
