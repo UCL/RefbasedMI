@@ -32,8 +32,9 @@ For an explanation of the Causal model see the paper by White,Royes and Best whe
 https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 
-For an explanation of the Delta adjustment of imputed values see James Roger's SAS programs and user-guide at 
-https://missingdata.lshtm.ac.uk/files/2017/04/Five_Macros20171010.zip 
+For an explanation of the Delta adjustment of imputed values see James Roger's SAS programs and user-guide under "Reference-based MI via Multivariate Normal RM (the "five macros" and MIWithD)" at  
+https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#dia-working-group
+
 
 For details of the norm2 package which supplies the function mcmcNorm - the MCMC algorithm for incomplete multivariate normal data
 https://rdrr.io/cran/norm2/src/R/norm2.R
@@ -101,43 +102,46 @@ Arguments in function mimix()
 # examples
 
 
-### Jump to reference (J2R) with  placebo treatment group as reference, delta adjustment 
+### Jump to reference (J2R) with  placebo treatment group as reference,  
 
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )   
+impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,, )   
 
 run regression on imputed data-sets, combining using Rubin's rules
-
 
 fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
 functions from mice package
 
 library(mice)
 
-convert to mids class
+fit<-with(impdatasetJ2R, lm(fev.12~treat+base))
 
-impdatamids<-(as.mids(impdatasetJ2R)
+summary(pool(fit))
 
-converting mids type not  pmm to mimix and predictormatrix not relevant 
+### Jump to reference (J2R) with  placebo treatment group as reference, with delta adjustment 
+<explain delta adjustment here>
+ 
+impdatasetJ2Rdelt<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )
 
-impdatamids$method[impdatamids$method %in% "pmm"] <- "mimix"
-
-impdatamids$predictorMatrix<-"N/A"
-
-fit<-with(impdatamids, lm(fev.12~treat+base))
+fit<-with(impdatasetJ2Rdelt, lm(fev.12~treat+base))
 
 summary(pool(fit))
 
 
-
 ### Using the Causal method
 
-Example
+Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR 
+
+Example K0=1,K1=0.5
+
 impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",
-                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,1,1)
+                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,1,0.5)
 
 
 ### Individual specific method, with delta adjustment
-NOTE - either method or methodvar to be specified but NOT both
+
+methodcol and referencecol variables in the data set 
+
+NOTE - either method or methodcol to be specified but NOT both
 
 impdataInd <- 
 mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,"methodcol","referencecol",c(0.5,0.5,1,1 ),c(1,1,2,2),1,1)
