@@ -53,7 +53,7 @@ followed by
 
 # usage
 
-mimix(data,covar,depvar,treatvar,idvar,timevar,..... options..... 
+**mimix**(data,covar,depvar,treatvar,idvar,timevar,..... options..... 
 
 
 Arguments in function mimix() 
@@ -78,7 +78,7 @@ Arguments in function mimix()
 
 **seed**	    seed value to obtain same outputs
 
-**prior**     prior tu use in mcmcNorm, default jeffreys, uniform  or ridge
+**prior**     prior to use in mcmcNorm, default jeffreys, uniform  or ridge
 
 **burnin**	     burnin value
 
