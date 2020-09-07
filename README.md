@@ -27,13 +27,29 @@ The 5 methods (plus Causal) available for sensitivity analysis are
 | Last mean carried forward	    | LMCF|  n |
 | Causal	                       | Causal|  y |
 
-For an explanation of the Causal model see the paper by White,Royes and Best where the maintained treatment effect after treatment discontinuation is either constant (specified by K0) or decays exponentially by being multiplied by specifying a K1 value ( 0<= K1 <=1 ) in every period. Values of K0=1 , K1=0 are equivalent to method J2R, whilst values K0=1,K1=1 are equivalent to method CIR.       
+For an explanation of the **Causal model** see the paper by White,Royes and Best https://arxiv.org/abs/1705.04506 where the maintained treatment effect after treatment discontinuation is either constant (specified by K0) or decays exponentially by being multiplied by specifying a K1 value ( 0<= K1 <=1 ) in every period. Values of K0=1 , K1=0 are equivalent to method J2R, whilst values K0=1,K1=1 are equivalent to method CIR.       
 
 https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308
 
 
-For an explanation of the Delta adjustment of imputed values see James Roger's SAS programs and user-guide under "Reference-based MI via Multivariate Normal RM (the "five macros" and MIWithD)" at  
+For an explanation of the **Delta adjustment** of imputed values see James Roger's SAS programs and user-guide under "Reference-based MI via Multivariate Normal RM (the "five macros" and MIWithD)" at  
 https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#dia-working-group
+
+
+  Specifying delta and dlag allows imputations to differ sytematically from RBI methods. 
+  They provide an increment which is added on to all values imputed after 
+  treatment discontinuation, but not to interim (intermediate) missing values. 
+  Values of delta are cumulated after treatment discontinuation.
+  For example, for an individual who discontinued treatment at the 2nd time point, we take 
+  the vector of delta's starting at the 3rd time point and add their cumulative sums to the imputed values. 
+  Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is 
+  multipled elementwise by the vector dlag.
+  The formula for the increment at time k for an individual who discontinued after time p is
+   b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k
+   where delta=(a_1,a_2,...) and 
+         dlag=(b_1,b_2,...). 
+  A common increment of 3 at all time points after treatment discontinuation is achieved 
+  by setting  delta=c(3,3,3,...) and dlag=c(1,0,0,...), both vectors having the length of the number of time points.
 
 
 For details of the norm2 package which supplies the function mcmcNorm - the MCMC algorithm for incomplete multivariate normal data
@@ -144,7 +160,7 @@ methodcol and referencecol variables in the data set
 NOTE - either method or methodcol to be specified but NOT both
 
 impdataInd <- 
-mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,"methodcol","referencecol",c(0.5,0.5,1,1 ),c(1,1,2,2),1,1)
+mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,"methodcol","referencecol",c(3,3,3,3 ),c(1,0,0,0),1,1)
 
 
 
