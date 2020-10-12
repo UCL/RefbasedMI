@@ -1,0 +1,329 @@
+-----------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\ad.ucl.ac.uk\home0\rmjlkm0\Documents\J2rHAMD.log
+  log type:  text
+ opened on:   9 Oct 2020, 14:14:17
+
+. 
+. * 9/10/20 start with vist4-visit7 
+. * try from github
+.  import delimited "https://raw.githubusercontent.com/ucl/mimix/master/data/Hamdvi
+> sit0.csv", clear
+(14 vars, 860 obs)
+
+.  
+.  * best recode drug/treatment  drug gets recoded as 1 because 1st
+. *drop tmentno
+. gen tmentno=.
+(860 missing values generated)
+
+. replace tmentno =2 if (treatment_name=="PLACEBO") 
+(440 real changes made)
+
+. replace tmentno =1 if (treatment_name=="DRUG")
+(420 real changes made)
+
+. label define tmentlabel 2 "PLACEBO" 1 "DRUG"
+
+. label values tmentno tmentlabel
+
+. 
+. 
+. * delete interim !
+. drop if patient_number ==3618
+(5 observations deleted)
+
+. * analyse data with basval as covariate and no response at visit 0 
+. * drop the visit 0
+. drop if visit_number == 0
+(171 observations deleted)
+
+. 
+. mimix change tmentno,id(patient_number) time(visit_number) covar(basval) method(J
+> 2R) ref(1) m(1000) seed(301)  regress clear
+Performing imputation procedure for group 1 of 2...
+Performing imputation procedure for group 2 of 2...
+
+Performing regress procedure ...
+
+i.tmentno         _Itmentno_1-2       (naturally coded; _Itmentno_1 omitted)
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1805
+                                                Largest FMI       =     0.1434
+                                                Complete DF       =        168
+DF adjustment:   Small sample                   DF:     min       =     142.11
+                                                        avg       =     143.54
+                                                        max       =     145.00
+Model F test:       Equal FMI                   F(   2,  165.2)   =       8.34
+Within VCE type:          OLS                   Prob > F          =     0.0004
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ _Itmentno_2 |   1.925229   1.119445     1.72   0.088    -.2876862    4.138145
+      basval |  -.3473879   .1013948    -3.43   0.001    -.5477906   -.1469853
+       _cons |  -1.437634    2.06893    -0.69   0.488     -5.52715    2.651882
+------------------------------------------------------------------------------
+
+Imputed dataset now loaded in memory
+Imputed data created in variable change using J2R
+
+. mi estimate , mcerror: regress change tmentno basval if visit_number ==7
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1805
+                                                Largest FMI       =     0.1434
+                                                Complete DF       =        168
+DF adjustment:   Small sample                   DF:     min       =     142.11
+                                                        avg       =     143.28
+                                                        max       =     145.00
+Model F test:       Equal FMI                   F(   2,  165.2)   =       8.34
+Within VCE type:          OLS                   Prob > F          =     0.0004
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     tmentno |   1.925229   1.119445     1.72   0.088    -.2876862    4.138145
+             |   .0133157   .0038536     0.01   0.003     .0159918    .0147866
+             |
+      basval |  -.3473879   .1013948    -3.43   0.001    -.5477906   -.1469853
+             |   .0011316   .0003163     0.02   0.000      .001328    .0012662
+             |
+       _cons |  -3.362863   2.724407    -1.23   0.219    -8.748266     2.02254
+             |   .0319944   .0092947     0.01   0.005     .0353972    .0386096
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+. mi estimate , mcerror: regress change tmentno  if visit_number ==7
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1858
+                                                Largest FMI       =     0.1311
+                                                Complete DF       =        169
+DF adjustment:   Small sample                   DF:     min       =     145.05
+                                                        avg       =     146.22
+                                                        max       =     147.40
+Model F test:       Equal FMI                   F(   1,  145.1)   =       4.69
+Within VCE type:          OLS                   Prob > F          =     0.0320
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     tmentno |   2.469188   1.140277     2.17   0.032     .2154826    4.722894
+             |   .0129693   .0035945     0.01   0.001     .0153686    .0142917
+             |
+       _cons |  -10.42348   1.804572    -5.78   0.000    -13.98966    -6.85731
+             |   .0194114   .0053549     0.02   0.000      .021141     .023179
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+. 
+. gen change4=.
+(684,684 missing values generated)
+
+. gen change5=.
+(684,684 missing values generated)
+
+. gen change6=.
+(684,684 missing values generated)
+
+. gen change7=.
+(684,684 missing values generated)
+
+. replace change4 =change if visit_number ==4
+(171,171 real changes made)
+
+. replace change5 =change if visit_number ==5
+(171,158 real changes made)
+
+. replace change6 =change if visit_number ==6
+(171,148 real changes made)
+
+. replace change7 =change if visit_number ==7
+(171,128 real changes made)
+
+. preserve
+
+. keep if patient_number == 3712 & _mi_m>0
+(680,684 observations deleted)
+
+. univar change4 change5 change6 change7
+                                        -------------- Quantiles --------------
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+-------------------------------------------------------------------------------
+ change4    1000     0.00     0.00     0.00     0.00     0.00     0.00     0.00
+ change5    1000    -3.08     4.65   -17.62    -6.17    -3.16     0.03    11.12
+ change6    1000    -5.30     4.87   -19.88    -8.55    -5.38    -2.26     8.66
+ change7    1000    -6.28     5.58   -22.39   -10.01    -6.36    -2.54    13.02
+-------------------------------------------------------------------------------
+
+. restore
+
+. 
+. 
+. 
+.  * import direct  from github
+.  import delimited "https://raw.githubusercontent.com/ucl/mimix/master/data/Hamdvi
+> sit0.csv", clear
+(14 vars, 860 obs)
+
+.  
+. * from local pc
+. * import delimited "\\ad.ucl.ac.uk\home0\rmjlkm0\Documents\GitHub\Five_Macros2017
+> 1010\Hamdvisit0.csv" , clear
+.  * best recode drug/treatment  drug gets recoded as 1 because 1st
+. *drop tmentno
+. gen tmentno=.
+(860 missing values generated)
+
+. replace tmentno =2 if (treatment_name=="PLACEBO") 
+(440 real changes made)
+
+. replace tmentno =1 if (treatment_name=="DRUG")
+(420 real changes made)
+
+. label define tmentlabel 2 "PLACEBO" 1 "DRUG"
+
+. label values tmentno tmentlabel
+
+. 
+. 
+. * delete interim !
+. drop if patient_number ==3618
+(5 observations deleted)
+
+. * analyse data with basval as response at visit 0 and no covariates 
+. mimix change tmentno,id(patient_number) time(visit_number)  method(J2R) ref(1) m(
+> 1000) seed(301)  regress clear
+Performing imputation procedure for group 1 of 2...
+Performing imputation procedure for group 2 of 2...
+
+Performing regress procedure ...
+
+i.tmentno         _Itmentno_1-2       (naturally coded; _Itmentno_1 omitted)
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1873
+                                                Largest FMI       =     0.1339
+                                                Complete DF       =        169
+DF adjustment:   Small sample                   DF:     min       =     144.58
+                                                        avg       =     145.22
+                                                        max       =     145.86
+Model F test:       Equal FMI                   F(   1,  144.6)   =       4.69
+Within VCE type:          OLS                   Prob > F          =     0.0319
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ _Itmentno_2 |   2.475144    1.14261     2.17   0.032     .2167662    4.733523
+       _cons |  -7.954289   .8161846    -9.75   0.000    -9.567365   -6.341212
+------------------------------------------------------------------------------
+
+Imputed dataset now loaded in memory
+Imputed data created in variable change using J2R
+
+. mi estimate , mcerror: regress change tmentno basval if visit_number ==7
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1844
+                                                Largest FMI       =     0.1461
+                                                Complete DF       =        168
+DF adjustment:   Small sample                   DF:     min       =     141.66
+                                                        avg       =     142.52
+                                                        max       =     143.87
+Model F test:       Equal FMI                   F(   2,  165.1)   =       8.25
+Within VCE type:          OLS                   Prob > F          =     0.0004
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     tmentno |   1.933096   1.122026     1.72   0.087    -.2849838    4.151176
+             |   .0134711   .0038403     0.01   0.002     .0158009    .0152407
+             |
+      basval |  -.3461678   .1018576    -3.40   0.001    -.5474985    -.144837
+             |   .0011666   .0003462     0.02   0.000     .0013486    .0013674
+             |
+       _cons |  -3.393611   2.733027    -1.24   0.216    -8.796282    2.009061
+             |   .0325732   .0093348     0.01   0.005     .0360844    .0390229
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+. mi estimate , mcerror: regress change tmentno  if visit_number ==7
+
+Multiple-imputation estimates                   Imputations       =      1,000
+Linear regression                               Number of obs     =        171
+                                                Average RVI       =     0.1873
+                                                Largest FMI       =     0.1339
+                                                Complete DF       =        169
+DF adjustment:   Small sample                   DF:     min       =     144.58
+                                                        avg       =     145.84
+                                                        max       =     147.09
+Model F test:       Equal FMI                   F(   1,  144.6)   =       4.69
+Within VCE type:          OLS                   Prob > F          =     0.0319
+
+------------------------------------------------------------------------------
+      change |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     tmentno |   2.475144    1.14261     2.17   0.032     .2167662    4.733523
+             |   .0131331   .0036306     0.01   0.001     .0152992    .0147343
+             |
+       _cons |  -10.42943   1.807208    -5.77   0.000    -14.00088   -6.857986
+             |   .0195872   .0052334     0.02   0.000     .0211217    .0232709
+------------------------------------------------------------------------------
+Note: Values displayed beneath estimates are Monte Carlo error estimates.
+
+. 
+. gen change4=.
+(855,855 missing values generated)
+
+. gen change5=.
+(855,855 missing values generated)
+
+. gen change6=.
+(855,855 missing values generated)
+
+. gen change7=.
+(855,855 missing values generated)
+
+. replace change4 =change if visit_number ==4
+(171,171 real changes made)
+
+. replace change5 =change if visit_number ==5
+(171,158 real changes made)
+
+. replace change6 =change if visit_number ==6
+(171,148 real changes made)
+
+. replace change7 =change if visit_number ==7
+(171,128 real changes made)
+
+. preserve
+
+. keep if patient_number == 3712 & _mi_m>0
+(850,855 observations deleted)
+
+. univar change4 change5 change6 change7
+                                        -------------- Quantiles --------------
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+-------------------------------------------------------------------------------
+ change4    1000     0.00     0.00     0.00     0.00     0.00     0.00     0.00
+ change5    1000    -3.07     4.63   -18.58    -6.19    -3.08     0.01    11.41
+ change6    1000    -5.29     4.92   -20.45    -8.34    -5.28    -2.08    10.16
+ change7    1000    -6.30     5.67   -25.63   -10.05    -6.17    -2.70    14.24
+-------------------------------------------------------------------------------
+
+. restore
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\ad.ucl.ac.uk\home0\rmjlkm0\Documents\J2rHAMD.log
+  log type:  text
+ closed on:   9 Oct 2020, 14:38:59
+-----------------------------------------------------------------------------------
