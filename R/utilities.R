@@ -1,7 +1,10 @@
 
 # to install if not already installed
-#if(!require(norm2)) install.packages('norm2')
+
+#for mice implemetation of Rubin's Rules
 #if(!require(mice)) install.packages('mice')
+#library("mice")
+
 #for select  function
 #install.packages("dplyr")
 #library(dplyr)
@@ -11,7 +14,7 @@
 #library("tidyr")
 
 # for emNorm
-#install.packages("norm2")
+#if(!require(norm2)) install.packages('norm2')
 #library(norm2)
 
 # for cholsolve
