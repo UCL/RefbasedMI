@@ -147,6 +147,15 @@ summary(pool(fit))
 
 Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR 
 
+Example   Causal model with reference arm  treatment group 1
+
+impCausal <- mimix("antidepressant",covar=c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",303,c("jeffreys"),1000,NULL,NULL,NULL,,,K0,K1)
+
+fit<-with(data= as.mids(impCausal), expr = lm(change.7~TREATMENT.NAME+basval))
+
+summary(pool(fit))
+
+
 Example K0=1,K1=0.5
 
 impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",
