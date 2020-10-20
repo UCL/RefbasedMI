@@ -59,10 +59,18 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
   # mata_S_miss something like [2 3 4] ,so is cc
 {
-  # browser()
+  #browser()
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
 
+  #diagnostics
+  #cat(paste("\nc_mata_miss="))
+  #print(c_mata_miss)
+  #cat(paste("\nmata_means="))
+  #print(mata_means)
+  #cat(paste("\nMeansC="))
+  #print(MeansC)
+  
   for (b in 1:miss_count)  {
 
     # if 1st col missing then no value before so need to check for that
@@ -82,6 +90,11 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
       mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]
     }
   }
+  
+  #diagnostics
+  #cat(paste("\nafterloop mata_means="))
+  #print(mata_means)
+  
   return(mata_means)
 }
 
@@ -101,6 +114,8 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 {
+  
+ # browser()
 
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
@@ -128,10 +143,28 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
       # establish time of last visit ( asunming no interims for now!)
       # eg c_mata_miss = (2,3,4) shows missing cols
-      #lastvisit is time t in Ian's paper
-      lastvisit <-min(c_mata_miss)-1
+      #lastvisit is time t in Ian's paper  which is discontinuation at visit t , ie the last visit before all missing va;ues
+      # this assumes missing values occur after lastvisit 
+      # but what happens when xxxo is the pattern? ! 6/7/20 ie c_mata_miss = 2,3,4 so baseline is lastvist but 5 is sa well?!   
+      # in asthma data largely montone so assume min true , BUT some wont be, eg OXXXO  OOOXO 
+      # noting the interims -  case will be interim if  final visit , ie at  tmax non-missing! 
+      #browser() 
+      # this ok as long as not interim which can be defined as the last visit not missing 
+      # 17/08 but warning  is column number! ,not time unit so better  to use  
+      lastvisit <-min(c_mata_miss)-1  
+      # if interim instead try something like
+      if (max(c_mata_miss) <length(mata_Means)) {
+      # MAR so just use the treatment arm mata_means
+      #   lastvisit <-max(c_mata_miss)+1, ie interims, assign to ref man or Arm mean (just defaults ?)
+       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]
+      } else 
+      {
+             #  lastvisit <-max(c_mata_miss)
+      
+     #10/07/20 }
+      
       # departure from overall mean at time t (lastvist) , active mean - ref mean at last visit
-      ActRef_diff <-mata_means[lastvisit]-MeansC[[1]][lastvisit]
+    #  ActRef_diff <-mata_means[lastvisit]-MeansC[[1]][lastvisit]
 
       # 1/5/20 need to compere v CIR , J2R and doesnt use terms in  formula 7
   # this was eqn 5 soln   2/6/20
@@ -148,25 +181,51 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
       # try Ians  formula from emsil
        # reference mean MeansC[[1]][c_mata_miss[b]] at time u
        # active mean time t  (t lastvist)  mata_means[lastvisit)]
-       # refernce mean time t (t lasvist)
-    #  browser()
+       # refernce mean time t (t lasvist)   MeansC[[1]][lastvisit]
+     # browser()
      #18/06
          v_u=as.numeric(sub('.*\\.','',colnames(mata_means[c_mata_miss]))[b])
        
        # test whether index lastvisit has a "*.number" format (ie whether base covariate)  
        #if (grep('.*\\.','',colnames(mata_means[lastvisit]))==0L  ) 
+       # the base covariate (or the final covariate if many)  is the lastvisit which means every value is missing ! , ie v_t is set to 0      
        if (suppressWarnings(is.na(as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))))) {
             v_t<-0
        } 
        else
        {
             v_t <-  as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))
-       }   
-       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
-       
-       
-       
-    }
+       }
+      
+     #  mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+         # new email formula 6/7/20   
+         #outcome at visit u after discontinuation at visit t , tmax is maximum no. visits  
+         # Yt(R)  =  MeansC[[1]][lastvisit])  , ie reference group mean at last vist
+         # so need calc E[Y(A)]t for treat grp A up to lastvisit t , then from t+1 to tmax is mean for ref group
+         # so only issue is to  entwine mata_means from A up to and including lastvist, then MeansC[[1]] from lastvisit+1 to tmax
+         # for 1st term on RHS depends,if missing before last visit then use mata_means, if missing after then MeansC[[1]] 
+         
+         #browser()
+      #   if (c_mata_miss[b] <=lastvisit ) {
+      #       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1) 
+       #  } else {
+      #       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(MeansC[[1]][c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1)
+      #   }
+         # but if lastvisit = tmax then no reference based treatment
+      #   if (lastvisit == length(mata_Means)) {
+      #     mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1)
+      #   } 
+    #}
+    #note brackets round (c_mata_miss[b])-1]
+    # also assigmnr <- or =??
+   #  browser()
+    # mata_means[c_mata_miss[b]] <- mata_means+MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+     mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+   # mata_means[c_mata_miss[b]] =  MeansC[[1]][c_mata_miss[b]] + K0*(K1^(v_u-v_t))*(mata_means[(c_mata_miss[b]-1)]-MeansC[[1]][(c_mata_miss[b])-1]) 
+  #CIR  mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]       
+    
+      } #if not interim   
+    } 
   }
   return(mata_means)
 }
@@ -244,27 +303,28 @@ analyselist <-function(id,datlist,varlist) {
 #' @details Adding delta values after wthdrawal
 #'  Specifying delta and dlag allows imputations to differ sytematically from RBI methods. 
 #'  They provide an increment which is added on to all values imputed after 
-#'  treatment discontinuation, but not to interim missing values. Values of delta are cumulated after treatment 
-#'  discontinuation. For example, for an individual who  discontinued treatment at the 2nd time point, we take 
+#'  treatment discontinuation, but not to interim (intermediate) missing values. 
+#'  Values of delta are cumulated after treatment discontinuation.
+#'  For example, for an individual who discontinued treatment at the 2nd time point, we take 
 #'  the vector of delta's starting at the 3rd time point and add their cumulative sums to the imputed values. 
 #'  Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is 
-#'  multipled elementwise by the vector dlag. The formula for the increment at time k for an individual who 
-#'  discontinued after time p is b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k  where delta=(a_1,a_2,...) and 
-#'  dlag=(b_1,b_2,...). A common increment of 3 at all time points after treatment discontinuation is achieved 
-#'  by delta=c(3,3,3,...) and dlag=c(1,0,0,...).
+#'  multipled elementwise by the vector dlag.
+#'  The formula for the increment at time k for an individual who discontinued after time p is
+#'   b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k
+#'   where delta=(a_1,a_2,...) and 
+#'         dlag=(b_1,b_2,...). 
+#' A common increment of 3 at all time points after treatment discontinuation is achieved 
+#' by setting  delta=c(3,3,3,...) and dlag=c(1,0,0,...).
 #' @param vec_tst  vector of visit names
-#' @param ncovar number covariates
+#' @param ncovar number of covariates
 #' @param mata_imp the imputed values (as well as the complete) 
-#' @param delta vector of delta values (a values in Roger's) for each vist time
-#' @param dlag vector of dlag values (b values in Roger's) for each vist time
+#' @param delta vector (a values in Roger's paper) length = number of time points
+#' @param dlag vector  (b values in Roger's paper) length = number of time points
 #' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 
 
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
- #browser()
-  # need read dlag in mimix argument, so temp here
-  # if dlag = NULL create vector of 1's...
-  
+ 
    
   # create vector of 1 and 0s
   #browser()  no space before .miss 12/5/20, stat at 3rd col skipping GI II
