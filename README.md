@@ -118,9 +118,9 @@ Arguments in function mimix()
 # examples
 
 
-### Jump to reference (J2R) with  placebo treatment group as reference,  
+### Jump to reference (J2R) with Placebo treatment group as reference,  
 
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,, )   
+impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",1000,1,"J2R",101,"jeffreys",1000,NULL,NULL,, )   
 
 run regression on imputed data-sets, combining using Rubin's rules
 
@@ -133,10 +133,10 @@ fit<-with(impdatasetJ2R, lm(fev.12~treat+base))
 
 summary(pool(fit))
 
-### Jump to reference (J2R) with  placebo treatment group as reference, with delta adjustment 
+### Jump to reference (J2R) with  Drug treatment group as reference, with delta adjustment 
 <explain delta adjustment here>
  
-impdatasetJ2Rdelt<-mimix("asthma",c("base"),"fev","treat","id","time",2,1,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )
+impdatasetJ2Rdelt<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )
 
 fit<-with(impdatasetJ2Rdelt, lm(fev.12~treat+base))
 
