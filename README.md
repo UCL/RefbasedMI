@@ -89,7 +89,7 @@ Arguments in function mimix()
 
 **M**	          number of imputations
  
-**reference**	      reference group for j2r,cir,cr methods
+**reference**	      reference group for j2r,cir,cr,Causal methods
 
 **method**	       RBI method
 
