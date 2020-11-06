@@ -107,7 +107,7 @@ Arguments in function mimix()
 
 **delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
 
-**dlag**        vector of dlag values (b values in Roger's paper)
+**dlag**        vector of dlag values (b values in Rogers paper)
 
 **K0**	         Causal constant for use with Causal method
 
