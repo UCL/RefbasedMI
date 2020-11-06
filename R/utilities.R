@@ -60,7 +60,7 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 
 
 CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
-  # mata_S_miss something like [2 3 4] ,so is cc
+  # c_mata_miss something like [2 3 4] ,so is cc
 {
   #browser()
   miss_count <- length(c_mata_miss)
@@ -122,7 +122,10 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
   miss_count <- length(c_mata_miss)
   mata_means <- as.data.frame(mata_Means)
-
+#22/10 taken out of loop  25/10 back in
+   lastvisit <-min(c_mata_miss)-1 
+   # note lastvisit cannot be zero,(though is time 0) so recode to 1
+   lastvisit<-ifelse(lastvisit==0,1,lastvisit)
   for (b in 1:miss_count)  {
 
     # if 1st col missing then no value before so need to check for that
@@ -130,17 +133,11 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
     # so main looping is over missin fields, ie miss_count
     # if 1st col must be refn
     if (c_mata_miss[b] ==1) {
-      #print will cause objectto return
-      #print(paste0(miss_count))
-      #for each patt_count (from mimix_group)
-      #test purposes
-      #count<-2
-      # MeansC is list so use [[1]]
-      mata_means[b] <- MeansC[[1]][b]
+            # MeansC is list so use [[1]]
+           mata_means[b] <- MeansC[[1]][b]
     } else  {
       #filling in column at a time
-     # mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ Kd*( MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1])
-
+     
     # assuming  mata_means[t]- MeansC[[1]][t] is depature from overall mean , ie MyCov in sas macro
     # find time of discontinuation (ignoring interim cases?)
 
@@ -149,31 +146,32 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
       #lastvisit is time t in Ian's paper  which is discontinuation at visit t , ie the last visit before all missing va;ues
       # this assumes missing values occur after lastvisit 
       # but what happens when xxxo is the pattern? ! 6/7/20 ie c_mata_miss = 2,3,4 so baseline is lastvist but 5 is sa well?!   
-      # in asthma data largely montone so assume min true , BUT some wont be, eg OXXXO  OOOXO 
+      # in asthma data largely montone so assume min true , BUT some wont be, eg X0XXO  245 has 2 lastvist values
       # noting the interims -  case will be interim if  final visit , ie at  tmax non-missing! 
-      #browser() 
-      # this ok as long as not interim which can be defined as the last visit not missing 
-      # 17/08 but warning  is column number! ,not time unit so better  to use  
-      lastvisit <-min(c_mata_miss)-1  
+     
+      #
+      #23/10 PUT BACK 25/10 put outof loop
+      # lastvisit <-min(c_mata_miss)-1
+      
       # if interim instead try something like
-      if (max(c_mata_miss) <length(mata_Means)) {
+   
+      # 25/10 consider 2 4 5 
+     if (max(c_mata_miss) <length(mata_Means)) {
       # MAR so just use the treatment arm mata_means
       #   lastvisit <-max(c_mata_miss)+1, ie interims, assign to ref man or Arm mean (just defaults ?)
-       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]
-      } else 
-      {
-             #  lastvisit <-max(c_mata_miss)
+     mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]
+      } 
       
-     #10/07/20 }
+      #      else {  }
+      
+    
       
       # departure from overall mean at time t (lastvist) , active mean - ref mean at last visit
     #  ActRef_diff <-mata_means[lastvisit]-MeansC[[1]][lastvisit]
 
       # 1/5/20 need to compere v CIR , J2R and doesnt use terms in  formula 7
   # this was eqn 5 soln   2/6/20
-  #mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+  ( Kd*ActRef_diff )
-      #mata_means[c_mata_miss[b]] <-   *(mata_means[(c_mata_miss[b]-1)]- MeansC[[1]][(c_mata_miss[b])-1]) + (mata_means[(c_mata_miss[b])]-MeansC[[1]][(c_mata_miss[b])])
-
+ 
       # try eq 6 Above ok! so dont interfere
       # to implement eq 6 need calc current vist - lastvisit and use it to exponentiate 
       # the unit visit  diferences are  c_mata_miss[b]-lastvisit
@@ -185,13 +183,30 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
        # reference mean MeansC[[1]][c_mata_miss[b]] at time u
        # active mean time t  (t lastvist)  mata_means[lastvisit)]
        # refernce mean time t (t lasvist)   MeansC[[1]][lastvisit]
-     # browser()
+    #  browser()
      #18/06
          v_u=as.numeric(sub('.*\\.','',colnames(mata_means[c_mata_miss]))[b])
        
        # test whether index lastvisit has a "*.number" format (ie whether base covariate)  
        #if (grep('.*\\.','',colnames(mata_means[lastvisit]))==0L  ) 
-       # the base covariate (or the final covariate if many)  is the lastvisit which means every value is missing ! , ie v_t is set to 0      
+       # the base covariate (or the final covariate if many)  is the lastvisit which means every value is missing ! , ie v_t is set to 0  
+     #21/10     
+       #  if c_mata_miss = 2 4 5 then lastvisit has 2 values, ie 1 and 3 so need to check if 2nd last value appropriate
+       #  interim missing if 
+      # define c_mata_miss[0] = 0 as should always be complete (but check knock-on effects as length(c_mata_miss) changed)
+       # this doesnt work   c_mata_miss[0] = 0 so try making exception when b=1,  
+     
+      # tested 25/10/2020  lines 142 in spdsht   
+      # note following only has effect such as X0XX becasue only occurence for 2 lastvisits in asthma     
+      if  (b>1) {
+                  if   ((c_mata_miss[b-1] + 1) != c_mata_miss[b])  { 
+                      lastvisit <- c_mata_miss[b]-1
+                         
+                     }
+        }
+        
+         #26/10
+         #browser() 
        if (suppressWarnings(is.na(as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))))) {
             v_t<-0
        } 
@@ -200,7 +215,6 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
             v_t <-  as.numeric(sub('.*\\.','',colnames(mata_means[lastvisit])))
        }
       
-     #  mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
          # new email formula 6/7/20   
          #outcome at visit u after discontinuation at visit t , tmax is maximum no. visits  
          # Yt(R)  =  MeansC[[1]][lastvisit])  , ie reference group mean at last vist
@@ -208,29 +222,27 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
          # so only issue is to  entwine mata_means from A up to and including lastvist, then MeansC[[1]] from lastvisit+1 to tmax
          # for 1st term on RHS depends,if missing before last visit then use mata_means, if missing after then MeansC[[1]] 
          
-         #browser()
-      #   if (c_mata_miss[b] <=lastvisit ) {
-      #       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1) 
-       #  } else {
-      #       mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(MeansC[[1]][c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1)
-      #   }
+        
          # but if lastvisit = tmax then no reference based treatment
       #   if (lastvisit == length(mata_Means)) {
       #     mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[c_mata_miss[b]-1]-MeansC[[1]][c_mata_miss[b]]-1)
-      #   } 
-    #}
-    #note brackets round (c_mata_miss[b])-1]
+     
+    #note brackets round (c_mata_miss[b])-1] 
     # also assigmnr <- or =??
    #  browser()
-    # mata_means[c_mata_miss[b]] <- mata_means+MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
-     mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
-   # mata_means[c_mata_miss[b]] =  MeansC[[1]][c_mata_miss[b]] + K0*(K1^(v_u-v_t))*(mata_means[(c_mata_miss[b]-1)]-MeansC[[1]][(c_mata_miss[b])-1]) 
-  #CIR  mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]       
+    # 23/10mata_means[c_mata_miss[b]] <- mata_means+MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+  
+    
+    #25/10
+         
+         mata_means[c_mata_miss[b]] <- MeansC[[1]][c_mata_miss[b]]+K0*(K1^(v_u-v_t))*(mata_means[lastvisit]-MeansC[[1]][lastvisit])
+    # mata_means[c_mata_miss[b]] =  MeansC[[1]][c_mata_miss[b]] + K0*(K1^(v_u-v_t))*(mata_means[(c_mata_miss[b]-1)]-MeansC[[1]][(c_mata_miss[b])-1]) 
+     #CIR  mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]       
     
       } #if not interim   
-    } 
-  }
-  return(mata_means)
+     } 
+    
+    return(mata_means)
 }
 
 
