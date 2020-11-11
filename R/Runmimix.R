@@ -363,6 +363,11 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
       #*FOR INDIVIDUALS WITH NO MISSING DATA COPY COMPLETE DATA INTO THE NEW DATA MATRIX mata_all_new `m' TIMES
       #if `pat' == 0{
       m_mg_iter<-m_mg_iter+1
+      
+      # construct structure to savde interim ids but this get reinitialised to many times!
+       interim_id<- mata_Obs[c(mg[i,1]),"id"] 
+      
+      
       # if no missing values
       if(length(c_mata_miss)==0 ) {
         # start and end row positions
@@ -445,55 +450,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
            # 11/04 colnames(mata_means) <-  colnames(mata_means_t[[1]])
             #replicate to number of rows defined by X1
             #mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
-            
-            ################## this section finds interim cases and assigns as  MAR (to be tested 4/11/20) ################### 
-            # put interim logic here 5/11
-            #4/11 if interim(mAR) option , may make default
-            
-            # need to find the interim cols so as to set values as MAR
-            miss_count <- length(c_mata_miss)
-            interim<-0
-            # cndition if miss_count =1 then only 1 missing  and if Not at end eg c_mata_miss = 5 then by defn is an interim!
-            #browser() 
-            
-            #tryng to put sigma from MAR in ,works for 533 but not 5051 but once did before putting in j2r sigma at bottom, 
-            
-            if ((miss_count == 1) & (c_mata_miss[1] < length(mata_means))  ) 
-            {
-              interim<-1
-              mata_means[c_mata_miss[1]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[1]] 
            
-              #  cat(paste0("miss+_count=1 paramBiglist= ?"))
-            } else if (miss_count >1)  # if more than 1 missing 
-            {
-              for (b in 1:(miss_count-1)) {
-                #              # c_mata_miss vector of missing locations so if next col not missing then will be gap in sequence 
-                # c_mata_miss[b] is interim so overwrite with MAR value
-                # adjust when only last col missing (patt=8) ie c_mata_miss = 5  
-                #dont do if last entry  245 => b = 1,2,3
-                if ((c_mata_miss[b] + 1) != c_mata_miss[b+1])  # so next entry after c_mata_miss[b] is non-missing
-                 # but there must be a non-missing to the left , tis captures  lst entry non missing
-                  #(c_mata_miss[b] + 2) != c_mata_miss[b+2]) or
-                  #(c_mata_miss[b] + 3) != c_mata_miss[b+3]) or
-                { 
-                  #browser() MAR sigma
-                  interim<-1
-                  mata_means[c_mata_miss[b]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b]] 
-                      # cat(paste0("missaligned?mBiglist= ?"))
-                } else if   ( c_mata_miss[b] < max(c_mata_nonmiss) )   # need to check there is a non-missing to the right  
-                {
-                  interim<-1
-                  mata_means[c_mata_miss[b]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b]]
-                } #if
-               } #for  
-            } #if  
-              # need account for when last entry, eg c_mata_miss= 234 , ie there must exist a non-missing after the last missing
-              if ( c_mata_miss[miss_count] != length(mata_means) )   # eg 4 !=5 this corrects for 5333 but the mustnot overwrite for 5051 
-              { 
-                interim<-1
-                mata_means[c_mata_miss[miss_count]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[miss_count]]
-                
-              } #if
 
             ############# SIGMA is from paramsigma  the reference group ################
 
@@ -514,13 +471,16 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
             S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
-            testinterim<-0
+            testinterim<-1
           if (testinterim==1) {  
             
             ################## this section finds interim cases and assigns as  MAR (to be tested 4/11/20) ################### 
             # put interim logic here 5/11
             #4/11 if interim(mAR) option , may make default
-           
+            
+            # construct structure to savde interim ids but this get reinitialised to many times!
+            # interim_table<- mata_Obs[c(mg[i,1]),"id"]  
+            
             # need to find the interim cols so as to set values as MAR
             miss_count <- length(c_mata_miss)
             interim<-0
@@ -529,97 +489,102 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
             
           #tryng to put sigma from MAR in ,works for 533 but not 5051 but once did before putting in j2r sigma at bottom, 
           # MAR sigma gives correc tinterim but incorrect subsequents  
-           if ((miss_count == 1) & (c_mata_miss[1] < length(mata_means))  ) 
+           # 1st phase to find interims and apply MAR sigmas
+            
+            if ((miss_count == 1) & (c_mata_miss[1] < length(mata_means)) ) # 1 missing and not at end point 5115 
             {
              interim<-1
               mata_means[c_mata_miss[1]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[1]] 
+              
+  # tested that taking Sigmas out gives same  treatment effect as J2R 7/11       
              Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
               S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
 #              # to ensure col pos same as stata
               S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
               S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
               
-              #  cat(paste0("miss+_count=1 paramBiglist= ?"))
+           #     cat(paste0("miss+_count=1 paramBiglist= ?"))
             } else if (miss_count >1)  # if more than 1 missing 
            {
-             for (b in 1:(miss_count-1)) {
+            #assuming 1st col non-missing so start at  5333 is failing xxx0 234  being treated as a J2R!
+             for (b in 2:(miss_count)) {    # last miss_count end pt check separately below 
   #              # c_mata_miss vector of missing locations so if next col not missing then will be gap in sequence 
                 # c_mata_miss[b] is interim so overwrite with MAR value
                 # adjust when only last col missing (patt=8) ie c_mata_miss = 5  
-                #dont do if last entry  245 => b = 1,2,3
-                if ((c_mata_miss[b] + 1) != c_mata_miss[b+1])  # so next entry after c_mata_miss[b] is non-missing
-                  # so interim found but what if next one missing
-                  # & ( c_mata_miss[miss_count] < length(mata_means))  # last entry non missing
-                  # but there must be a non-missing to the left , tis captures  lst entry non missing
-                  #(c_mata_miss[b] + 2) != c_mata_miss[b+2]) or
-                  #(c_mata_miss[b] + 3) != c_mata_miss[b+3]) or
+                #  245 => b = 1,2,3
+                if ((c_mata_miss[b-1]+1) != c_mata_miss[b])  # so next entry after c_mata_miss[b] is non-missing
+                  # so interim found but what if next one missing, need to check 
                 { 
                   #browser() MAR sigma
                   interim<-1
-                  mata_means[c_mata_miss[b]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b]] 
+                  mata_means[c_mata_miss[b-1]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b-1]] 
                   Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
                   S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-                  # to ensure col pos same as stata
+#                  # to ensure col pos same as stata
                   S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
                   S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
                  # now these Sigmas must not be overwriiten later
-                  # cat(paste0("missaligned?mBiglist= ?"))
-                } else if   ( c_mata_miss[b] < max(c_mata_nonmiss) )   # need to check there is a non-missing to the right  
-               {
-                  interim<-1
-                  mata_means[c_mata_miss[b]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b]]
+                 #9/11 
+                   browser()
+                   #cat(paste0("interim at ",m_mg_iter ,"SNO=",SNO, "b=",b  ))
+                  cat(paste0("interim at ",m_mg_iter , "b=",b , "id= ", mata_Obs[c(mg[i,"cumcases"]),"id"] ))
+                  # construct vector to save interims ids
+                  interim_id <- rbind(interim_id, mata_Obs[c(mg[i,"cumcases"]),"id"] )  
+                  
+                   
+                } else if  ( (c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) )   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!  
+                    #  cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition   
+                 { interim<-1
+                  mata_means[c_mata_miss[b-1]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b-1]] 
                   Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
                   S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
                   # to ensure col pos same as stata
                   S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
                   S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
-                  #  cat(paste0("check nonmissing to right"))
-                } else { #if not interim  adjust for j2r sigma
-             #     SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
-            #      Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
-                  # note use of [[1]] as is matrix rathe than list,
-            #      S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-                  # causes non-def error in conds
-                  #to ensure rows and cols as should reflect their stucture use matrix
-             #     S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-            #      S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-               } #if
-              
-              } #for  
-            #} #if  
-              # need account for when last entry, eg c_mata_miss= 234 , ie there must exist a non-missing after the last missing
-              if ( c_mata_miss[miss_count] != length(mata_means) )   # eg 4 !=5 this corrects for 5333 but the mustnot overwrite for 5051 
-              { 
-                interim<-1
-               mata_means[c_mata_miss[miss_count]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[miss_count]]
-                Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
-                S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
-                # to ensure col pos same as stata
-                S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-                S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
-             
-              } #if 
-          #  } #for
-            } #else if 
-         
-            # restore J2R sigma for non interims but ewithout ovwwritng 5051 sigmas doesnt this have to be in the for
-#            if (interim==99) {
-#              SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
-#              Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
-              # note use of [[1]] as is matrix rathe than list,
-#              S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
-              # causes non-def error in conds
-              #to ensure rows and cols as should reflect their stucture use matrix
-#              S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
-#              S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss] }  
-                        
-            #edit due to passing  Sigma after loop, ie save sigma
-            #  Sigma <- SigmaRefer[[1]]
-
-            #Sigma<-SigmaRefer
-          
-          } #testinterim    
-          }
+                  } #need to include outside the for loop  when condition b=miss_count
+                 
+             } #if
+            } #for
+               #  else if doesnt work need to process the miss_count element because not processed in for loop  
+            #else if ( (b==miss_count) & ( c_mata_miss[b] < length(mata_means)) )
+                if  ((c_mata_miss[miss_count]) < length(mata_means) )
+                 {
+                    interim<-1
+                    mata_means[c_mata_miss[b]] <- paramBiglist[[M*(trtgpindex-1)+m]][[1]][c_mata_miss[b]] 
+                    Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
+                    S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
+                    # to ensure col pos same as stata
+                    S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+                    S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
+                  
+                    cat(paste0("interim at ",m_mg_iter , "b=",b , "id= ", mata_Obs[c(mg[i,"cumcases"]),"id"] ))
+                    cat(paste0("after interim at ",m_mg_iter )) 
+                    interim_id<-  rbind(interim_id, mata_Obs[c(mg[i,"cumcases"]),"id"])  
+                          
+# end sigma test successful                 
+            } #if  
+               
+            # restore J2R sigma for non interims but ewithout ovwwritng 5051 sigmas doesnt this have to be in the for, on a 2nd run for J2R 
+          } #testinterim 
+            
+        ################test here just to see if get same tment effect inserting J2Rsigma##########
+            #9/3/20 7/11/20
+        ##### yes this has the effect of obtaining same treastment effect as J2R , ie 0.1166 so hopefully run this after running MAr    
+      #      SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
+      #      #SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
+            #SigmaRefer <- get(paste0("paramBiglist",refer,m))[2]
+    #        Sigmatrt <- paramBiglist[[M*(trtgpindex-1)+m]][2]
+            # note use of [[1]] as is matrix rathe than list,
+    #        S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+            # causes non-def error in conds
+            #to ensure rows and cols as should reflect their stucture use matrix
+    #        S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+    #        S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss] 
+         #################### delete above !!! afte test ######################################
+      #10/11
+            browser()
+                
+        } #method
           # 'CR'
           else if (method==2) {
             # no need to use Sigmatrt here
@@ -799,7 +764,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         # causing problems replace with simpler
         mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$cases[i]),]
 
-
+ #9/11
+        # browser()
 
         #perhaps put zeros in ? to make sure same length??
         if (!is.null(nrow(mata_means)) )  {
