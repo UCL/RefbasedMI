@@ -9,3 +9,10 @@ install_github("UCL/mimix")
 
 # remember that mimix sessions need to include:
 library(mimix)
+
+
+### ALTERNATIVE WAY AVOIDING THE PACKAGE
+
+source("C:\\ado\\ian\\Rmimix\\R\\Runmimix.R")
+source("C:\\ado\\ian\\Rmimix\\R\\proprocess.R")
+source("C:\\ado\\ian\\Rmimix\\R\\utilities.R")
