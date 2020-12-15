@@ -18,12 +18,15 @@
 #preprocess data for group method
 preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,method=NULL)  {
   #extract relevant vars
-
+   
+  #to investigate interims invoke browser and edit(finaldat) 
   #browser()
   # if covar null (or 1st depvar complete) then ceate baseval covar
 
   # extract relevant cols
     # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
+  ##2311 make sure .id is id ! 
+  #browser()
     fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar)]
   # extract covar cols 1 row per id to merge onto the wide data
     uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
@@ -166,6 +169,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   names(ex1)[names(ex1)=="X1cum"]<-"cumcases"
 #8/5/20
   test_ex1<-merge(ex1,all_patt,by="patt")[order(merge(ex1,all_patt,by="patt")$exid),]
+#22/10 to see nterims browse ad examin finaldatS 
  #browser()
   stopifnot(reference %in% t(ntreat))
   #rename to more user-friendly
@@ -174,6 +178,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   ex1s$exid<-NULL
   
   cat(paste0("     ","summary missing pattern\n"))
+  
   
   #print(paste0("summary missing pattern"))
  # browser()
@@ -401,10 +406,10 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
 #' @param paramBiglist  list of Beta and Sigma parameters from mcmc
 #' @param i in loop through mg rows
 #' @param treatvar treatment group
-#' @param c_mata_nonmiss  0,1 vector of nonmissing
-#' @param c_mata_miss 0,1 vector of missing
-#' @param mata_miss position of missing values in repeated time visits
-#' @param mata_nonmiss positions of nonmissing values
+#' @param c_mata_nonmiss    vector of positions of nonmissing 
+#' @param c_mata_miss 2,3,4 vector of missing positionals
+#' @param mata_miss 0,1 indicators of missing values in repeated time visits
+#' @param mata_nonmiss 0,1 indicators of nonmissing values
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
 #' @return list of outputs

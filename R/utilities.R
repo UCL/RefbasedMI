@@ -3,29 +3,42 @@
 
 #for mice implemetation of Rubin's Rules
 #if(!require(mice)) install.packages('mice')
-#library("mice")
-
-#for select  function
+#library(mice)
+#' @import  mice 
+ 
+#NOtused?for select  function
 #install.packages("dplyr")
 #library(dplyr)
 
-# for pivot_wider function
+# NOtused?for pivot_wider function
 #install.packages("tidyr")
 #library("tidyr")
 
 # for emNorm
 #if(!require(norm2)) install.packages('norm2')
 #library(norm2)
+# this not working as of CRAN hence use archive versoin as follows
+#library(devtools)
+#if(!require(norm2)) install_url(‘https://cran.r-project.org/src/contrib/Archive/norm2/norm2_2.0.3.tar.gz’)
+## @import norm2
+
+#if(!require(data.table)) install.packages('data.table')
+#library('data.table')
 
 # for cholsolve
-#install.packages("sparseinv")
+#if(!require(sparseinv)) install.packages('sparseinv')
 #library(sparseinv)
 
 #  for analysis (stat.desc)
-#install.packages("pastecs")
+#if(!require(pastecs)) install.packages('pastecs')
 #library(pastecs)
 
-# for Amelia
+NULL 
+
+# note pastecs and data.table both have first and last functions
+# so avoid conflict by specifying specfic function in pastec
+
+# for Amelia NOtused
 #install.packages("amelia")
 #library(amelia)
 
@@ -248,54 +261,9 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
 
-#' @title regressimp
-#' @description run regression on M imputed data set, combining as Rubin's rules
-#' @details This is approach followed from  norm2 user manual
-#' @export regressimp
-#' @param dataf data-frame
-#' @param regmodel regression model specfication
-#' @return estimates of regression coefficients
-#' @examples
-#' \dontrun{
-#' regressimp(impdataset,"fev.12~treat+base")
-#' }
-
-
-regressimp <- function(dataf,regmodel)  {
-  # to get the list
-  implist1x <- split(dataf,dataf[,"II"])
-  # so has M elements in list
-  # can obtain a list of coefficients and their se's from a regression
-  # declare list for estimates
-  est.list <- as.list(NULL)
-  # declare lists for se's
-  std.err.list <- as.list( NULL )
-  M<- utils::tail(dataf[,"II"],1)
-  for( m in 1:M ){
-    #mod<-lm(fev12~as.factor(treat)+base,data=kmlist1x[[m]] )
-    #mod<-lm(head12~head_base+sex,data=implist1x[[m]] )
-    #mod<-lm(HAMD17.TOTAL7~basval+HAMD17.TOTAL6,data=implist1x[[m]] )
-    mod<-stats::lm(regmodel,data=implist1x[[m]] )
-    est.list[[m]] <- stats::coef(summary(mod))[,1]
-    std.err.list[[m]] <- stats::coef(summary(mod))[,2]
-    }
-  ## combine the results by rules of Barnard and Rubin (1999)
-  ## with df.complete = 27, because a paired t-test in a dataset with
-  ## N=28 cases has 27 degrees of freedom
-
-  miResult <- norm2::miInference(est.list, std.err.list, df.complete=801)
-  print(miResult)
-
-  # trying mcerror
-  #return(list(est.list,std.err.list))
-}
-
-
-
 #' @title analyselist
 #' @description find descriptive stats on the  M imputed data set
 #' @details select on patient id and find their means etc
-#' @export analyselist
 #' @param id patient identifier
 #' @param datlist imputed dataset of M imputations
 #' @param varlist list of derived variables ,varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
