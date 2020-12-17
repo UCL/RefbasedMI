@@ -4,7 +4,6 @@
 #' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
-#' @import data.table
 #' @export mimix
 #' @param data  Dataset in wide format
 #' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
@@ -194,7 +193,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
   tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
-  tst2<-c(covar,names(tst[,-1]))
+  #1612 make readable in pass2
+  tst2<<-c(covar,names(tst[,-1]))
 
 
 
@@ -872,6 +872,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         # was nct (as in stata) = no ntimes + ncovar
         # so if no missing then just copy full values into mata_new columns
         #if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
+       
         if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- preraw[,c(1:length(tst2))]
         }else
           {
@@ -900,12 +901,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         mata_new<-cbind(GI,II,mata_new,SNO)
 
 
+    # this no longer applicable after 1st pass , only after 2nd plass
         #assume delta to be used if specified in input argument
-        if (length(delta != 0) ) {
+    #    if (length(delta != 0) ) {
          # browser()
-          
-        mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
-        }
+        #  browser(text="ts2") 
+    #    mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
+    #    }
 
         mata_all_newlist[[m_mg_iter]]=mata_new
         #mata_all_new<-rbind(mata_all_new,mata_new)
@@ -1000,7 +1002,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
      colnames(STSdummy) <- paste0(colnames(STSdummy),'.miss')
      sts4D<-(cbind(impMarint1nopatt,STSdummy))
      # now can respahe from wide to long BUT DO WE HAVE TO?? NO!
-     patt <- rowSums(pows2)
+  #  patt <- rowSums(pows2)
      pows2 <- sapply(1:ncol(STSdummy),function(i) STSdummy[,i]*2^(i-1))
      #need to add up to find patt
      patt <- rowSums(pows2)
@@ -1122,7 +1124,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   #0912 id in wrong position in mata_Obs?? 
  
- testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta)
+ testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag)
  # this doesnt call proprocess as data already in wide format  
 
  # this leagcay prob delete    
@@ -1263,7 +1265,8 @@ NULL
 #' @param method - Specified model to run Reference-based imputation method
 #' @param mg  the summary table based on missing data patern
 #' @param ntreat vector of treatment groups
-#' @param depvar response variable  
+#' @param depvar response variable 
+#' @param covar covariate variable(s)  
 #' @param treatvar Treatment group, coded 1,2,..
 #' @param reference  Reference group for J2R, CIR, CR methods
 #' @param trtgp treatmet grp
@@ -1274,6 +1277,7 @@ NULL
 #' @param flag_Indiv flag whether specified individual column in data  
 #' @param M number of imputations
 #' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points
+#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points
 #' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 #' @examples
 #' \dontrun{
@@ -1282,7 +1286,7 @@ NULL
 
 
 
-pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta)
+pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag)
 {  
   # this doesnt call proprocess as data already in wide format 
   # for reporting purposes try here rather than runmimix
@@ -1365,6 +1369,8 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trt
       if (!exists((paste0("Imp_Interims_",M)))  )  { 
         assign(paste0("Imp_Interims_",m),subset(as.matrix(Imp_Interims[Imp_Interims$.imp==m,])))
       } 
+      # also create 0 for use in adddelta ?
+      Imp_Interims_0<- subset(as.matrix(Imp_Interims[Imp_Interims$.imp==0,]))
       
       # browser(text="0412")
       # prblems wit hte matching, has to be ame cols but ordre affected so create index
@@ -1972,7 +1978,14 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trt
           if (length(delta != 0) ) {
             # browser()
             
+            # reset ncovar_i and create dlag if null] browser(text="1612")
+           # browser(text="1712")
+            ncovar_i<-length(covar)
+            if (is.null(dlag)) {
+              dlag <- rep(1,length(delta))
+            }  
             mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
+           # mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag,Imp_Interims_0)
           }
           
           mata_all_newlist[[m_mg_iter]]=mata_new

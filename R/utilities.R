@@ -4,7 +4,7 @@
 #for mice implemetation of Rubin's Rules
 #if(!require(mice)) install.packages('mice')
 #library(mice)
-#' @import  mice 
+## @import  mice 
  
 #NOtused?for select  function
 #install.packages("dplyr")
@@ -300,15 +300,15 @@ analyselist <-function(id,datlist,varlist) {
 #' by setting  delta=c(3,3,3,...) and dlag=c(1,0,0,...).
 #' @param vec_tst  vector of visit names
 #' @param ncovar number of covariates
-#' @param mata_imp the imputed values (as well as the complete) 
+#' @param mata_imp the imputed values (as well as the complete)  and missing pattern
 #' @param delta vector (a values in Roger's paper) length = number of time points
 #' @param dlag vector  (b values in Roger's paper) length = number of time points
 #' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 
 
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {
- 
-   
+ # infinite loop ?browser(text="1712")
+  #browser(text="1712")
   # create vector of 1 and 0s
   #browser()  no space before .miss 12/5/20, stat at 3rd col skipping GI II
   #onezero<-sapply(vec_tst[3:(2+length(vec_tst)-ncovar)], function(x) return(mata_imp[1,paste0(x,".miss")]))
