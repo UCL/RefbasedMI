@@ -1,0 +1,624 @@
+========================================================================= 
+Log Path: ./log/testCIRref2test2.log 
+Working Directory: C:/GitHub/mimix/mimixR 
+User Name: rmjlkm0 
+R Version: 3.6.3 (2020-02-29) 
+Machine: CS00028672 x86-64 
+Operating System: Windows 10 x64 build 18362 
+Log Start Time: 2021-01-14 10:43:27 
+========================================================================= 
+
+
+impdatasetCIRref2s101<-mimix("asthma",c("base"),"fev","treat","id","time",2000,2,"CIR",101,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s54321<-mimix("asthma",c("base"),"fev","treat","id","time",2000,2,"CIR",54321,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s999<-mimix("asthma",c("base"),"fev","treat","id","time",2000,2,"CIR",999,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s1394<-mimix("asthma",c("base"),"fev","treat","id","time",2000,2,"CIR",1394,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2000
+ mcmcNorm Loop finished, m = 2000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx
+analyselist(5059,impdatasetCIRref2s101,varlist)
+analyselist(5059,impdatasetCIRref2s54321,varlist)
+analyselist(5059,impdatasetCIRref2s999,varlist)
+analyselist(5059,impdatasetCIRref2s1394,varlist)
+
+
+analyselist(5017,impdatasetCIRref2s101,varlist)
+analyselist(5017,impdatasetCIRref2s54321,varlist)
+analyselist(5017,impdatasetCIRref2s999,varlist)
+analyselist(5017,impdatasetCIRref2s1394,varlist)
+
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     2001 1.860   0.000 1.860  1.860 1.860
+fev.4     2000 1.957   0.359 0.640  1.948 3.074
+fev.8     2000 1.933   0.391 0.589  1.928 3.249
+fev.12    2000 1.914   0.374 0.658  1.914 3.254
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     2001 1.860   0.000 1.860  1.860 1.860
+fev.4     2000 1.953   0.348 0.720  1.955 3.305
+fev.8     2000 1.950   0.387 0.596  1.952 3.298
+fev.12    2000 1.915   0.376 0.638  1.905 3.211
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     2001 1.860   0.000 1.860  1.860 1.860
+fev.4     2000 1.960   0.362 0.514  1.966 3.064
+fev.8     2000 1.942   0.395 0.421  1.936 3.324
+fev.12    2000 1.914   0.372 0.680  1.923 3.170
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     2001 1.860   0.000 1.860  1.860 1.860
+fev.4     2000 1.968   0.350 0.749  1.955 3.294
+fev.8     2000 1.941   0.393 0.696  1.945 3.120
+fev.12    2000 1.923   0.380 0.576  1.928 3.061
+
+impdatasetCIRref2s101_1000<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"CIR",101,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s54321_1000<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"CIR",54321,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s999_1000<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"CIR",999,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+impdatasetCIRref2s1394_1000<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"CIR",1394,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx
+analyselist(5017,impdatasetCIRref2s101_1000,varlist)
+analyselist(5017,impdatasetCIRref2s54321_1000,varlist)
+analyselist(5017,impdatasetCIRref2s999_1000,varlist)
+analyselist(5017,impdatasetCIRref2s1394_1000,varlist)
+
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 1.860   0.000 1.860  1.860 1.860
+fev.4     1000 1.941   0.359 0.864  1.939 3.100
+fev.8     1000 1.940   0.407 0.537  1.938 3.106
+fev.12    1000 1.913   0.389 0.562  1.920 3.207
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 1.860   0.000 1.860  1.860 1.860
+fev.4     1000 1.982   0.358 0.770  1.976 3.044
+fev.8     1000 1.954   0.396 0.746  1.949 3.337
+fev.12    1000 1.919   0.388 0.680  1.922 3.430
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median  max
+fev.2     1001 1.860   0.000 1.860  1.860 1.86
+fev.4     1000 1.968   0.349 1.018  1.968 3.08
+fev.8     1000 1.935   0.387 0.515  1.937 3.17
+fev.12    1000 1.910   0.362 0.578  1.914 3.25
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 1.860   0.000 1.860  1.860 1.860
+fev.4     1000 1.932   0.371 0.410  1.920 3.216
+fev.8     1000 1.914   0.393 0.622  1.915 3.413
+fev.12    1000 1.897   0.369 0.769  1.904 3.121
+
+fit<-with(data= as.mids(impdatasetCIRref1s101), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+fit<-with(data= as.mids(impdatasetCIRref1s101_1000), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+
+         term  estimate  std.error statistic       df      p.value
+1 (Intercept) 0.1722289 0.25289002 0.6810426 126.9747 4.970847e-01
+2       treat 0.2849024 0.10187037 2.7967148 149.3140 5.842471e-03
+3        base 0.6912431 0.08773519 7.8787436 132.7765 1.052491e-12
+[1] "Error in .imp %in% names(long) : \n  object 'impdatasetCIRref1s101_1000' not found\n"
+Error in .imp %in% names(long) : 
+  object 'impdatasetCIRref1s101_1000' not found
+ 
+
+NOTE: Log Print Time:  2021-01-14 12:40:18 
+NOTE: Elapsed Time in seconds: 1.94761165552669 
+
+         term  estimate  std.error statistic       df      p.value
+1 (Intercept) 0.1722289 0.25289002 0.6810426 126.9747 4.970847e-01
+2       treat 0.2849024 0.10187037 2.7967148 149.3140 5.842471e-03
+3        base 0.6912431 0.08773519 7.8787436 132.7765 1.052491e-12
+
+fit<-with(data= as.mids(impdatasetCIRref2s101), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+fit<-with(data= as.mids(impdatasetCIRref2s101_1000), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+
+         term   estimate  std.error  statistic       df     p.value
+1 (Intercept) 0.02400418 0.20451810  0.1173695 131.3007 0.906746630
+2       treat 0.27573489 0.08452317  3.2622402 146.5380 0.001375224
+3        base 0.79286130 0.07146455 11.0944692 135.3031 0.000000000
+         term   estimate  std.error statistic       df    p.value
+1 (Intercept) 0.02189397 0.20541517  0.106584 129.7311 0.91528368
+2       treat 0.27630336 0.08501557  3.250032 144.6723 0.00143525
+3        base 0.79331906 0.07174738 11.057116 133.8859 0.00000000
+========================================================================= 
+Log End Time: 2021-01-14 12:44:02 
+Log Elapsed Time: 0 00:00:02 
+========================================================================= 
