@@ -18,12 +18,16 @@ setwd("C:/ado/ian/test_Rmimix")
 
 # Open data
 load("C:/ado/ian/Rmimix/data/asthma.RData")
-asthma$treat[1:200]<-3
-asthma$base2 <- asthma$base^2
+asthma$treat[1:200]<-3 # creates a 3rd arm
+asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
 head(asthma)
-table(asthma$treat)
 
+# explore data (using skills learned from Michelle)
+asthma %>% count(treat)
+asthma %>% filter(!is.na(fev)) %>% 
+  group_by(treat, time) %>% 
+  summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
 
 # J2R
 impJ2R1 <- mimix(data="asthma",
