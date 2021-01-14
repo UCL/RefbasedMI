@@ -1,0 +1,149 @@
+========================================================================= 
+Log Path: ./log/testref2CausalK0.log 
+Working Directory: C:/GitHub/mimix/mimixR 
+User Name: rmjlkm0 
+R Version: 3.6.3 (2020-02-29) 
+Machine: CS00028672 x86-64 
+Operating System: Windows 10 x64 build 18362 
+Log Start Time: 2021-01-13 14:10:20 
+========================================================================= 
+
+
+impdatasetref2CausalK0<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=0,K1=0.9,mle=0 )
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 1000
+ mcmcNorm Loop finished, m = 1000
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CAUSAL
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CAUSAL
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CAUSAL
+test pass2 in runmimx 
+fit<-with(data= as.mids(impdatasetref2CausalK0), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+
+analyselist(5051,impdatasetref2CausalK0,varlist)
+analyselist(5333,impdatasetref2CausalK0,varlist)
+analyselist(5094,impdatasetref2CausalK0,varlist)
+analyselist(5115,impdatasetref2CausalK0,varlist)
+analyselist(5017,impdatasetref2CausalK0,varlist)
+analyselist(5044,impdatasetref2CausalK0,varlist)
+analyselist(5059,impdatasetref2CausalK0,varlist)
+
+         term  estimate  std.error statistic        df   p.value
+1 (Intercept) 0.3569391 0.23426276  1.523670  98.86234 0.1307837
+2       treat 0.1111932 0.10101595  1.100749 101.20144 0.2736172
+3        base 0.7909697 0.07185083 11.008497 133.59295 0.0000000
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev    min median   max
+fev.2     1000 1.310   0.408 -0.113  1.313 2.831
+fev.4     1001 1.170   0.000  1.170  1.170 1.170
+fev.8     1000 1.496   0.410 -0.044  1.503 2.629
+fev.12    1000 1.560   0.430  0.247  1.558 2.885
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1000 1.652   0.243 0.836  1.647 2.662
+fev.4     1000 1.686   0.390 0.545  1.684 2.855
+fev.8     1000 1.626   0.371 0.448  1.610 2.929
+fev.12    1001 1.770   0.000 1.770  1.770 1.770
+
+case = 5094
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 1.250   0.000 1.250  1.250 1.250
+fev.4     1001 1.130   0.000 1.130  1.130 1.130
+fev.8     1001 1.730   0.000 1.730  1.730 1.730
+fev.12    1000 1.582   0.287 0.762  1.582 2.482
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 2.100   0.000 2.100  2.100 2.100
+fev.4     1001 2.570   0.000 2.570  2.570 2.570
+fev.8     1000 2.464   0.284 1.419  2.463 3.524
+fev.12    1001 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 1.860   0.000 1.860  1.860 1.860
+fev.4     1000 2.157   0.374 0.813  2.159 3.215
+fev.8     1000 2.156   0.421 0.588  2.153 3.466
+fev.12    1000 2.129   0.401 0.745  2.137 3.474
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 2.230   0.000 2.230  2.230 2.230
+fev.4     1001 1.650   0.000 1.650  1.650 1.650
+fev.8     1000 2.219   0.368 0.845  2.237 3.434
+fev.12    1000 2.234   0.370 1.109  2.226 3.504
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2     1001 2.180   0.000 2.180  2.180 2.180
+fev.4     1000 2.668   0.371 1.447  2.687 3.912
+fev.8     1000 2.591   0.430 1.067  2.591 4.103
+fev.12    1000 2.460   0.398 1.237  2.465 3.809
+========================================================================= 
+Log End Time: 2021-01-13 14:24:24 
+Log Elapsed Time: 0 00:00:14 
+========================================================================= 
