@@ -1,0 +1,768 @@
+========================================================================= 
+Log Path: ./log/testref2delta101.log 
+Working Directory: C:/GitHub/mimix/mimixR 
+User Name: rmjlkm0 
+R Version: 3.6.3 (2020-02-29) 
+Machine: CS00028672 x86-64 
+Operating System: Windows 10 x64 build 18362 
+Log Start Time: 2021-01-13 19:03:26 
+========================================================================= 
+
+ 
+impdatasetJ2Rdel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"J2r",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )
+
+fit<-with(data= as.mids(impdatasetJ2Rdel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetJ2Rdel,varlist)
+analyselist(5051,impdatasetJ2Rdel,varlist)
+analyselist(5115,impdatasetJ2Rdel,varlist)
+analyselist(5017,impdatasetJ2Rdel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model J2R
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  J2R
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model J2R
+test pass2 in runmimx         term   estimate std.error statistic       df      p.value
+1 (Intercept)  3.9110336 0.5797613  6.745937 164.7302 2.458478e-10
+2       treat -1.2046775 0.2528230 -4.764905 164.8162 4.122540e-06
+3        base  0.6178529 0.2028885  3.045282 174.0004 2.686177e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.994   0.272 2.649  2.988 3.364
+fev.12      10 4.668   0.445 3.704  4.744 5.446
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 4.156   0.443 3.476  4.101 4.847
+fev.8       10 5.894   0.427 5.058  5.873 6.551
+fev.12      10 7.280   0.455 6.791  7.290 8.231
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230   0.000 2.230  2.230 2.230
+fev.4       11 1.650   0.000 1.650  1.650 1.650
+fev.8       10 3.617   0.346 3.094  3.637 4.186
+fev.12      10 5.249   0.263 4.886  5.238 5.775
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.520   0.401 3.957  4.563 5.321
+fev.8       10 6.110   0.371 5.366  6.092 6.593
+fev.12      10 7.486   0.340 7.014  7.432 8.065
+ 
+impdatasetCIRdel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"CIR",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )
+
+fit<-with(data= as.mids(impdatasetCIRdel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetCIRdel,varlist)
+analyselist(5051,impdatasetCIRdel,varlist)
+analyselist(5115,impdatasetCIRdel,varlist)
+analyselist(5017,impdatasetCIRdel,varlist)
+analyselist(5044,impdatasetCIRdel,varlist)
+analyselist(5059,impdatasetCIRdel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CIR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CIR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CIR
+test pass2 in runmimx         term   estimate std.error statistic       df      p.value
+1 (Intercept)  3.5466898 0.5525601  6.418650 171.9804 1.290138e-09
+2       treat -1.0252774 0.2400016 -4.271961 174.4370 3.179294e-05
+3        base  0.6205523 0.1955017  3.174153 173.3729 1.778369e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.682   0.292 2.144  2.682 3.187
+fev.12      10 4.357   0.437 3.436  4.322 5.006
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 3.912   0.453 3.112  3.835 4.546
+fev.8       10 5.650   0.451 4.693  5.645 6.250
+fev.12      10 7.036   0.425 6.556  7.002 7.931
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230    0.00 2.230  2.230 2.230
+fev.4       11 1.650    0.00 1.650  1.650 1.650
+fev.8       10 3.305    0.39 2.721  3.331 3.810
+fev.12      10 4.937    0.29 4.514  4.906 5.397
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.275   0.406 3.746  4.271 5.131
+fev.8       10 5.866   0.376 5.155  5.819 6.428
+fev.12      10 7.242   0.362 6.804  7.175 7.875
+ 
+impdatasetCRdel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"CR",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )
+
+fit<-with(data= as.mids(impdatasetCRdel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetCRdel,varlist)
+analyselist(5051,impdatasetCRdel,varlist)
+analyselist(5115,impdatasetCRdel,varlist)
+analyselist(5017,impdatasetCRdel,varlist)
+analyselist(5044,impdatasetCRdel,varlist)
+analyselist(5059,impdatasetCRdel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CR
+test pass2 in runmimx         term   estimate std.error statistic       df      p.value
+1 (Intercept)  3.6097022 0.5554863  6.498274 172.7567 8.372558e-10
+2       treat -1.0559756 0.2416679 -4.369532 174.2100 2.134061e-05
+3        base  0.6197654 0.1965910  3.152563 173.9328 1.906488e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.721   0.276 2.243  2.707 3.129
+fev.12      10 4.413   0.432 3.473  4.425 5.093
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 3.972   0.445 3.213  3.904 4.606
+fev.8       10 5.685   0.441 4.758  5.675 6.303
+fev.12      10 7.077   0.444 6.585  7.076 8.006
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230   0.000 2.230  2.230 2.230
+fev.4       11 1.650   0.000 1.650  1.650 1.650
+fev.8       10 3.344   0.391 2.762  3.376 3.944
+fev.12      10 4.993   0.286 4.597  4.949 5.519
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.335   0.404 3.787  4.353 5.173
+fev.8       10 5.901   0.385 5.164  5.854 6.456
+fev.12      10 7.283   0.342 6.851  7.241 7.875
+[1] "Error in at(\" \\nimpdatasetLMCFdel<-mimix(\\\"asthma\\\",c(\\\"base\\\"),\\\"fev\\\",\\\"treat\\\",\\\"id\\\",\\\"time\\\",10,2,\\\"LMCF\\\",101,\\\"jeffreys\\\",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )\\n\\nfit<-with(data= as.mids(impdatasetLMCFdel), expr = lm(fev.12~treat+base))\\nsummary(pool(fit))\\nvarlist <- c(\\\"fev.2\\\",\\\"fev.4\\\",\\\"fev.8\\\",\\\"fev.12\\\");\\nanalyselist(5333,impdatasetLMCFdel,varlist)\\nanalyselist(5051,impdatasetLMCFdel,varlist)\\nanalyselist(5115,impdatasetLMCFdel,varlist)\\nanalyselist(5017,impdatasetLMCFdel,varlist)\\nanalyselist(5044,impdatasetLMCFdel,varlist)\\nanalyselist(5059,impdatasetLMCFdel,varlist)\\n\\n\") : \n  could not find function \"at\"\n"
+[1] "Error in at(\" \\nimpdatasetLMCFdel<-mimix(\\\"asthma\\\",c(\\\"base\\\"),\\\"fev\\\",\\\"treat\\\",\\\"id\\\",\\\"time\\\",10,2,\\\"LMCF\\\",101,\\\"jeffreys\\\",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )\\n\\nfit<-with(data= as.mids(impdatasetLMCFdel), expr = lm(fev.12~treat+base))\\nsummary(pool(fit))\\nvarlist <- c(\\\"fev.2\\\",\\\"fev.4\\\",\\\"fev.8\\\",\\\"fev.12\\\");\\nanalyselist(5333,impdatasetLMCFdel,varlist)\\nanalyselist(5051,impdatasetLMCFdel,varlist)\\nanalyselist(5115,impdatasetLMCFdel,varlist)\\nanalyselist(5017,impdatasetLMCFdel,varlist)\\nanalyselist(5044,impdatasetLMCFdel,varlist)\\nanalyselist(5059,impdatasetLMCFdel,varlist)\\n\\n\") : \n  could not find function \"at\"\n"
+
+NOTE: Log Print Time:  2021-01-13 19:21:48 
+NOTE: Elapsed Time in seconds: 18.3576160510381 
+
+ 
+impdatasetLMCFdel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"LMCF",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )
+
+fit<-with(data= as.mids(impdatasetLMCFdel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetLMCFdel,varlist)
+analyselist(5051,impdatasetLMCFdel,varlist)
+analyselist(5115,impdatasetLMCFdel,varlist)
+analyselist(5017,impdatasetLMCFdel,varlist)
+analyselist(5044,impdatasetLMCFdel,varlist)
+analyselist(5059,impdatasetLMCFdel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model LMCF
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  LMCF
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model LMCF
+test pass2 in runmimx         term  estimate std.error statistic       df      p.value
+1 (Intercept)  3.668072 0.5580249  6.573313 175.5773 5.415253e-10
+2       treat -1.008971 0.2431546 -4.149506 176.0136 5.179751e-05
+3        base  0.546642 0.1992990  2.742824 171.3938 6.738871e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.806   0.400 2.213  2.767 3.392
+fev.12      10 4.499   0.630 3.467  4.482 5.308
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 3.870   0.538 2.862  3.761 4.583
+fev.8       10 5.650   0.404 4.831  5.705 6.081
+fev.12      10 6.983   0.322 6.515  7.058 7.486
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230   0.000 2.230  2.230 2.230
+fev.4       11 1.650   0.000 1.650  1.650 1.650
+fev.8       10 3.417   0.434 2.852  3.384 4.063
+fev.12      10 5.197   0.273 4.849  5.155 5.706
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.061   0.451 3.501  4.024 4.957
+fev.8       10 5.762   0.414 5.150  5.736 6.381
+fev.12      10 6.757   0.300 6.316  6.797 7.373
+ 
+impdatasetMARdel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"MAR",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,1,mle=0 )
+
+fit<-with(data= as.mids(impdatasetMARdel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetMARdel,varlist)
+analyselist(5051,impdatasetMARdel,varlist)
+analyselist(5115,impdatasetMARdel,varlist)
+analyselist(5017,impdatasetMARdel,varlist)
+analyselist(5044,impdatasetMARdel,varlist)
+analyselist(5059,impdatasetMARdel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model MAR
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  MAR
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model MAR
+test pass2 in runmimx         term   estimate std.error statistic       df      p.value
+1 (Intercept)  3.6248842 0.5592582  6.481593 170.0875 9.443331e-10
+2       treat -0.9926406 0.2436495 -4.074051 170.8166 7.061611e-05
+3        base  0.5506933 0.1985301  2.773853 169.3258 6.161470e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.775   0.431 2.181  2.694 3.424
+fev.12      10 4.464   0.626 3.450  4.422 5.312
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 3.853   0.581 2.787  3.769 4.624
+fev.8       10 5.602   0.430 4.846  5.628 6.161
+fev.12      10 6.931   0.314 6.472  6.965 7.331
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230   0.000 2.230  2.230 2.230
+fev.4       11 1.650   0.000 1.650  1.650 1.650
+fev.8       10 3.385   0.451 2.848  3.317 4.095
+fev.12      10 5.162   0.326 4.797  5.149 5.756
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.044   0.438 3.528  4.051 4.852
+fev.8       10 5.713   0.377 5.108  5.649 6.317
+fev.12      10 6.705   0.314 6.162  6.744 7.329
+ 
+impdatasetCausaldel<-mimix("asthma",c("base"),"fev","treat","id","time",10,2,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,1,0.9,mle=0 )
+
+fit<-with(data= as.mids(impdatasetCausaldel), expr = lm(fev.12~treat+base))
+summary(pool(fit))
+varlist <- c("fev.2","fev.4","fev.8","fev.12");
+analyselist(5333,impdatasetCausaldel,varlist)
+analyselist(5051,impdatasetCausaldel,varlist)
+analyselist(5115,impdatasetCausaldel,varlist)
+analyselist(5017,impdatasetCausaldel,varlist)
+analyselist(5044,impdatasetCausaldel,varlist)
+analyselist(5059,impdatasetCausaldel,varlist)
+
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    37       37          0          0          0           0
+2     7     1     1       38          1          1          1           0
+3     8     1    15       53          0          0          0           1
+4    12     1    22       75          0          0          1           1
+5    13     1     1       76          1          0          1           1
+6    14     1    16       92          0          1          1           1
+7     0     2    71      163          0          0          0           0
+8     4     2     1      164          0          0          1           0
+9     8     2     8      172          0          0          0           1
+10   12     2     8      180          0          0          1           1
+11   14     2     3      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 10
+ mcmcNorm Loop finished, m = 10
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  37
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  22
+ treat  =  1 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  71
+ treat  =  2 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 147
+number of final na values = 0
+
+Imputed data based on model CAUSAL
+number of interims final na values = 124
+
+ending interim imputations 
+
+begining processing  CAUSAL
+ treat  =  1 patt =  0 number cases =  38
+ treat  =  1 patt =  8 number cases =  15
+ treat  =  1 patt =  12 number cases =  23
+ treat  =  1 patt =  14 number cases =  16
+ treat  =  2 patt =  0 number cases =  72
+ treat  =  2 patt =  8 number cases =  8
+ treat  =  2 patt =  12 number cases =  8
+ treat  =  2 patt =  14 number cases =  3
+
+number of original na values = 142
+number of final na values = 0
+
+Imputed data based on model CAUSAL
+test pass2 in runmimx         term   estimate std.error statistic       df      p.value
+1 (Intercept)  3.7460156 0.5661057  6.617167 172.0701 4.461533e-10
+2       treat -1.1176173 0.2459016 -4.544979 174.4772 1.023335e-05
+3        base  0.6134207 0.2001980  3.064070 173.7385 2.531785e-03
+
+case = 5333
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.616   0.216 1.250  1.639 1.893
+fev.4       10 1.822   0.390 0.928  1.943 2.323
+fev.8       10 1.739   0.442 0.964  1.693 2.350
+fev.12      11 1.770   0.000 1.770  1.770 1.770
+
+case = 5051
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       10 1.277   0.338 0.841  1.202 1.765
+fev.4       11 1.170   0.000 1.170  1.170 1.170
+fev.8       10 2.789   0.279 2.317  2.771 3.227
+fev.12      10 4.534   0.438 3.589  4.559 5.257
+
+case = 5115
+ treatarm = 2
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.100   0.000 2.100  2.100 2.100
+fev.4       11 2.570   0.000 2.570  2.570 2.570
+fev.8       10 2.481   0.272 1.949  2.553 2.763
+fev.12      11 2.400   0.000 2.400  2.400 2.400
+
+case = 5017
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 1.860   0.000 1.860  1.860 1.860
+fev.4       10 3.958   0.451 3.181  3.877 4.603
+fev.8       10 5.764   0.439 4.864  5.748 6.391
+fev.12      10 7.195   0.444 6.710  7.204 8.126
+
+case = 5044
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.230   0.000 2.230  2.230 2.230
+fev.4       11 1.650   0.000 1.650  1.650 1.650
+fev.8       10 3.413   0.371 2.849  3.431 3.938
+fev.12      10 5.115   0.268 4.726  5.085 5.613
+
+case = 5059
+ treatarm = 1
+       nbr.val  mean std.dev   min median   max
+fev.2       11 2.180   0.000 2.180  2.180 2.180
+fev.4       10 4.321   0.405 3.786  4.327 5.167
+fev.8       10 5.980   0.373 5.254  5.939 6.505
+fev.12      10 7.401   0.347 6.941  7.344 7.999
+========================================================================= 
+Log End Time: 2021-01-13 19:24:34 
+Log Elapsed Time: 0 00:00:21 
+========================================================================= 
