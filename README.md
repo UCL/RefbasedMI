@@ -113,7 +113,7 @@ Arguments in function mimix()
 
 **K1**	         exponential decaying Causal constant for use with Causal method
 
-
+**mle**	        option to use mle's insted of MCMC draws 
 
 # examples
 
