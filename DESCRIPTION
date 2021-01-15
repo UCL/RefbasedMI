@@ -1,6 +1,6 @@
 Package: mimix
 Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
-Version: 0.0.8
+Version: 0.0.9
 Author: Kevin McGrath 
 Maintainer: Kevin McGrath <Kevin.McGrath@ucl.ac.uk>
 Description: An implementation of the mimix Stata package. Imputes missing numerical outcomes 
@@ -22,9 +22,10 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
-  data.table,
   Hmisc,
+  data.table,
   norm2,
-  mice
+  mice,
+  pastecs
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
