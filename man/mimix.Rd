@@ -24,7 +24,8 @@ mimix(
   delta = NULL,
   dlag = NULL,
   K0 = 1,
-  K1 = 1
+  K1 = 1,
+  mle = FALSE
 )
 }
 \arguments{
@@ -54,9 +55,9 @@ mimix(
 
 \item{bbetween}{Number of iterations between imputed data sets when fitting multivariate normal distributions.}
 
-\item{methodvar}{2 element vector designating variables in data specifying individual method and reference group}
+\item{methodvar}{vector designating variable in data-set specifying individual method}
 
-\item{referencevar}{2 element vector designating variables in data specifying individual method and reference group}
+\item{referencevar}{vector designating variable in data-set specifying reference group corresponding to individual method}
 
 \item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points}
 
@@ -65,6 +66,8 @@ mimix(
 \item{K0}{Causal constant for use with Causal method}
 
 \item{K1}{exponential decaying Causal constant for use with Causal method}
+
+\item{mle}{logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters}
 }
 \value{
 impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
@@ -86,10 +89,12 @@ then acts as a looping mechanism, norm2 is used as MCMC multivariate normal
 The mimix package contains the functions preprodata and preproIndivdata to
 process long longitudinal data into wide data format
 
+pass2Loop performs 2nd pass after interims found by MAR
+
 Also the function Addelta to add delta adjustment to the imputed estimates
 }
 \examples{
 \dontrun{
- mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6)
+mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6,mle=0)
 }
 }

@@ -38,13 +38,13 @@ ifmethodindiv(
 
 \item{treatvar}{treatment group}
 
-\item{c_mata_nonmiss}{0,1 vector of nonmissing}
+\item{c_mata_nonmiss}{vector of positions of nonmissing}
 
-\item{c_mata_miss}{0,1 vector of missing}
+\item{c_mata_miss}{2,3,4 vector of missing positionals}
 
-\item{mata_miss}{position of missing values in repeated time visits}
+\item{mata_miss}{0,1 indicators of missing values in repeated time visits}
 
-\item{mata_nonmiss}{positions of nonmissing values}
+\item{mata_nonmiss}{0,1 indicators of nonmissing values}
 
 \item{K0}{Causal constant for use with Causal method}
 
