@@ -33,7 +33,11 @@
 #if(!require(pastecs)) install.packages('pastecs')
 #library(pastecs)
 
-NULL 
+#  for summarize  
+#if(!require(Hmisc)) install.packages('Hmisc' , repos = "http://cran.us.r-project.org")
+#library(Hmisc)
+
+#NULL 
 
 # note pastecs and data.table both have first and last functions
 # so avoid conflict by specifying specfic function in pastec
@@ -260,7 +264,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
 
-
+# dont include rhtis in the final package , jus for test purposes only!
 #' @title analyselist
 #' @description find descriptive stats on the  M imputed data set
 #' @details select on patient id and find their means etc
@@ -276,7 +280,10 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
 analyselist <-function(id,datlist,varlist) {
+  #browser()
   datano <- subset(datlist,id==datlist$.id)
+  cat(paste0("\ncase = ",id))
+  cat(paste0("\n treatarm = ",subset(datano$treat,datano$.imp==0),"\n"))
    # numbers denote the descriptive stats to display
    t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
  }

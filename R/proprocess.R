@@ -464,7 +464,11 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     #Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
     Sigma <- Sigmatrt
 
-
+    S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
+    #S12 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss]
+    # to ensure col pos same as stata
+    S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+    S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
   }
   # 'J2R'
   else if ( methindiv == 3)  {
@@ -484,6 +488,7 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
 
     # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
     # edits 12/04 same as in runmimix
+  #  browser(text="3112")
     mata_means_t <- lapply(mata_means_trt,FUN = function(x) x*mata_nonmiss)
     #mata_means_t <- unlist(mata_means_trt)*mata_nonmiss
     # print(paste0("mata_means_trt, mata_nonmiss= ",mata_means_trt,mata_miss))
@@ -538,7 +543,9 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     SigmaRefer <- paramBiglist[[M*(refergp-1)+m]][2]
     # SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2]
     Sigma <- SigmaRefer
-
+    S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+    S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss) )
+    S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
   }
   #else if (meth=='CIR')
   else if ( methindiv == 4)
@@ -576,7 +583,9 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
 
     #print(paste0("paramsigma",refer,m))
     #SigmaRefer <- Reduce(rbind,res1sigma.list[m])
-
+    S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
+    S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+    S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
   }
   # else if (meth=='LMCF')
@@ -596,9 +605,14 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     Sigmatrt <- paramBiglist[[M*(trtgp-1)+m]][2]
     #Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
     Sigma <- Sigmatrt
-
+    S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
+    S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
+    S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
+    
+    
   }
   # else if (meth=='Causal')
+  # need to account for interims though
   else if ( methindiv == 6) {
     mata_Means <- paramBiglist[[M*(trtgp-1)+m]][1]
     # convert from list to matrix
@@ -624,7 +638,7 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     
     Sigma<- SigmaRefer
  }
-  return(list(mata_means,Sigma))
+  return(list(mata_means,Sigma,S11,S12,S22))
 }
 
 
