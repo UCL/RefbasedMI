@@ -46,8 +46,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   # insert error checks  HERE
   #check not both meth and methodundiv specified.
- # change 31/10
- # stopifnot(method=="NULL" | methodvar=="NULL")
+  # stopifnot(method=="NULL" | methodvar=="NULL")
   if (!(is.null(method) | is.null(methodvar))) {stop("Either method or methodvar must be specified but NOT both") }
   # establish whether specifying individual or group by creating a flag var
   if (!is.null(method)) {
@@ -504,7 +503,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
                   #cat(paste0("\ninterim at ",m_mg_iter , "b=",b , "id= ", mata_Obs[c(mg[i,"cumcases"]),"id"] ))
                   # in case more than 1 interim in patt group
                     for (it_interim in 1:mg[i,"cases"]) {
-                      cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),"id"] ))      
+                      cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))      
                       #cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]),"id"] ))
                       }
                   }  
@@ -528,12 +527,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
               interim<-1
               
              #note there is another cat line 
+              
               if (m==1) { 
-              #  browser(text="1412")
+               # browser(text="1801")
             # seems to be the correct position !     
                #cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]),idvar] ))
                 for (it_interim in 1:mg[i,"cases"]) {
-                  cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),"id"] ))      
+                  cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))      
                 }             
               }
               
@@ -826,6 +826,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   # save te MAR data-set and need the .imp=0's to replace in the final data output after pass2
  # browser(text="0912 check mata_Obs id col")
+ # browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
 
   # if regression requested
@@ -1128,9 +1129,9 @@ getimpdatasets <- function(varlist){
   impdatasets$GI <-NULL
   
   # report and check number na's
-  
+ # browser(text="1801")
   cat(paste0("\n\nnumber of original na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp==0)))))
-  cat(paste0("\nnumber of final na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp>0)))))
+ # cat(paste0("\nnumber of final na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp>0)))))
   #browser()
   if (sum(is.na(subset(impdatasets,impdatasets$.imp>0))) !=0 ) { cat(paste0("\nWARNING! unimputed data values")) }
   # write which model processed
@@ -1867,7 +1868,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     
   } #for M StOP HERE!!
   # browser(text="passtoloop")
-  #   browser(text="1012")
+  #browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
   # but need to adjust orig data set to set interims back to missing
   # get .imp=0 's
@@ -1891,6 +1892,8 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     #impdataset[,depcolsf[pos]][match(test_Imp$.id,impdataset$.id)]<-test_Imp[,depcolsf[pos]]
     impdataset[,depcolsf[pos]][match(paste(test_Imp$.id,test_Imp$.imp),paste(impdataset$.id,impdataset$.imp))]<-test_Imp[,depcolsf[pos]]
   }  
+  # moved from getimpdatasets fun
+  cat(paste0("\nnumber of final na values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
   cat(paste("\ntest pass2 in runmimx"))
   return(impdataset) 
 }     
@@ -1967,8 +1970,9 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
     # build up ovder M imps
     test1611impD <- rbind(test1611impD,test1611impxm)
     
-  }                      
-  cat(paste0("\nnumber of interims final na values = ", sum(is.na(subset(test1611impD, test1611impD$.imp==0)))))
+  }     
+  #browser(text="1801")   not right
+  #cat(paste0("\nnumber of interims final na values = ", sum(is.na(subset(test1611impD, test1611impD$.imp==0)))))
 # browser(text="0501")
   # test1611impD has the interim cases imputed for each imputation number m
   # so need to insert into original unimputed data set for each imputstion and process each dat set into the 2nd pass     
