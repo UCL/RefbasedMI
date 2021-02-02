@@ -95,6 +95,8 @@ Also the function Addelta to add delta adjustment to the imputed estimates
 }
 \examples{
 \dontrun{
-mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6,mle=0)
+mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+fit<-with(data= as.mids(impdataCausal), expr = lm(fev.12~treat+base))
+summary(pool(fit))
 }
 }
