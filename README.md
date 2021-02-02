@@ -120,9 +120,9 @@ Arguments in function mimix()
 
 ### Jump to reference (J2R) with Placebo treatment group as reference,  
 
-impdatasetJ2R<-mimix("asthma",c("base"),"fev","treat","id","time",1000,1,"J2R",101,"jeffreys",1000,NULL,NULL,, )   
+recode Placebo/Drug treatment to 1,2 
 
-run regression on imputed data-sets, combining using Rubin's rules
+impdatasetJ2R-mimix("asthma",c("base"),"fev","treat","id","time",1000,1,"J2R",54321,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
 
 fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
 functions from mice package
@@ -149,17 +149,16 @@ Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR
 
 Example   Causal model with reference arm  treatment group 1
 
-impCausal <- mimix("antidepressant",covar=c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,"Causal",303,c("jeffreys"),1000,NULL,NULL,NULL,,,K0,K1)
+
+impCausal <- mimix("antidepressant",covar=c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,1,"Causal",54321,,,NULL,NULL,NULL,,,K0=1,K1=0.9,0)
 
 fit<-with(data= as.mids(impCausal), expr = lm(change.7~TREATMENT.NAME+basval))
 
 summary(pool(fit))
 
+### MAR method, with delta adjustment
 
-Example K0=1,K1=0.5
-
-impdata <- mimix("antidepressant",c("basval","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",
-                                                                                 100,1,"Causal",101,c("jeffreys"),1000,NULL,NULL,NULL,,1,0.5)
+impdataMARdel<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"MAR",54321,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,,, )
 
 
 ### Individual specific method, with delta adjustment
@@ -169,7 +168,7 @@ methodcol and referencecol variables in the data set
 NOTE - either method or methodcol to be specified but NOT both
 
 impdataInd <- 
-mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",100,1,NULL,101,c("ridge"),1000,NULL,"methodcol","referencecol",c(3,3,3,3 ),c(1,0,0,0),1,1)
+mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,1,NULL,54321,c("ridge"),1000,NULL,"methodcol","referencecol",c(3,3,3,3 ),c(1,0,0,0),,,)
 
 
 
