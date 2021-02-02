@@ -28,8 +28,10 @@
 #' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 #' @examples
 #' \dontrun{
-#' mimix("asthma",c("base"),"fev","treat","id","time",10,1,"Causal",101,"jeffreys",1000,NULL,NULL,NULL,c(0.5,0.5,1,1),c(1,1,1,1),1,0.6,mle=0)
-#'}
+#' mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+#' fit<-with(data= as.mids(impdataCausal), expr = lm(fev.12~treat+base))
+#' summary(pool(fit))
+#' }
 
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
   # 6/11 try account for interims J2R MAR
@@ -287,20 +289,30 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
       #if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
 
       # statsgeek suggestion prof of concept ,will have to change emNorm line
-  #browser(text="2912")
+ # browser(text="2701")
+ # test jomo 2601
+
       # mle false or 0, true or 1     
   
       if (mle==FALSE) { 
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
-      invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
+     invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
       #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
-      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
-      }
+     mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
+        # try for when using mle!  
+        # mcmcResultT<- emResultT 
+        # if using jomo
+     #setnburn=1000
+    #invisible(capture.output(testimp<- jomo::jomo.MCMCchain(prnormobj,nburn=burnin,meth=common, output=0))) 
+      
+     }
       else {
       invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))  
+        # for mle
       mcmcResultT<- emResultT  
      # mcmcResultT <- norm2::impNorm(emResultT, method="predict")
       }
+      
       
       
       # msg from emNorm
@@ -312,6 +324,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
       cumiter<-cumiter+1
       #browser(text="1412")
       # to see if can save directly to val indice
+      # introduce here now using jomo  replace setnburn by burnin
+      #mcmcResultT<- list(testimp[[2]][,,setnburn],testimp[[3]][,,setnburn])
+      #mcmcResultT$param<- list(testimp[[2]][,,setnburn],testimp[[3]][,,setnburn])
+      
       paramBiglist[[ cumiter]] <- mcmcResultT$param
       assign(paste0("paramBiglist",val,"_",m), mcmcResultT$param)
     }
@@ -594,10 +610,11 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         #S22 <-Sigma[[1]][c_mata_miss,c_mata_miss]
 
         # need to repictae mata_means to same numbe rrows as data pattern group
-
+#      browser(text="2701")
         # causing problems replace with simpler
-        mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$cases[i]),]
-
+       mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$cases[i]),]
+       # mata_means<- do.call("rbind",replicate(mg[i,"cases"],mata_means,simplify=FALSE))
+        
  #9/11
         # browser()
 
@@ -860,6 +877,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
      #212 return list of raw data plus the imputed interims 
      #rawplusinterim <- fillinterims(impdataset,interim_id,Mimp=M)
     
+     # browser(text="0202")
      rawplusinterim <- fillinterims(impdataset,interim_id,M)
      Imp_Interims<<-rawplusinterim[[2]] 
      #0312
@@ -1667,6 +1685,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         
         # causing problems replace with simpler
         mata_means<-mata_means[rep(seq_len(nrow(mata_means)),each=mg$cases[i]),]
+       # mata_means<- do.call("rbind",replicate(mg[i,"cases"],mata_means,simplify=FALSE))
         
         #9/11
         # browser()

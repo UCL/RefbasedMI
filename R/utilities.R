@@ -81,8 +81,10 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 {
   #browser()
   miss_count <- length(c_mata_miss)
-  mata_means <- as.data.frame(mata_Means)
-
+  # this not right?
+ # mata_means <- as.data.frame(mata_Means)
+  mata_means <- (mata_Means)
+  
   #diagnostics
   #cat(paste("\nc_mata_miss="))
   #print(c_mata_miss)
@@ -90,7 +92,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
   #print(mata_means)
   #cat(paste("\nMeansC="))
   #print(MeansC)
-  
+  #browser(text="2801")
   for (b in 1:miss_count)  {
 
     # if 1st col missing then no value before so need to check for that
@@ -285,7 +287,7 @@ analyselist <-function(id,datlist,varlist) {
   cat(paste0("\ncase = ",id))
   cat(paste0("\n treatarm = ",subset(datano$treat,datano$.imp==0),"\n"))
    # numbers denote the descriptive stats to display
-   t(round(pastecs::stat.desc(datano)[,varlist],3)[c(1,9,13,4,8,5),])
+   t(round(pastecs::stat.desc(datano)[,varlist],8)[c(1,9,13,4,8,5),])
  }
 
 #' @title AddDelta
