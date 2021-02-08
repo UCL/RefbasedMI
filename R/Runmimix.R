@@ -138,7 +138,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
   if (!is.null(method) ) {
     testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method))
-    reference <- testlist[[7]]
+#browser(text="0720")
+        reference <- testlist[[7]]
 
 
 
@@ -1045,7 +1046,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   # in mata_Obs  but have to be in for asthma!!
   
   
+ # browser(text="0702")
  testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
+ #browser(text="0702")
  # this doesnt call proprocess as data already in wide format  
 
  # this leagcay prob delete    
@@ -1216,8 +1219,11 @@ NULL
 # error in mata_miss and mata_nonmiss have duplicate hesd_base cols
 
 # make sure mg has the covariate.miss!
+
 pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
 {  
+  #browser(text="0702")
+  # mle option? 
   # this doesnt call proprocess as data already in wide format 
   # for reporting purposes try here rather than runmimix
   if  (method==3) {model<-"J2R"}
@@ -1284,7 +1290,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     #unneceassary now recoded
     #browser()
     trtgpindex<-which(trtgp==ntreat)
-    referindex<-which(reference==ntreat)
+     
+    # try ths when lmcf or mar? . ie no or NULL  refernce !! 0702
+    # make sure reference not applicable for MAR or LMCF, this seems to take care of the problem!
+    if (length(reference) !=0)  {
+       referindex<-which(reference==ntreat)  
+     }
     
     # multiple  simulations start here within the pattern loop #########
     for ( m in  1:M)  {
@@ -1603,7 +1614,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           }
           # 'LMCF'
           else if (method==5) {
-            
+            #browser(text="0602")
             #mata_Means <-  get(paste0("param",trtgp,m))[1]
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
             # convert from list to matrix
