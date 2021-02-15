@@ -173,16 +173,23 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
  #browser()
   stopifnot(reference %in% t(ntreat))
   #rename to more user-friendly
-  names(ex1s)[names(ex1s)=="X1"]<-"cases"
-  names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
+  names(ex1s)[names(ex1s)=="X1"]<-"patients"
+  #names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
+  # dont want to display so
+  ex1s$X1cum<-NULL
   ex1s$exid<-NULL
+  # prefer to call pattern
+  names(ex1s)[names(ex1s)=="patt"]<-"pattern"
   
-  cat(paste0("     ","summary missing pattern\n"))
+  #browser(text="0902")
+  cat(paste0("   ","\n\nSummary of missing data pattern by ",treatvar,":\n\n"))
   
   
   #print(paste0("summary missing pattern"))
- # browser()
+  #browser(text="0902")
   # setting roew names NULL automatically produces seqeential index 
+  
+
   rownames(ex1s)<- NULL
   print(ex1s)
 
@@ -355,12 +362,24 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
  # print(ex1)
   #print("summary missing pattern")
   rownames(ex1s)<- NULL
-  names(ex1s)[names(ex1s)=="X1"]<-"cases"
-  names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
+  names(ex1s)[names(ex1s)=="X1"]<-"patients"
+ #dont want to display cumcases
+  # names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
   ex1s$exid<-NULL
   
-  cat(paste0("     ","summary missing pattern\n"))
+  cat(paste0("Summary missing pattern:\n\n"))
 
+ # browser(text="0902") 
+  #1202 change cumcases and patt and caes to patients as for non indiv 
+  #chaging to patients hs knock on effect in mg so leave as cases
+  #names(ex1s)[names(ex1s)=="X1"]<-"patients"
+  # dont want to display so
+  ex1s$cumcases<-NULL
+  ex1s$exid<-NULL
+  # prefer to call pattern
+  names(ex1s)[names(ex1s)=="patt"]<-"pattern"
+  
+  # prints out the summay table 
   print(ex1s)
   # dont need finaldat,exlid
 
@@ -554,7 +573,9 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp
 
     #
-    mata_Means<-paramBiglist[[M*(trtgp-1)+m]][1]
+   # browser(text="1102")
+    # try unlist 
+    mata_Means<-unlist(paramBiglist[[M*(trtgp-1)+m]][1])
 
     # convert from list to matrix
     # mata_Means <- mata_Means[[1]]

@@ -79,7 +79,7 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
 CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
   # c_mata_miss something like [2 3 4] ,so is cc
 {
-  #browser()
+ # browser(text="1102")
   miss_count <- length(c_mata_miss)
   # this not right?
  # mata_means <- as.data.frame(mata_Means)
@@ -109,7 +109,8 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
       mata_means[b] <- MeansC[[1]][b]
     } else  {
       #filling in column at a time
-      mata_means[c_mata_miss[b]] = mata_means[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]
+      # mata_means causes error when indiv specific use so try unlist    
+      mata_means[c_mata_miss[b]] = unlist(mata_means)[(c_mata_miss[b]-1)]+ MeansC[[1]][(c_mata_miss[b])]- MeansC[[1]][(c_mata_miss[b])-1]
     }
   }
   
