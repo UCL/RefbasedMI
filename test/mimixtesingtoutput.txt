@@ -1,0 +1,105 @@
+[1] ‘0.0.9’
+[1] ‘3.11.0’
+    id time treat  base  fev    base2
+1 5001    2     3 2.925 2870 8.555625
+2 5001    4     3 2.925 2660 8.555625
+3 5001    8     3 2.925 2690 8.555625
+4 5001   12     3 2.925 2580 8.555625
+5 5003    2     3 2.465 2610 6.076225
+6 5003    4     3 2.465 2450 6.076225
+  treat   n
+1     1 272
+2     2 260
+3     3 200
+`summarise()` regrouping output by 'treat' (override with `.groups` argument)
+# A tibble: 12 x 5
+# Groups:   treat [3]
+   treat  time     n fevmean fevsd
+   <dbl> <int> <int>   <dbl> <dbl>
+ 1     1     2    67   1891.  629.
+ 2     1     4    55   1933.  578.
+ 3     1     8    39   2007.  606.
+ 4     1    12    29   2027.  592.
+ 5     2     2    65   2064.  702.
+ 6     2     4    63   2111.  744.
+ 7     2     8    57   2059.  743.
+ 8     2    12    51   2044.  745.
+ 9     3     2    49   2328.  778.
+10     3     4    45   2306.  752.
+11     3     8    35   2470.  870.
+12     3    12    30   2517.  732.
+     summary missing pattern
+   patt treat cases cumcases fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1     0     1    28       28          0          0          0           0
+2     7     1     1       29          1          1          1           0
+3     8     1    11       40          0          0          0           1
+4    12     1    16       56          0          0          1           1
+5    14     1    12       68          0          1          1           1
+6     0     2    51      119          0          0          0           0
+7     8     2     6      125          0          0          0           1
+8    12     2     6      131          0          0          1           1
+9    14     2     2      133          0          1          1           1
+10    0     3    29      162          0          0          0           0
+11    4     3     1      163          0          0          1           0
+12    8     3     6      169          0          0          0           1
+13   12     3     8      177          0          0          1           1
+14   13     3     1      178          1          0          1           1
+15   14     3     5      183          0          1          1           1
+
+ treatment = 1
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 2
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ treatment = 3
+ performing mcmcNorm for m = 1 to 2
+ mcmcNorm Loop finished, m = 2
+
+ Starting imputation
+ treat  =  1 patt =  0 number cases =  28
+ treat  =  1 patt =  7 number cases =  1
+interim at id= 5333
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  29
+ treat  =  3 patt =  4 number cases =  1
+interim at id= 5115
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  8
+ treat  =  3 patt =  13 number cases =  1
+interim at id= 5051
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 147
+
+Imputed data based on model J2R
+
+ending interim imputations 
+
+begining processing  J2R
+ treat  =  1 patt =  0 number cases =  29
+ treat  =  1 patt =  8 number cases =  11
+ treat  =  1 patt =  12 number cases =  16
+ treat  =  1 patt =  14 number cases =  12
+ treat  =  2 patt =  0 number cases =  51
+ treat  =  2 patt =  8 number cases =  6
+ treat  =  2 patt =  12 number cases =  6
+ treat  =  2 patt =  14 number cases =  2
+ treat  =  3 patt =  0 number cases =  30
+ treat  =  3 patt =  8 number cases =  6
+ treat  =  3 patt =  12 number cases =  9
+ treat  =  3 patt =  14 number cases =  5
+
+number of original na values = 142
+
+Imputed data based on model J2R
+number of final na values = 0
+test pass2 in runmimx
