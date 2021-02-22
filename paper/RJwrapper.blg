@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: RJwrapper.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: abbrvnat.bst
+Reallocating 'name_of_file' (item size: 1) to 17 items.
+Database file #1: c:/latex/library.bib
+Warning--empty institution in ICHE9R1
+You've used 8 entries,
+            2773 wiz_defined-function locations,
+            665 strings with 7014 characters,
+and the built_in function-call counts, 3985 in all, are:
+= -- 376
+> -- 227
+< -- 2
++ -- 77
+- -- 69
+* -- 367
+:= -- 639
+add.period$ -- 38
+call.type$ -- 8
+change.case$ -- 47
+chr.to.int$ -- 8
+cite$ -- 17
+duplicate$ -- 161
+empty$ -- 301
+format.name$ -- 77
+if$ -- 809
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 8
+newline$ -- 62
+num.names$ -- 32
+pop$ -- 70
+preamble$ -- 1
+purify$ -- 39
+quote$ -- 0
+skip$ -- 114
+stack$ -- 0
+substring$ -- 166
+swap$ -- 10
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 83
+warning$ -- 1
+while$ -- 36
+width$ -- 0
+write$ -- 138
+(There was 1 warning)

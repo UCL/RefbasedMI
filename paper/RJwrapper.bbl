@@ -1,0 +1,81 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Carpenter et~al.(2013)Carpenter, Roger, and Kenward]{Carpenter++13}
+J.~R. Carpenter, J.~H. Roger, and M.~G. Kenward.
+\newblock {Analysis of longitudinal trials with protocol deviation: a framework
+  for relevant, accessible assumptions, and inference via multiple imputation}.
+\newblock \emph{Journal of Biopharmaceutical Statistics}, 23\penalty0
+  (3):\penalty0 1352--71, 2013.
+\newblock ISSN 1520-5711.
+\newblock \doi{10.1080/10543406.2013.834911}.
+\newblock URL
+  \url{http://www.tandfonline.com/doi/abs/10.1080/10543406.2013.834911}.
+
+\bibitem[Cro et~al.(2016)Cro, Morris, Kenward, and Carpenter]{Cro++16}
+S.~Cro, T.~P. Morris, M.~G. Kenward, and J.~R. Carpenter.
+\newblock {Reference-based sensitivity analysis via multiple imputation for
+  longitudinal trials with protocol deviation}.
+\newblock \emph{Stata Journal}, 16\penalty0 (2):\penalty0 443--463, 2016.
+
+\bibitem[{International Council for Harmonisation of Technical Requirements for
+  Pharmaceuticals for Human Use}(2019)]{ICHE9R1}
+{International Council for Harmonisation of Technical Requirements for
+  Pharmaceuticals for Human Use}.
+\newblock {Addendum on estimands and sensitivity analysis in clinical trials to
+  the guideline on statistical principles for clinical trials E9(R1)}.
+\newblock Technical report, 2019.
+\newblock URL \url{https://www.ich.org/page/efficacy-guidelines{\#}9-2}.
+
+\bibitem[Keene et~al.(2014)Keene, Roger, Hartley, and Kenward]{Keene++14}
+O.~N. Keene, J.~H. Roger, B.~F. Hartley, and M.~G. Kenward.
+\newblock {Missing data sensitivity analysis for recurrent event data using
+  controlled imputation}.
+\newblock \emph{Pharmaceutical Statistics}, 13\penalty0 (4):\penalty0 258--264,
+  jul 2014.
+\newblock ISSN 15391604.
+\newblock \doi{10.1002/pst.1624}.
+\newblock URL \url{http://doi.wiley.com/10.1002/pst.1624}.
+
+\bibitem[Leacy et~al.(2017)Leacy, Floyd, Yates, and White]{ian:ZAMSTAR}
+F.~P. Leacy, S.~Floyd, T.~A. Yates, and I.~R. White.
+\newblock {Analyses of Sensitivity to the Missing-at-Random Assumption Using
+  Multiple Imputation With Delta Adjustment: Application to a Tuberculosis/HIV
+  Prevalence Survey With Incomplete HIV-Status Data}.
+\newblock \emph{American Journal of Epidemiology}, 185\penalty0 (4):\penalty0
+  304--315, jan 2017.
+\newblock ISSN 0002-9262.
+\newblock \doi{10.1093/aje/kww107}.
+\newblock URL
+  \url{https://academic.oup.com/aje/article-lookup/doi/10.1093/aje/kww107
+  http://aje.oxfordjournals.org/lookup/doi/10.1093/aje/kww107}.
+
+\bibitem[Ratitch et~al.(2013)Ratitch, O'Kelly, and Tosiello]{Ratitch++13}
+B.~Ratitch, M.~O'Kelly, and R.~Tosiello.
+\newblock {Missing data in clinical trials: from clinical assumptions to
+  statistical analysis using pattern mixture models}.
+\newblock \emph{Pharmaceutical Statistics}, 12:\penalty0 337--347, 2013.
+\newblock URL
+  \url{http://onlinelibrary.wiley.com/doi/10.1002/pst.1549/abstract}.
+
+\bibitem[Rubin(1987)]{Rubin87}
+D.~B. Rubin.
+\newblock \emph{{Multiple Imputation for Nonresponse in Surveys}}.
+\newblock John Wiley and Sons, New York, 1987.
+
+\bibitem[White et~al.(2020)White, Joseph, and Best]{ian:RBIcausal}
+I.~R. White, R.~Joseph, and N.~Best.
+\newblock {A causal modelling framework for reference-based imputation and
+  tipping point analysis in clinical trials with quantitative outcome}.
+\newblock \emph{Journal of Biopharmaceutical Statistics}, 30\penalty0
+  (2):\penalty0 334--350, mar 2020.
+\newblock ISSN 1054-3406.
+\newblock \doi{10.1080/10543406.2019.1684308}.
+\newblock URL
+  \url{https://www.tandfonline.com/doi/full/10.1080/10543406.2019.1684308}.
+
+\end{thebibliography}

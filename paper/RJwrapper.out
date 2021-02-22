@@ -1,0 +1,14 @@
+\BOOKMARK [0][-]{section*.1}{mimix: Reference-based imputation of missing data}{}% 1
+\BOOKMARK [1][-]{section.2.1}{Introduction}{section*.1}% 2
+\BOOKMARK [1][-]{section.2.2}{Reference-based imputation}{section*.1}% 3
+\BOOKMARK [2][-]{subsection.2.2.1}{Setting}{section.2.2}% 4
+\BOOKMARK [2][-]{subsection.2.2.2}{Reference-based imputation}{section.2.2}% 5
+\BOOKMARK [2][-]{subsection.2.2.3}{Causal model}{section.2.2}% 6
+\BOOKMARK [2][-]{subsection.2.2.4}{Delta adjustment}{section.2.2}% 7
+\BOOKMARK [2][-]{subsection.2.2.5}{Interim missing values and covariates}{section.2.2}% 8
+\BOOKMARK [1][-]{section.2.3}{Package}{section*.1}% 9
+\BOOKMARK [2][-]{subsection.2.3.1}{Arguments}{section.2.3}% 10
+\BOOKMARK [2][-]{subsection.2.3.2}{Outputs}{section.2.3}% 11
+\BOOKMARK [1][-]{section.2.4}{Examples}{section*.1}% 12
+\BOOKMARK [1][-]{section.2.5}{Comparisons with other packages}{section*.1}% 13
+\BOOKMARK [1][-]{section.2.6}{Limitations and discussion}{section*.1}% 14
