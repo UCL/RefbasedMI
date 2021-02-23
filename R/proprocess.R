@@ -1,6 +1,6 @@
 
 
-#' @title preprodata
+#' @title pre-process long longitudinal data into wide format 
 #' @description process data into wide format for group method
 #' @details checks method finds missingness pattern
 #' @param data  data in long format
@@ -201,7 +201,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
 }
 
-#' @title preproIndivdata
+#' @title pre-process long longitudinal data into wide format for individual-specific  
 #' @description process data into wide format for individual-specified method
 #' @details checks methodvar finds missingness pattern
 #' @param data  data in long format
@@ -414,7 +414,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
 
 
 
-#' @title ifmethodindiv
+#' @title performs imputation for individual-specific method
 #' @description alternative logic for individual method
 #' @details checks methodindiv not null
 #' @param methodvar  individual method col

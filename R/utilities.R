@@ -47,9 +47,11 @@
 #library(amelia)
 
 
-#' @title LMCF_loop
+#' @title process LMCF method
 #' @description process LMCF method
 #' @details This is based on Suzie Cro's Stata program
+#' @details when no observed data first mean is used in Stata 
+#' @details may be different here  
 #' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
 #' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2 
 #' @return mata_means
@@ -66,7 +68,7 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
   return(mata_means)
 }
 
-#' @title CIR_loop
+#' @title process CIR method
 #' @description process CIR method
 #' @details This is based on Suzie Cro's Stata program
 #' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
@@ -124,7 +126,7 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 
 
-#' @title Causal_loop
+#' @title process Causal method
 #' @description process Causal method
 #' @details This is based on "White,Royes,Best" paper
 #' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
@@ -268,7 +270,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
 # dont include rhtis in the final package , jus for test purposes only!
-#' @title analyselist
+#' @title find descriptive stats on the  M imputed data set
 #' @description find descriptive stats on the  M imputed data set
 #' @details select on patient id and find their means etc
 #' @param id patient identifier
@@ -291,7 +293,7 @@ analyselist <-function(id,datlist,varlist) {
    t(round(pastecs::stat.desc(datano)[,varlist],8)[c(1,9,13,4,8,5),])
  }
 
-#' @title AddDelta
+#' @title ddd delta's to imputed values
 #' @description add delta's to imputed values
 #' @details Adding delta values after wthdrawal
 #'  Specifying delta and dlag allows imputations to differ sytematically from RBI methods. 

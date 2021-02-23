@@ -1,10 +1,11 @@
-#' @title mimix
+#' @title Main function for performing reference-based multiple imputation of longitudinal data  
 #' @description main wrapper for running mimix
 #' @details This is based on Suzie Cro's Stata program
 #' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
 #' @export mimix
+#' @import mice
 #' @param data  Dataset in wide format
 #' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
 #' @param depvar Dependent (outcome) variable
@@ -28,9 +29,12 @@
 #' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 #' @examples
 #' \dontrun{
-#' mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
-#' fit<-with(data= as.mids(impdataCausal), expr = lm(fev.12~treat+base))
+#' mimixout<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+#' library(mice)
+#' fit<-with(data= as.mids(mimixout),expr = lm(fev.12~treat+base))
 #' summary(pool(fit))
+#' mimix("acupuncture",c("head_base"),"head","treat","id","time",1000,1,"CIR",54321,
+#'     "jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=1,K1=1,mle=0  )
 #' }
 
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
@@ -530,7 +534,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
                   # in case more than 1 interim in patt group
                     for (it_interim in 1:mg[i,"cases"]) {
                     
-                      cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))      
+                #1902      cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))      
                       #cat("\n",treatvar ," = ", trtgp,"patt = ",pattern,"number cases = ", cnt) }
                       #cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]),"id"] ))
                       }
@@ -1111,10 +1115,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 # below not appropriate because need long format but no need to do anyway , instead  
 # need to substitute back into mata_Obs 
 # do.call( preprodata,list( rawplusinterim ,covar,depvar,treatvar,idvar,timevar,M,reference,method))
+ 
 
-
-#' @title getimpdatasets
-#' @description to obtain the M imputed data set from the output list into one dataset
+#' @title to obtain the M'th imputed data set from the output list into one dataset
+#' @description to append the M imputed data sets wit hte original unimputed data
 #' @details This combines the imputations found from the M pattern groups
 #' @param varlist  list of data containing imputed values from the M pattern groups
 #' @return impdatasets
@@ -1219,8 +1223,8 @@ getimpdatasets <- function(varlist){
 #' @name mimix
 NULL     
 
-#' @title pass2Loop
-#' @description 2nd pass for specifued model after 1st pass MAR ran
+#' @title  Performs the imputation for the specified method after MAR ran
+#' @description 2nd pass for specified method after 1st pass MAR ran
 #' @details reads the summary table based on missing data pattern- mg  mimix_group                                                                   
 #' @details reflects the pattern and treatment group configuration of the raw data
 #' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
@@ -1886,7 +1890,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   return(impdataset) 
 }     
 
-#' @title fillinterims
+#' @title fills missing interims distinguishing from post-discontinuation
 #' @description fills missing interims distinguishing from post-discontinuation
 #' @details checks methodindiv not null
 #' @param impdata the data with missing values 
@@ -1973,4 +1977,19 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   return(list(impMarint0,test1611impD))
 }
 
-
+# mimix: A package porting the Stata mimix command  
+#
+# The mimix package provides the functionality of the Stata package plus
+# delta and causal methods
+# 
+# @section Comparison with Stata:
+# details here ...
+# 
+# @section Comparison with SAS:
+# details here ...
+# 
+#
+# @docType package
+# @name mimix
+#NULL
+#> NULL
