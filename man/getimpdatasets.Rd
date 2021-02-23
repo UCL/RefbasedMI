@@ -2,7 +2,7 @@
 % Please edit documentation in R/Runmimix.R
 \name{getimpdatasets}
 \alias{getimpdatasets}
-\title{getimpdatasets}
+\title{to obtain the M'th imputed data set from the output list into one dataset}
 \usage{
 getimpdatasets(varlist)
 }
@@ -13,7 +13,7 @@ getimpdatasets(varlist)
 impdatasets
 }
 \description{
-to obtain the M imputed data set from the output list into one dataset
+to append the M imputed data sets wit hte original unimputed data
 }
 \details{
 This combines the imputations found from the M pattern groups

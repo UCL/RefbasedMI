@@ -2,7 +2,7 @@
 % Please edit documentation in R/proprocess.R
 \name{ifmethodindiv}
 \alias{ifmethodindiv}
-\title{ifmethodindiv}
+\title{performs imputation for individual-specific method}
 \usage{
 ifmethodindiv(
   methodvar,

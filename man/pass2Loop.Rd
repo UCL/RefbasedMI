@@ -2,7 +2,7 @@
 % Please edit documentation in R/Runmimix.R
 \name{pass2Loop}
 \alias{pass2Loop}
-\title{pass2Loop}
+\title{Performs the imputation for the specified method after MAR ran}
 \usage{
 pass2Loop(
   Imp_Interims,
@@ -71,7 +71,7 @@ pass2Loop(
 impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 }
 \description{
-2nd pass for specifued model after 1st pass MAR ran
+2nd pass for specified method after 1st pass MAR ran
 }
 \details{
 reads the summary table based on missing data pattern- mg  mimix_group

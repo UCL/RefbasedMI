@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{LMCF_loop}
 \alias{LMCF_loop}
-\title{LMCF_loop}
+\title{process LMCF method}
 \usage{
 LMCF_loop(c_mata_miss, mata_Means)
 }
@@ -19,4 +19,8 @@ process LMCF method
 }
 \details{
 This is based on Suzie Cro's Stata program
+
+when no observed data first mean is used in Stata
+
+may be different here
 }

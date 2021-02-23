@@ -2,7 +2,7 @@
 % Please edit documentation in R/proprocess.R
 \name{preproIndivdata}
 \alias{preproIndivdata}
-\title{preproIndivdata}
+\title{pre-process long longitudinal data into wide format for individual-specific}
 \usage{
 preproIndivdata(
   data,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{Causal_loop}
 \alias{Causal_loop}
-\title{Causal_loop}
+\title{process Causal method}
 \usage{
 Causal_loop(c_mata_miss, mata_Means, MeansC, K0, K1)
 }

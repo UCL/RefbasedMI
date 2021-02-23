@@ -2,7 +2,7 @@
 % Please edit documentation in R/proprocess.R
 \name{preprodata}
 \alias{preprodata}
-\title{preprodata}
+\title{pre-process long longitudinal data into wide format}
 \usage{
 preprodata(
   data,

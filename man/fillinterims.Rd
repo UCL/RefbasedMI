@@ -2,7 +2,7 @@
 % Please edit documentation in R/Runmimix.R
 \name{fillinterims}
 \alias{fillinterims}
-\title{fillinterims}
+\title{fills missing interims distinguishing from post-discontinuation}
 \usage{
 fillinterims(impdata, interims, Mimp = M)
 }
@@ -17,7 +17,7 @@ fillinterims(impdata, interims, Mimp = M)
 list of 1st data set with interims imputed plus M interim cases of each interim case to be matche in 2nd pass
 }
 \description{
-fills missing interims distinguising from post-discontinuation
+fills missing interims distinguishing from post-discontinuation
 }
 \details{
 checks methodindiv not null

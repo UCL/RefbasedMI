@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{CIR_loop}
 \alias{CIR_loop}
-\title{CIR_loop}
+\title{process CIR method}
 \usage{
 CIR_loop(c_mata_miss, mata_Means, MeansC)
 }

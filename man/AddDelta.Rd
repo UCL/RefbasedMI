@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{AddDelta}
 \alias{AddDelta}
-\title{AddDelta}
+\title{ddd delta's to imputed values}
 \usage{
 AddDelta(vec_tst, ncovar, mata_imp, delta, dlag)
 }

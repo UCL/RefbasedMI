@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{analyselist}
 \alias{analyselist}
-\title{analyselist}
+\title{find descriptive stats on the  M imputed data set}
 \usage{
 analyselist(id, datlist, varlist)
 }

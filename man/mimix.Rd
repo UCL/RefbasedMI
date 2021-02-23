@@ -3,7 +3,7 @@
 \docType{package}
 \name{mimix}
 \alias{mimix}
-\title{mimix}
+\title{Main function for performing reference-based multiple imputation of longitudinal data}
 \usage{
 mimix(
   data,
@@ -95,8 +95,11 @@ Also the function Addelta to add delta adjustment to the imputed estimates
 }
 \examples{
 \dontrun{
-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
-fit<-with(data= as.mids(impdataCausal), expr = lm(fev.12~treat+base))
+mimixout<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+library(mice)
+fit<-with(data= as.mids(mimixout),expr = lm(fev.12~treat+base))
 summary(pool(fit))
+mimix("acupuncture",c("head_base"),"head","treat","id","time",1000,1,"CIR",54321,
+    "jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=1,K1=1,mle=0  )
 }
 }
