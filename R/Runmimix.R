@@ -1908,14 +1908,14 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   impMarint_dt <- data.table::as.data.table(impdata)
   interims_dt <- data.table::as.data.table(interims)
   
-  #browser(text="setkey 1112")
+  #browser(text="2402")
   
   data.table::setkey(impMarint_dt,.id)
   data.table::setkey(interims_dt,V1)
   #merge
-  (impMarint_dt[interims_dt])
+  #(impMarint_dt[interims_dt])
   # convert to 0, 1 =missing
-  sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
+  # sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
   # exclude last non-response cols
   test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
   test10x<-test10[,c(1:(ncol(test10)-3))]
