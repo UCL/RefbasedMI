@@ -1,28 +1,30 @@
-Package: rmimixpackage
-Type: Package
-Title: Reference-based imputation for longitudinal clinical trials with protocol deviation  
-Version: 0.1.0.9000
-Author: Kevin McGrath 
-Maintainer: Kevin McGrath <Kevin.McGrath@ucl.ac.uk>
-Description: An implementation of the mimix Stata package. Imputes missing numerical outcomes 
-    for a longitudinal trial with protocol deviation under distinct treatment arm-based assumptions
-    for the unobserved data, following the general algorithm of Carpenter, Roger, and Kenward (2013).
+Package: mimix
+Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
+Version: 0.0.10
+Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
+Maintainer: Ian White Ian.White <Ian.White@ucl.ac.uk>
+Description: An implementation of the mimix Stata package written by Suzie Cro. 
+    Imputes missing numerical outcomes for a longitudinal trial with protocol deviation
+    under distinct treatment arm-based assumptions for the unobserved data,
+    following the general algorithm of Carpenter, Roger, and Kenward (2013).
     The imputation methods are missing at random (mar),jump to reference (j2r), 
-    last mean carried forward (lmcf),
-    copy increments in reference (cir) and copy refrence (cr). As well these options a
-    further option allowing   the causal model (see White, Joseph and Best, 2019) is implemented.
+    last mean carried forward (lmcf),copy increments in reference (cir) and copy refrence (cr).
+    Additonal options implement the Causal model (see White, Joseph and Best, 2019) and the Delta method.
     The j2r,cir and cr methods must specify the reference treatment arm.
-    Individual-specific imputation methods (and their reference groups) can also be specified by 
-    2 columns in the input data set. However this is mutually exclusive of specifying the
-    overall method and both should not simultaneously be specified.    
-URL: http://missingdata.org.uk , https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7048106/
+    Individual-specific imputation methods (and their reference groups) can be specified by including said 
+    values as columns in the input data set. Both methods must not be simultaneously specified.
+    The M imputed data sets are output concatenated as one large data-set appended to    
+    the original unimputed data-set. Conversion to mids data type using the mice package enables
+    modelling under Rubin's rules.
+URL: https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#sensitivity-analysis, 
 License: GPL-3 
 Encoding: UTF-8
 LazyData: true
 Imports:
-     Hmisc,
-     norm2,
-     pastecs,
-RoxygenNote: 7.1.0
-Suggests: 
-    testthat
+  data.table,
+  Hmisc,
+  norm2,
+  mice,
+  pastecs
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
