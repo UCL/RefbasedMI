@@ -14,19 +14,19 @@ acupuncture
 A dataset containing trial results of a randomised, double-blind, parallel-group studies comparing active treatment with placebo
 }
 \details{
-@format A data frame with 688 rows and 14 columns
- \describe{
- \item{id}{}
- \item{time}{}
- \item{age}{}
- \item{sex}{}
- \item{migraine}{}
- \item{chronicity}{}
- \item{practice_id}{}
- \item{treat}{}
- \item{head_base}{}
- \item{head}{}
- \item{withdrawal_reason}{}
- }
+@format A data frame with 802 rows and 11 columns
+\describe{
+\item{id}{}
+\item{time}{}
+\item{age}{}
+\item{sex}{}
+\item{migraine}{}
+\item{chronicity}{}
+\item{practice_id}{}
+\item{treat}{}
+\item{head_base}{}
+\item{head}{}
+\item{withdrawal_reason}{}
+}
 }
 \keyword{datasets}

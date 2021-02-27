@@ -2,14 +2,14 @@
 % Please edit documentation in R/utilities.R
 \name{LMCF_loop}
 \alias{LMCF_loop}
-\title{LMCF_loop}
+\title{process LMCF method}
 \usage{
 LMCF_loop(c_mata_miss, mata_Means)
 }
 \arguments{
-\item{c_mata_miss}{vector of missing}
+\item{c_mata_miss}{vector of col locaton of missing values , eg 5 6}
 
-\item{mata_Means}{fill-in here}
+\item{mata_Means}{vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2}
 }
 \value{
 mata_means
@@ -19,4 +19,8 @@ process LMCF method
 }
 \details{
 This is based on Suzie Cro's Stata program
+
+when no observed data first mean is used in Stata
+
+may be different here
 }

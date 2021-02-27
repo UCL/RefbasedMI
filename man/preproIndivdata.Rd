@@ -2,7 +2,7 @@
 % Please edit documentation in R/proprocess.R
 \name{preproIndivdata}
 \alias{preproIndivdata}
-\title{preproIndivdata}
+\title{pre-process long longitudinal data into wide format for individual-specific}
 \usage{
 preproIndivdata(
   data,
@@ -12,9 +12,10 @@ preproIndivdata(
   idvar,
   timevar,
   M,
-  refer = null,
-  meth = null,
-  methodindiv
+  reference = NULL,
+  method = NULL,
+  methodvar,
+  referencevar
 )
 }
 \arguments{
@@ -32,11 +33,13 @@ preproIndivdata(
 
 \item{M}{number imputations}
 
-\item{refer}{reference group must be NULL}
+\item{reference}{reference group must be NULL}
 
-\item{meth}{RBI method  must be NULL}
+\item{method}{RBI method  must be NULL}
 
-\item{methodindiv}{list of c(method, reference) column location in data specifying individual RBI methods and references}
+\item{methodvar}{column location in data specifying individual RBI methods}
+
+\item{referencevar}{column location in data specifying individual reference group for RBI method}
 }
 \value{
 list of outputs
@@ -45,5 +48,5 @@ list of outputs
 process data into wide format for individual-specified method
 }
 \details{
-checks methodindiv finds missingness pattern
+checks methodvar finds missingness pattern
 }

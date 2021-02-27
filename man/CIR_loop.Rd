@@ -2,16 +2,16 @@
 % Please edit documentation in R/utilities.R
 \name{CIR_loop}
 \alias{CIR_loop}
-\title{CIR_loop}
+\title{process CIR method}
 \usage{
 CIR_loop(c_mata_miss, mata_Means, MeansC)
 }
 \arguments{
-\item{c_mata_miss}{vector of missing}
+\item{c_mata_miss}{vector of col locaton of missing values , eg 5 6}
 
-\item{mata_Means}{fill-in here}
+\item{mata_Means}{vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2}
 
-\item{MeansC}{fill-in}
+\item{MeansC}{vector of means after mcmc draws using variance from reference group}
 }
 \value{
 mata_means

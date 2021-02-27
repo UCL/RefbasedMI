@@ -2,7 +2,7 @@
 % Please edit documentation in R/proprocess.R
 \name{preprodata}
 \alias{preprodata}
-\title{preprodata}
+\title{pre-process long longitudinal data into wide format}
 \usage{
 preprodata(
   data,
@@ -12,8 +12,8 @@ preprodata(
   idvar,
   timevar,
   M,
-  refer,
-  meth = NULL
+  reference,
+  method = NULL
 )
 }
 \arguments{
@@ -31,9 +31,9 @@ preprodata(
 
 \item{M}{number imputations}
 
-\item{refer}{refernce group}
+\item{reference}{reference group}
 
-\item{meth}{RBI method}
+\item{method}{RBI method}
 }
 \value{
 list of outputs

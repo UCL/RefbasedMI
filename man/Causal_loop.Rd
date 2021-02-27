@@ -2,18 +2,20 @@
 % Please edit documentation in R/utilities.R
 \name{Causal_loop}
 \alias{Causal_loop}
-\title{Causal_loop}
+\title{process Causal method}
 \usage{
-Causal_loop(c_mata_miss, mata_Means, MeansC, Kd)
+Causal_loop(c_mata_miss, mata_Means, MeansC, K0, K1)
 }
 \arguments{
-\item{c_mata_miss}{vector of missing}
+\item{c_mata_miss}{vector of col locaton of missing values , eg 5 6}
 
-\item{mata_Means}{fill-in here}
+\item{mata_Means}{vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2}
 
-\item{MeansC}{fill-in}
+\item{MeansC}{vector of means after mcmc draws using variance from reference group}
 
-\item{Kd}{parameter that makes it between J2R and CIR, value 1 equiv to CIR}
+\item{K0}{Causal constant for use with Causal method}
+
+\item{K1}{exponential decaying Causal constant for use with Causal method  0<k1<1}
 }
 \value{
 mata_means
@@ -22,5 +24,5 @@ mata_means
 process Causal method
 }
 \details{
-This is based on Suzie Cro's Stata program
+This is based on "White,Royes,Best" paper
 }

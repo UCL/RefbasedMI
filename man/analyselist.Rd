@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{analyselist}
 \alias{analyselist}
-\title{analyselist}
+\title{find descriptive stats on the  M imputed data set}
 \usage{
 analyselist(id, datlist, varlist)
 }
@@ -11,7 +11,7 @@ analyselist(id, datlist, varlist)
 
 \item{datlist}{imputed dataset of M imputations}
 
-\item{varlist}{list of derived variables}
+\item{varlist}{list of derived variables ,varlist <- c("fev.2","fev.4","fev.8","fev.12","base")}
 }
 \value{
 printout of descriptve stats
@@ -21,4 +21,10 @@ find descriptive stats on the  M imputed data set
 }
 \details{
 select on patient id and find their means etc
+}
+\examples{
+\dontrun{
+varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
+analyselist(5099,impdataset,varlist)
+}
 }

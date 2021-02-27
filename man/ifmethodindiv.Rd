@@ -2,10 +2,11 @@
 % Please edit documentation in R/proprocess.R
 \name{ifmethodindiv}
 \alias{ifmethodindiv}
-\title{ifmethodindiv}
+\title{performs imputation for individual-specific method}
 \usage{
 ifmethodindiv(
-  methodindiv,
+  methodvar,
+  referencevar,
   mg,
   m,
   M,
@@ -15,11 +16,15 @@ ifmethodindiv(
   c_mata_nonmiss,
   c_mata_miss,
   mata_miss,
-  mata_nonmiss
+  mata_nonmiss,
+  K0,
+  K1
 )
 }
 \arguments{
-\item{methodindiv}{c(method,reference) cols}
+\item{methodvar}{individual method col}
+
+\item{referencevar}{individual reference col}
 
 \item{mg}{pattern lookup table}
 
@@ -29,20 +34,24 @@ ifmethodindiv(
 
 \item{paramBiglist}{list of Beta and Sigma parameters from mcmc}
 
-\item{i}{in loop throug mg rows}
+\item{i}{in loop through mg rows}
 
 \item{treatvar}{treatment group}
 
-\item{c_mata_nonmiss}{0,1 vector of nonmissing}
+\item{c_mata_nonmiss}{vector of positions of nonmissing}
 
-\item{c_mata_miss}{0,1 vector of missing}
+\item{c_mata_miss}{2,3,4 vector of missing positionals}
 
-\item{mata_miss}{position of missing values in repeated time visits}
+\item{mata_miss}{0,1 indicators of missing values in repeated time visits}
 
-\item{mata_nonmiss}{positions of nonmissing values}
+\item{mata_nonmiss}{0,1 indicators of nonmissing values}
+
+\item{K0}{Causal constant for use with Causal method}
+
+\item{K1}{exponential decaying Causal constant for use with Causal method}
 }
 \value{
-mata_means
+list of outputs
 }
 \description{
 alternative logic for individual method
