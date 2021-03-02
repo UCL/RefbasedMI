@@ -37,6 +37,7 @@
 #'     "jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=1,K1=1,mle=0  )
 #' }
 
+# v0.0.11
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
@@ -358,10 +359,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   else {
     cat("\nImputing missing values using individual-specific method:\n\n")
   }
+  
+  #browser(text="0103")
   #initialise interim 
   interim<-0
   # construct structure to savde interim ids but this get reinitialised to many times!
   interim_id<- mata_Obs[c(mg[1,1]),"id"] 
+  
   #interim_pos <- c(0,0,0,0,0)
   
   #18/11 see if rawplusinterim works here!
@@ -542,13 +546,14 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
                     # construct vector to save interims ids
                #11/11   interim_id <- rbind(interim_id, mata_Obs[c(mg[i,"cumcases"]),"id"] )  
                 
-                   
+                 # browser(text="0103") # check logic ,eg c_mata_miss 45  
                   
                 } else 
                 # note that if all missing then wont be interims and c_mata_nonmiss is integer(0) ie NUL
-          if (length(c_mata_nonmiss)!=0) {(c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) }   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!  
+          #if (length(c_mata_nonmiss)!=0) {(c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) }   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!  
                   #  cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition   
-                { interim<-1
+                if ( (length(c_mata_nonmiss)!=0) & (c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)))   #{print("tf")}
+              { interim<-1
                 } #need to include outside the for loop  when condition b=miss_count
               } #if
             } #for
@@ -832,6 +837,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 # check for interim 11/11 
   # browser(text="0201")
   # only check for interims if not indiv specifc 1102
+#  browser(text="0103")  # check catching interims correct;  
   if (flag_indiv==0) {
     if ( (interim==1) & (length(c_mata_miss)!=0))
       {
@@ -873,7 +879,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
  # browser(text="0912 check mata_Obs id col")
  # browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
-
+  
   # if regression requested
   #If (regress = TRUE) {
   #     impdatamids <- as.mids(impdataset,  .id="SNO",.imp="II")
@@ -906,15 +912,27 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
      #rawplusinterim <- fillinterims(impdataset,interim_id,Mimp=M)
     
      # browser(text="0202")
-     rawplusinterim <- fillinterims(impdataset,interim_id,M)
+      # add col name to interim_id
+      
+     colnames(interim_id)<-idvar
+     rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar)
+ #    browser(text="0103") # check deriving  mata_Obs!!
+     
+     #check .id in correrct ccols for mata_Obs
      Imp_Interims<<-rawplusinterim[[2]] 
      #0312
-    # browser(text="0312")
+   # browser(text="2802")
      # 1sty obtain rawplusinterim_1
      test1611impD<-rawplusinterim[[2]]
      test1611imp1<-subset(as.matrix(test1611impD[test1611impD$.imp==1,]))
      # need match with mata_Obs
      impMarint0<-rawplusinterim[[1]]
+     
+     # error here! when cols miss-aligned as .id at end in one data set  rather than beginning as in the other ,readjust in fillinterms!!!  
+     
+     # all cols  need be in same pose, .id need brough to 1st col from last col 
+     # sould be ok now  perhaps check that this is true!
+    # impMarint0<- impMarint0[,c(which(colnames(impMarint0)==".id"),which(colnames(impMarint0)!=".id"))]
      
      impMarint0[impMarint0[,'.id'] %in% test1611imp1[,'.id'], ] <- test1611imp1
      impMarint1 <-impMarint0 
@@ -1031,7 +1049,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   # to be consistent with Stata move the base col after the fevs!
   #mata_Obs <- testlist$finaldatS
  # mata_Obs <- test2211[[1]]
- # browser(text="0301")
+ 
   mata_Obs<- finaldatSS
   #trweat pos need to be last?
   colx<-grep(treatvar,colnames(mata_Obs))
@@ -1043,7 +1061,14 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   idcol<- grep(paste0(".id"),colnames(mata_Obs))
   # beginning mata_Obs.reorder<-mata_Obs[,c(idcol,2:(idcol-1),(idcol+1):length(mata_Obs))]
   #this only has to be done once !! better to do it at beinning of call
-  mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
+  # movde id co to last col
+  #if (idcol==1) {  
+   # mata_Obs.reorder<-mata_Obs[,c((idcol+1):length(mata_Obs),idcol)]
+  #}else{  
+  
+  # dont think nee this? 
+ #  mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
+  #}
   mata_Obs<-mata_Obs.reorder
   
   
@@ -1081,6 +1106,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   if (flag_indiv==1) {
        return(impdataset)
     } else {
+      
+ # Imp_interims  consists of unimputed record followwed by imputed record for each m     
  testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
     }
  #browser(text="0702")
@@ -1259,7 +1286,8 @@ NULL
 
 pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
 {  
-  #browser(text="0702")
+#  browser(text="2802")
+  # WARNING!!  check tail mata_Obs   
   # mle option? 
   # this doesnt call proprocess as data already in wide format 
   # for reporting purposes try here rather than runmimix
@@ -1407,7 +1435,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     
    
       # actually faster using match than fmatch
-    
+      
+      # WARNINg !! check that col pos are same 
+      # this is where the interim values are inserted into mat_Obs baed on id 
       for ( pos in 1:length(depcols)) {
         df1[,depcols[pos]][match(df2$.id,df1$.id)]<-df2[,depcols[pos]]
       }      
@@ -1891,16 +1921,17 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 }     
 
 #' @title fills missing interims distinguishing from post-discontinuation
-#' @description fills missing interims distinguishing from post-discontinuation
+#' @description fills missing interims (ie prior to post-discontinuation) assuming MAR 
 #' @details checks methodindiv not null
-#' @param impdata the data with missing values 
-#' @param interims the interim cases with estimated MAR values
+#' @param impdata the imputed data under MAR for m=0 to M   
+#' @param interims the interim id's 
 #' @param Mimp the number of imputations specified , ie M total imputsations
+#' @param idvar the patient id 
 #' @return list of 1st data set with interims imputed plus M interim cases of each interim case to be matche in 2nd pass  
 
 
-fillinterims<- function(impdata,interims,Mimp=M ) {
-  browser(text="2602")
+fillinterims<- function(impdata,interims,Mimp=M,idvar ) {
+ # browser(text="2602")
   #0312 browser(text="not means")
   #2711browser(text="find estimate over all imps")
   #convert to data.table
@@ -1909,20 +1940,43 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   interims_dt <- data.table::as.data.table(interims)
   
   #browser(text="2402")
+  # to stop odd error   [,default'(x,i) : invalid subscript type list , use merge instead of impMarint_dt[interims_dt] 
+  
   
   data.table::setkey(impMarint_dt,.id)
-  data.table::setkey(interims_dt,V1)
-  #merge
+  # doesnr recognise idvar
+  #data.table::setkey(interims_dt, idvar)
+  
+  # the data.table  bracket method  causes problems when package downloaded from giythub
+  # so replace with merge (like a rght join)
+  #impboth<-impMarint_dt[interims_dt]
+  # need merge on common name so to rename ,only if use merge?
+  #data.table::setnames(interims_dt,old="V1",new=".id")
+
+  # replacing this which extracts the interim rows from imputed data  
+  #impMarint_dt[interims_dt])
+  #impboth<- merge(impMarint_dt,interims_dt)
+  tmpdata<-merge(impdata, interims ,by.x=  ".id",by.y= idvar)
+  # but to be the same as impMarint_dt[interims_dt]) need to move id to last col and sort 
+  tmpdata<-tmpdata[,c(2:(ncol(tmpdata)),1)]
+  impboth<-tmpdata[order(tmpdata$.id,tmpdata$.imp),]
+  
+  
+  # this is the wrong merge!
+  #impboth<- merge(impMarint_dt,interims_dt,by=".id") 
+  
   #(impMarint_dt[interims_dt])
   # convert to 0, 1 =missing
   # sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
   # exclude last non-response cols
-  test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
+  #test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
+  test10<-sapply(impboth,function(x) ifelse(is.na(x) ,1,0) )
   test10x<-test10[,c(1:(ncol(test10)-3))]
   # find max non-missing
   lastvalid<-apply(test10x,1, function(x) max(which(x==0))  )
   #merge back
-  test1611<-cbind(impMarint_dt[interims_dt],lastvalid)
+ #test1611<-cbind(impMarint_dt[interims_dt],lastvalid)
+  test1611<-cbind(impboth,lastvalid)
   #if (test1611$.id == shift(test1611$.id,-1) ) {
   
   # over many imps, find mean value by interims for imp>0 then combineback to
@@ -1968,11 +2022,24 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   test1611impD02<-as.matrix(test1611impD[test1611impD$.imp==2,])
   #test1611impD02<-as.matrix(test1611impDl[test1611impDl[,1]==2,])
   
+#  browser(text="2802")
+  # the .id col in impMarint must be sent to the 1st col to align with test1611impD
+  #impMarint[,c(ncol(impMarint),1:(ncol(impMarint)-1))]
+  # maybe use after fillnterins called?
+  #neworder<- c(which(colnames(impMarint_dt)==".id"),which(colnames(impMarint_dt)!=".id"))
+  #data.table::setcolorder(impMarint_dt,neworder)
+  
+  # is ths necessary??
   impMarint <- as.matrix(impMarint_dt)
+  
+  
   impMarint0<-as.matrix(impMarint_dt[impMarint_dt$.imp==0,])
   # this works well (but MUST Be MATRICES)   
   #212 impMarint0[impMarint0[,'.id'] %in% test1611impD02[,'.id'], ] <- test1611impD02
   # so .imp=0 now has interims filled and can be treated as original data  
+  
+  # return imputed at imp=0 plus interims imputed values
+  # but tr make sure sae vars in eah to facilitae replacement 
   
   return(list(impMarint0,test1611impD))
 }
