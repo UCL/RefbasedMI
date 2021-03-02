@@ -4,20 +4,22 @@
 \alias{fillinterims}
 \title{fills missing interims distinguishing from post-discontinuation}
 \usage{
-fillinterims(impdata, interims, Mimp = M)
+fillinterims(impdata, interims, Mimp = M, idvar)
 }
 \arguments{
-\item{impdata}{the data with missing values}
+\item{impdata}{the imputed data under MAR for m=0 to M}
 
-\item{interims}{the interim cases with estimated MAR values}
+\item{interims}{the interim id's}
 
 \item{Mimp}{the number of imputations specified , ie M total imputsations}
+
+\item{idvar}{the patient id}
 }
 \value{
 list of 1st data set with interims imputed plus M interim cases of each interim case to be matche in 2nd pass
 }
 \description{
-fills missing interims distinguishing from post-discontinuation
+fills missing interims (ie prior to post-discontinuation) assuming MAR
 }
 \details{
 checks methodindiv not null
