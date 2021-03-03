@@ -40,14 +40,14 @@
 
 
 
-\title{mimix: Reference-based imputation of missing data}
+\title{\texttt{mimix}: Reference-based imputation of missing data}
 \author{by Ian R White, Kevin McGrath, Matteo Quartagno, Suzie M Cro and James Carpenter}
 
 \maketitle
 
 \abstract{
 Reference-based imputation is a multiple imputation technique which imputes quantitative outcome data that are missing after participant discontinuation of allocated treatment in a randomised trial.
-We present and describe an R package, mimix, for performing reference-based imputation, including a causal model variant, and we compare its implementation with that in SAS and Stata.
+We present and describe an R package, \texttt{mimix}, for performing reference-based imputation, including a causal model variant, and we compare its implementation with that in SAS and Stata.
 }
 
 \section{Introduction}
@@ -70,7 +70,7 @@ A practical guide to their use is given by \citet{Cro++20}.
 % Aims of paper
 We have implemented the RBI methods in a new R package, which includes the a full implementation of the causal model. 
 The causal model was previously specified for a two-arm trial and has been extended here for a multi-arm trial.
-The aim of this paper is to describe our implementation of mimix in R, to illustrate its use, and to describe its novel features by comparison with the implementations in SAS and Stata.
+The aim of this paper is to describe our implementation of \texttt{mimix} in R, to illustrate its use, and to describe its novel features by comparison with the implementations in SAS and Stata.
 
 % \section{Another section}
 %
@@ -249,9 +249,14 @@ Delta adjustment can apply either with RBI or the causal method and is always ap
 
 Interim missing values are values that are missing while the individual remains on treatment and are identified by being followed by later observed values. They are always imputed under MAR. Imputing interim missing values in a different way from post-discontinuation missing values is the procedure that is most likely to be appropriate in practice, since interim missing values that occur while on treatment are unlikely to follow the same pattern as post-discontinuation missing values that occur when off treatment. This differs from the behaviour of the Stata package \citep{Cro++16} which by default imputes interim missing values using the same procedure as post-discontinuation values, with MAR as an option.
 
+[ADD SOMETHING ON INDIVIDUALS WITH NO OBSERVED VALUES?]
+
 \subsection{Covariates}
 
-Covariates are handled ... [HOW? IAN THINK]
+Covariates are used to improve the plausibility of MAR assumptions and to improve the precision of imputed values \citep{ian:MItutorial}. 
+In \texttt{mimix}, they are included in the multivariate normal model fitting as part of the variable $Y_0$. [KEVIN IS THIS CORRECT? MIGHT THEY BE WRONGLY CARRIED FORWARD UNDER LMCF?]
+
+Missing values in covariates are not allowed in \texttt{mimix}. For these missing values in the randomised setting, single imputation methods are preferred, so mean imputation or the missing indicator method should be used before calling \texttt{mimix} \citep{ian:MIinRCTs}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -307,7 +312,7 @@ The program works through the following steps.
 \end{enumerate}
 The baseline value of the outcome could be handled as an outcome, but this would allow a treatment effect at baseline [IAN CHECK]. We instead recommend handling it as a covariate. 
 
-The program is based on Suzie Cro’s Stata program mimix.
+The program is based on Suzie Cro’s Stata program \texttt{mimix}.
 
 \subsection{Outputs}
 
