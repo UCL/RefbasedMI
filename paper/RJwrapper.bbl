@@ -1,4 +1,4 @@
-\begin{thebibliography}{8}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -16,11 +16,45 @@ J.~R. Carpenter, J.~H. Roger, and M.~G. Kenward.
 \newblock URL
   \url{http://www.tandfonline.com/doi/abs/10.1080/10543406.2013.834911}.
 
+\bibitem[Carpenter et~al.(2014)Carpenter, Roger, Cro, and
+  Kenward]{Carpenter++14}
+J.~R. Carpenter, J.~H. Roger, S.~Cro, and M.~G. Kenward.
+\newblock {Response to comments by Seaman et al. on ``Analysis of longitudinal
+  trials with protocol deviation: a framework for relevant, accessible
+  assumptions, and inference via multiple imputation'', Journal of
+  Biopharmaceutical Statistics 23:1352-1371}.
+\newblock \emph{Journal of Biopharmaceutical Statistics}, 24\penalty0
+  (6):\penalty0 1363--1369, nov 2014.
+\newblock ISSN 1054-3406.
+\newblock \doi{10.1080/10543406.2014.960085}.
+\newblock URL
+  \url{http://www.tandfonline.com/doi/abs/10.1080/10543406.2014.960085?journalCode=lbps20{\#}.VcxWpmd7R8E
+  http://www.tandfonline.com/doi/abs/10.1080/10543406.2014.960085}.
+
 \bibitem[Cro et~al.(2016)Cro, Morris, Kenward, and Carpenter]{Cro++16}
 S.~Cro, T.~P. Morris, M.~G. Kenward, and J.~R. Carpenter.
 \newblock {Reference-based sensitivity analysis via multiple imputation for
   longitudinal trials with protocol deviation}.
 \newblock \emph{Stata Journal}, 16\penalty0 (2):\penalty0 443--463, 2016.
+
+\bibitem[Cro et~al.(2019)Cro, Carpenter, and Kenward]{Cro++19}
+S.~Cro, J.~R. Carpenter, and M.~G. Kenward.
+\newblock {Information-anchored sensitivity analysis: theory and application}.
+\newblock \emph{Journal of the Royal Statistical Society: Series A (Statistics
+  in Society)}, 182\penalty0 (2):\penalty0 623--645, feb 2019.
+\newblock ISSN 09641998.
+\newblock \doi{10.1111/rssa.12423}.
+\newblock URL \url{http://doi.wiley.com/10.1111/rssa.12423}.
+
+\bibitem[Cro et~al.(2020)Cro, Morris, Kenward, and Carpenter]{Cro++20}
+S.~Cro, T.~P. Morris, M.~G. Kenward, and J.~R. Carpenter.
+\newblock {Sensitivity analysis for clinical trials with missing continuous
+  outcome data using controlled multiple imputation: A practical guide}.
+\newblock \emph{Statistics in Medicine}, 39\penalty0 (21):\penalty0 2815--2842,
+  sep 2020.
+\newblock ISSN 0277-6715.
+\newblock \doi{10.1002/sim.8569}.
+\newblock URL \url{https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.8569}.
 
 \bibitem[{International Council for Harmonisation of Technical Requirements for
   Pharmaceuticals for Human Use}(2019)]{ICHE9R1}
@@ -66,6 +100,17 @@ B.~Ratitch, M.~O'Kelly, and R.~Tosiello.
 D.~B. Rubin.
 \newblock \emph{{Multiple Imputation for Nonresponse in Surveys}}.
 \newblock John Wiley and Sons, New York, 1987.
+
+\bibitem[Seaman et~al.(2014)Seaman, Leacy, and White]{ian:Carpenter_letter}
+S.~Seaman, F.~Leacy, and I.~R. White.
+\newblock {Re: Analysis of Longitudinal Trials with Protocol Deviations --- a
+  Framework for Relevant, Accessible Assumptions, and Inference via Multiple
+  Imputation (Carpenter, Roger and Kenward, Journal of Biopharmaceutical
+  Statistics 2013;23:1352-1371)}.
+\newblock \emph{Journal of Biopharmaceutical Statistics}, 24:\penalty0
+  1358--1362, 2014.
+\newblock URL
+  \url{http://www.tandfonline.com/doi/full/10.1080/10543406.2014.928306}.
 
 \bibitem[White et~al.(2020)White, Joseph, and Best]{ian:RBIcausal}
 I.~R. White, R.~Joseph, and N.~Best.

@@ -6,45 +6,45 @@ The style file: abbrvnat.bst
 Reallocating 'name_of_file' (item size: 1) to 17 items.
 Database file #1: c:/latex/library.bib
 Warning--empty institution in ICHE9R1
-You've used 8 entries,
+You've used 12 entries,
             2773 wiz_defined-function locations,
-            665 strings with 7014 characters,
-and the built_in function-call counts, 3985 in all, are:
-= -- 376
-> -- 227
+            703 strings with 8586 characters,
+and the built_in function-call counts, 6301 in all, are:
+= -- 602
+> -- 365
 < -- 2
-+ -- 77
-- -- 69
-* -- 367
-:= -- 639
-add.period$ -- 38
-call.type$ -- 8
-change.case$ -- 47
-chr.to.int$ -- 8
-cite$ -- 17
-duplicate$ -- 161
-empty$ -- 301
-format.name$ -- 77
-if$ -- 809
++ -- 123
+- -- 111
+* -- 597
+:= -- 1001
+add.period$ -- 60
+call.type$ -- 12
+change.case$ -- 73
+chr.to.int$ -- 12
+cite$ -- 25
+duplicate$ -- 245
+empty$ -- 470
+format.name$ -- 123
+if$ -- 1284
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 8
-newline$ -- 62
-num.names$ -- 32
-pop$ -- 70
+missing$ -- 12
+newline$ -- 92
+num.names$ -- 48
+pop$ -- 104
 preamble$ -- 1
-purify$ -- 39
+purify$ -- 61
 quote$ -- 0
-skip$ -- 114
+skip$ -- 173
 stack$ -- 0
-substring$ -- 166
-swap$ -- 10
+substring$ -- 292
+swap$ -- 17
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 83
+type$ -- 127
 warning$ -- 1
-while$ -- 36
+while$ -- 56
 width$ -- 0
-write$ -- 138
+write$ -- 210
 (There was 1 warning)
