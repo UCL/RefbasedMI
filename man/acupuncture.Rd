@@ -3,20 +3,13 @@
 \docType{data}
 \name{acupuncture}
 \alias{acupuncture}
-\title{acupuncture.}
+\title{Sample data: acupuncture trial
+A data set containing results of a randomised, double-blind, parallel-group comparing active treatment with placebo
+The primary outcome is head, measured at time 3 and 12}
 \format{
-An object of class \code{data.frame} with 802 rows and 11 columns.
-}
-\usage{
-acupuncture
-}
-\description{
-A dataset containing trial results of a randomised, double-blind, parallel-group studies comparing active treatment with placebo
-}
-\details{
-@format A data frame with 802 rows and 11 columns
+A data frame with 802 rows and 11 columns
 \describe{
-\item{id}{}
+\item{id}{patient identifier}{}
 \item{time}{}
 \item{age}{}
 \item{sex}{}
@@ -24,9 +17,25 @@ A dataset containing trial results of a randomised, double-blind, parallel-group
 \item{chronicity}{}
 \item{practice_id}{}
 \item{treat}{}
-\item{head_base}{}
-\item{head}{}
+\item{head_base}{covariate}{}
+\item{head}{dependent variable }{}
 \item{withdrawal_reason}{}
 }
+@examples
+\dontrun{
+ impCausalref1 <- mimix(data=acupuncture,covar=c("head_base","sex"),depvar=head,treatvar=treat,idvar=id,timevar=time,
+       method=Causal,reference=1,K0=1,K1=0.5,M=5,seed=54321)
+ library(mice)         
+ fit<-with(as.mids(impCausalref1), lm(head.12~treat+head_base+sex))  
+ summary(pool(fit))    
+ }
+}
+\usage{
+acupuncture
+}
+\description{
+Sample data: acupuncture trial
+A data set containing results of a randomised, double-blind, parallel-group comparing active treatment with placebo
+The primary outcome is head, measured at time 3 and 12
 }
 \keyword{datasets}

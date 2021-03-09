@@ -7,70 +7,70 @@
 \usage{
 mimix(
   data,
-  covar = NULL,
+  covar,
   depvar,
   treatvar,
   idvar,
   timevar,
-  M = 1,
-  reference = NULL,
   method = NULL,
-  seed = 101,
-  prior = "jeffreys",
-  burnin = 1000,
-  bbetween = NULL,
+  reference = NULL,
   methodvar = NULL,
   referencevar = NULL,
-  delta = NULL,
-  dlag = NULL,
   K0 = 1,
   K1 = 1,
+  delta = NULL,
+  dlag = NULL,
+  M = 1,
+  seed = 101,
+  prior = jeffreys,
+  burnin = 1000,
+  bbetween = NULL,
   mle = FALSE
 )
 }
 \arguments{
-\item{data}{Dataset in wide format}
+\item{data}{Dataset in long format}
 
-\item{covar}{Covariates - may include the baseline value of depvar. Must be complete (no missing values).}
+\item{covar}{Covariates - baseline.  Must be complete (no missing values), enclose in quotes.}
 
 \item{depvar}{Dependent (outcome) variable}
 
-\item{treatvar}{Treatment group, coded 1,2,..}
+\item{treatvar}{Treatment group, can be character}
 
-\item{idvar}{Participant id}
+\item{idvar}{Participant identifier.}
 
 \item{timevar}{Time point for repeated measure}
 
-\item{M}{Number of imputations to be created}
+\item{method}{Reference-based imputation method: must be J2R, CR, CIR, MAR, Causal or LMCF,enclose in quotes.}
 
 \item{reference}{Reference group for J2R, CIR, CR methods}
 
-\item{method}{Reference-based imputation method: must be ...}
+\item{methodvar}{column in data-set specifying individual method, enclose in quotes.}
 
-\item{seed}{Seed value. Specify this so that a new run of the command will give the same imputed values.}
-
-\item{prior}{Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge}
-
-\item{burnin}{Number of burn-in iterations when fitting multivariate normal distributions.}
-
-\item{bbetween}{Number of iterations between imputed data sets when fitting multivariate normal distributions.}
-
-\item{methodvar}{vector designating variable in data-set specifying individual method}
-
-\item{referencevar}{vector designating variable in data-set specifying reference group corresponding to individual method}
-
-\item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points}
-
-\item{dlag}{vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points}
+\item{referencevar}{column in data-set specifying reference group as forindividual method, enclose in quotes.}
 
 \item{K0}{Causal constant for use with Causal method}
 
 \item{K1}{exponential decaying Causal constant for use with Causal method}
 
-\item{mle}{logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters}
+\item{delta}{vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide),length as number of time points}
+
+\item{dlag}{vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros use guide),length as number of time points}
+
+\item{M}{Number of imputations to be created}
+
+\item{seed}{Seed value. Specify this so that a new run of the command will give the same imputed values.}
+
+\item{prior}{Prior when fitting multivariate normal distributions> It can be one of jeffreys (default), uniform or ridge}
+
+\item{burnin}{Number of burn-in iterations when fitting multivariate normal distributions.}
+
+\item{bbetween}{Number of iterations between imputed data sets when fitting multivariate normal distributions.}
+
+\item{mle}{logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters}
 }
 \value{
-impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
+The M imputed data sets are output concatenated as one large data frame appended to the original unimputed data
 }
 \description{
 main wrapper for running mimix
@@ -78,13 +78,45 @@ main wrapper for running mimix
 similar to the Stata mimix function
 }
 \details{
-This is based on Suzie Cro's Stata program
+The program works through the following steps
 
-sets up a summary table based on missing data pattern- mg  mimix_group
+\enumerate{
+\item set up a summary table based on treatment arm and missing data pattern
+}
 
-reflects the pattern and treatment group configuration of the raw data
+(i.e. which timepoints are unobserved)
 
-then acts as a looping mechanism, norm2 is used as MCMC multivariate normal
+\enumerate{
+\item Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2
+}
+
+\enumerate{
+\item Impute all interim missing values  under a MAR assumption, looping ove treatments and patterns
+}
+
+\enumerate{
+\item Impute post-discontinuation missing values under the user-specified assumption,
+}
+
+looping over treatments and patterns (and over methodvar and referncevar if specified)
+
+\enumerate{
+\item Perform delta-adjustment if specified
+}
+
+\enumerate{
+\item Repeat steps 2-5 M times and form into a single data frame
+}
+
+The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline
+
+We instead  recommend handling it as a covariate
+
+The program is based on Suzie Cro's Stata program mimix
+
+The user can use the as.mids() function in the mice package to convert the output data to mids data type and hence
+
+to perform analysis using Rubin's rules.
 
 The mimix package contains the functions preprodata and preproIndivdata to
 process long longitudinal data into wide data format
@@ -95,11 +127,16 @@ Also the function Addelta to add delta adjustment to the imputed estimates
 }
 \examples{
 \dontrun{
-mimixout<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+"performing jump to reference with treatment reference arm 1 on asthma trial data"  
+mimixout<-mimix(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,method="J2R",reference=1,M=5,seed=54321)
 library(mice)
+"Fitting regression model to find treatment effects using Rubin's rules by treating output data frame as.mids() object "
 fit<-with(data= as.mids(mimixout),expr = lm(fev.12~treat+base))
 summary(pool(fit))
-mimix("acupuncture",c("head_base"),"head","treat","id","time",1000,1,"CIR",54321,
-    "jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=1,K1=1,mle=0  )
+mimix(data=acupuncture,covar= c(head_base),depvar=head,treatvar=treat,idvar=id,timevar=time,method="CIR",reference=1,M=5,seed=54321,
+  prior=jeffreys,burnin=1000)
 }
+}
+\references{
+Roger J. (2017)  MissingmacroDoc38_DIAversion.doc
 }

@@ -3,10 +3,11 @@
 \docType{data}
 \name{antidepressant}
 \alias{antidepressant}
-\title{antidepressant.
-A data set containing  antidepressant trial data as described in paper by White,Royes,Best}
+\title{Sample data: antidepressant trial
+A data set containing antidepressant trial data as described in paper by White, Royes, Best (2019)
+The primary outcome is HAMD17.TOTAL measured at visit number 4,5,6,7.}
 \format{
-dataframe containing 688 rows and 14 columns
+A data frame containing 688 rows and 14 columns
 \describe{
 \item{PATIENT.NUMBER}{}
 \item{HAMA.TOTAL}{}
@@ -16,19 +17,28 @@ dataframe containing 688 rows and 14 columns
 \item{TREATMENT.NAME}{}
 \item{PATIENT.SEX}{}
 \item{POOLED.INVESTIGATOR}{}
-\item{basval}{}
-\item{HAMD17.TOTAL}{}
+\item{basval}{covariate}{}
+\item{HAMD17.TOTAL}{dependent variable}{}
 \item{change}{}
 \item{miss_flag}{}
-\item{methodcol}{}
-\item{referencecol}{}
+\item{methodcol}{individual-specific method}{}
+\item{referencecol}{individual-specific reference arm}{}
 }
+@examples
+\dontrun{
+ impIndiv <- mimix(data=antidepressant,covar=c("basval","PATIENT.SEX"),depvar=HAMD17.TOTAL,treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+       timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)
+ library(mice)  
+ fit<-with(data= as.mids(impantiIndivDt),lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+PATIENT.SEX))
+ summary(pool(fit))  
+ }
 }
 \usage{
 antidepressant
 }
 \description{
-antidepressant.
-A data set containing  antidepressant trial data as described in paper by White,Royes,Best
+Sample data: antidepressant trial
+A data set containing antidepressant trial data as described in paper by White, Royes, Best (2019)
+The primary outcome is HAMD17.TOTAL measured at visit number 4,5,6,7.
 }
 \keyword{datasets}

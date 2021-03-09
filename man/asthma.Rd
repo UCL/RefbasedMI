@@ -3,24 +3,34 @@
 \docType{data}
 \name{asthma}
 \alias{asthma}
-\title{asthma.}
+\title{Sample data: asthma trial
+A data set containing  asthma trial data as used in the Stata mimix help file
+The primary outcome variable is fev,  measured at 2,4,8,12 weeks}
 \format{
-An object of class \code{data.frame} with 732 rows and 5 columns.
+A data frame containing 732 rows and 5 columns
+\describe{
+\item{id} {patient identifier}{}
+\item{time}{}
+\item{treat}{}
+\item{base}{covariate}{}
+\item{fev}{dependent variable}{}
+}
 }
 \usage{
 asthma
 }
 \description{
-A dataset containing  asthma trial data as used in the Stata mimix help file
+Sample data: asthma trial
+A data set containing  asthma trial data as used in the Stata mimix help file
+The primary outcome variable is fev,  measured at 2,4,8,12 weeks
 }
-\details{
-@format A data frame containing 732 rows and 5 columns
-\describe{
-\item{id}{}
-\item{time}{}
-\item{treat}{}
-\item{base}{}
-\item{fev}{}
-}
+\examples{
+\dontrun{
+impJ2Rridge<-(mimix(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
+    method="J2R",reference=1,delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior=ridge,burnin=1000)
+library(mice)     
+fit<-with(data= as.mids(impJ2Rridge),lm(fev.12~treat))
+summary(pool(fit))    
+}  
 }
 \keyword{datasets}
