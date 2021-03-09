@@ -1,22 +1,19 @@
 Package: mimix
 Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
-Version: 0.0.11
+Version: 0.0.12
 Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
 Maintainer: Ian White Ian.White <Ian.White@ucl.ac.uk>
-Description: An implementation of the mimix Stata package written by Suzie Cro. 
-    Imputes missing numerical outcomes for a longitudinal trial with protocol deviation
-    under distinct treatment arm-based assumptions for the unobserved data,
-    following the general algorithm of Carpenter, Roger, and Kenward (2013).
-    The imputation methods are missing at random (mar),jump to reference (j2r), 
-    last mean carried forward (lmcf),copy increments in reference (cir) and copy refrence (cr).
-    Additonal options implement the Causal model (see White, Joseph and Best, 2019) and the Delta method.
-    The j2r,cir and cr methods must specify the reference treatment arm.
-    Individual-specific imputation methods (and their reference groups) can be specified by including said 
-    values as columns in the input data set. Both methods must not be simultaneously specified.
-    The M imputed data sets are output concatenated as one large data-set appended to    
-    the original unimputed data-set. Conversion to mids data type using the mice package enables
-    modelling under Rubin's rules.
-URL: https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#sensitivity-analysis, 
+Description: This package imputes missing numerical outcomes for a longitudinal trial with protocol deviations.
+    It uses distinct treatment arm-based assumptions for the unobserved data, following the general algorithm 
+    of Carpenter, Roger, and Kenward (2013), and the causal model model of White, Royes and Best (2019).
+    Sensitivity analysis to departures from these assumptions can be done by the Delta method of Roger.
+    The program is derived from the mimix Stata package written by Suzie Cro, with additional coding for
+    the causal model and delta method.
+    The reference-based methods are jump to reference (J2R), copy increments in reference (CIR), copy reference (CR),
+    and the causal model, all of which must specify the reference treatment arm. Other methods are
+    missing at random (MAR) and the last mean carried forward (LMCF). Individual-specific imputation methods (and their reference 
+    groups) can be specified.  
+URL: https://https://github.com/UCL/mimix 
 License: GPL-3 
 Encoding: UTF-8
 LazyData: true
