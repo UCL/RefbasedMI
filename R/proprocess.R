@@ -16,6 +16,8 @@
 
 
 #preprocess data for group method
+#edits to get("data" 05/01/21)
+
 preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,method=NULL)  {
   #extract relevant vars
    
@@ -27,11 +29,11 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
     # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
   ##2311 make sure .id is id ! 
   #browser()
-    fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar)]
+    fevdata<- get("data")[c(idvar,covar,depvar,timevar,treatvar)]
   # extract covar cols 1 row per id to merge onto the wide data
-    uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
-    ntreatcol<- get(data)[c(treatvar)]
-    ntimecol<- get(data)[c(timevar)]
+    uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
+    ntreatcol<- get("data")[c(treatvar)]
+    ntimecol<- get("data")[c(timevar)]
 
 
 
@@ -79,7 +81,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
   # process no covars
 
-  testfevdata<- get(data)[c(idvar,depvar,timevar)]
+  testfevdata<- get("data")[c(idvar,depvar,timevar)]
   sts4dummy<-stats::reshape(testfevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   STSdummy<- apply(sts4dummy[,grepl(depvar,names(sts4dummy))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
 
@@ -224,11 +226,11 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=NULL,method=NULL,methodvar,referencevar)  {
  #browser()
   #check covars complete
-  stopifnot(sum(is.na(get(data)[,covar]))==0)
+  stopifnot(sum(is.na(get("data")[,covar]))==0)
   #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))!=0,error=stop("Error: not all covariates are complete !!")))
   #more informative in error msg to use this explicit and
   #and put in one statement
-  methodL <- unique(get(data)[,methodvar])
+  methodL <- unique(get("data")[,methodvar])
   # stopifnot( (methodL == "MAR" | methodL=="j2r" | methodL=="cir" | methodL=="CR" | methodL=="LMCF"| methodL=="null"),
   #is.numeric(refer),
   #     is.numeric(M),
@@ -242,11 +244,11 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   # convert to numic should be done outside function in main.
 
   #11/05/20
-  fevdata<- get(data)[c(idvar,covar,depvar,timevar,treatvar,methodvar,referencevar)]
+  fevdata<- get("data")[c(idvar,covar,depvar,timevar,treatvar,methodvar,referencevar)]
   # now covar added to data list so need need for unique?
-  uniqdat<-unique(get(data)[c(idvar,covar,treatvar)])
-  ntreatcol<- get(data)[c(treatvar)]
-  ntimecol<- get(data)[c(timevar)]
+  uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
+  ntreatcol<- get("data")[c(treatvar)]
+  ntimecol<- get("data")[c(timevar)]
 
 
 
@@ -264,7 +266,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   #in order to aggregate by pattern need create dummy vars
 
   #11/05/20
-  testfevdata<- get(data)[c(idvar,depvar,timevar)]
+  testfevdata<- get("data")[c(idvar,depvar,timevar)]
   sts4dummy<-stats::reshape(testfevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   STSdummy<- apply(sts4dummy[,grepl(depvar,names(sts4dummy))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
 
@@ -388,10 +390,10 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   # need find no. ntreat  to loop over
   #ntreat<-unique(unique(mxdata$treatvar))
  # ntreatcol<-(dplyr::select(get(data),treatvar))
-  ntreatcol<-get(data)[c(treatvar)]
+  ntreatcol<-get("data")[c(treatvar)]
   ntreat <- unique(ntreatcol)
  # ntimecol<-(dplyr::select(get(data),timevar))
-  ntimecol<-get(data)[c(timevar)]
+  ntimecol<-get("data")[c(timevar)]
   ntime<-unique(ntimecol)
 
  # browser()
@@ -402,7 +404,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   #error chk
 
   # find unique values for referencevar to check against ntreat values
-  refencevars <- unique(get(data)[,referencevar])
+  refencevars <- unique(get("data")[,referencevar])
   stopifnot(refencevars %in% t(ntreat))
   #print("summary missing pattern")
   #remove ex1 seems to cause problems!
