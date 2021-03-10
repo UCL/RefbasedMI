@@ -1,4 +1,4 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{15}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -101,6 +101,11 @@ D.~B. Rubin.
 \newblock \emph{{Multiple Imputation for Nonresponse in Surveys}}.
 \newblock John Wiley and Sons, New York, 1987.
 
+\bibitem[Schafer(2021)]{norm2}
+J.~L. Schafer.
+\newblock {CRAN - Package norm2}, 2021.
+\newblock URL \url{https://cran.r-project.org/web/packages/norm2/index.html}.
+
 \bibitem[Seaman et~al.(2014)Seaman, Leacy, and White]{ian:Carpenter_letter}
 S.~Seaman, F.~Leacy, and I.~R. White.
 \newblock {Re: Analysis of Longitudinal Trials with Protocol Deviations --- a
@@ -111,6 +116,25 @@ S.~Seaman, F.~Leacy, and I.~R. White.
   1358--1362, 2014.
 \newblock URL
   \url{http://www.tandfonline.com/doi/full/10.1080/10543406.2014.928306}.
+
+\bibitem[Sullivan et~al.(2018)Sullivan, White, Salter, Ryan, and
+  Lee]{ian:MIinRCTs}
+T.~R. Sullivan, I.~R. White, A.~B. Salter, P.~Ryan, and K.~J. Lee.
+\newblock {Should multiple imputation be the method of choice for handling
+  missing data in randomized trials?}
+\newblock \emph{Statistical Methods in Medical Research}, 27\penalty0
+  (9):\penalty0 2610--2626, sep 2018.
+\newblock ISSN 0962-2802.
+\newblock \doi{10.1177/0962280216683570}.
+\newblock URL \url{http://journals.sagepub.com/doi/10.1177/0962280216683570}.
+
+\bibitem[White et~al.(2011)White, Wood, and Royston]{ian:MItutorial}
+I.~R. White, A.~Wood, and P.~Royston.
+\newblock {Tutorial in biostatistics: Multiple imputation using chained
+  equations: issues and guidance for practice}.
+\newblock \emph{Stat Med}, 30:\penalty0 377--399, 2011.
+\newblock URL
+  \url{http://onlinelibrary.wiley.com/doi/10.1002/sim.4067/abstract}.
 
 \bibitem[White et~al.(2020)White, Joseph, and Best]{ian:RBIcausal}
 I.~R. White, R.~Joseph, and N.~Best.

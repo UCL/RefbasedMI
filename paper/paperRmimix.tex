@@ -46,8 +46,11 @@
 \maketitle
 
 \abstract{
-Reference-based imputation is a multiple imputation technique which imputes quantitative outcome data that are missing after participant discontinuation of allocated treatment in a randomised trial.
-We present and describe an R package, \texttt{mimix}, for performing reference-based imputation, including a causal model variant, and we compare its implementation with that in SAS and Stata.
+In some randomised trials, outcome data are missing after participant discontinuation of allocated treatment.
+Reference-based imputation is a multiple imputation technique for quantitative outcome data in this setting: it constructs the imputation model using parameters from a reference group.
+We present and describe an R package, \texttt{mimix}, for performing reference-based imputation.
+The package also includes a causal model variant and imputation of data missing before discontinuation of allocated treatment.
+We compare its implementation with that in SAS and Stata.
 }
 
 \section{Introduction}
@@ -60,7 +63,7 @@ In this setting, an analysis under the commonly used missing at random (MAR) ass
 \citet{Carpenter++13} proposed that missing data after discontinuation of allocated treatment could be imputed by assuming that post-discontinuation outcomes behave, in some sense, like the outcomes in a reference group. For example, if participants who have discontinued their allocated treatment are likely to be receiving similar treatment to participants who were allocated to control treatment, then the control group would be the reference group.
 \citet{Carpenter++13} proposed imputing the missing data from a joint multivariate Normal (MVN) distribution for the complete (observed and unobserved) data, and proposed five ways to construct this joint distribution: ``jump to reference'' (J2R), ``copy reference'' (CR), ``copy increments in reference'' (CIR), ``last mean carried forward'' (LMCF) and ``missing at random'' (MAR). All approaches start by fitting a MVN distribution to the data from each arm. As an example, the J2R joint distribution for a participant in a specific arm takes the means for that arm up to the point of treatment discontinuation and the means for the reference arm afterwards.
 
-The implicit assumptions behind this approach were explored by \citet{ian:RBIcausal}, who proposed a causal model in which the treatment effect after discontinuation is a specified multiple of the treatment effect at the point of discontinuation. They showed that J2R, CR and CIR are the special cases of this causal model in which the treatment effect disappears, decays or is maintained after treatment discontinuation, while LMCF and MAR are not special cases of the causal model. 
+The implicit assumptions behind this approach were explored by \citet{ian:RBIcausal}, who proposed a causal model in which the treatment effect after discontinuation is a specified fraction of the treatment effect at the point of discontinuation. They showed that J2R, CR and CIR are the special cases of this causal model in which the treatment effect disappears, decays or is maintained after treatment discontinuation, while LMCF and MAR are not special cases of the causal model. 
 
 % software 
 The RBI methods of \citet{Carpenter++13} were implemented in SAS in what have become known as ``the five macros'' and are available on the web page (on www.missingdata.org.uk) of the DIA working group for missing data. These macros also provide for ``delta adjustment'' in which imputed values are modified by a user-specified amount \citep{Ratitch++13}: this is useful is performing sensitivity analysis, since the RBI methods make a number of untestable assumptions \citep{ian:ZAMSTAR}.
@@ -96,15 +99,16 @@ The aim of this paper is to describe our implementation of \texttt{mimix} in R, 
 
 \section{Reference-based imputation}
 
-\subsection{Setting} [nicked from \citet{ian:RBIcausal}]
-We assume that quantitative outcome measurements are scheduled at baseline and at $\tmax$ occasions after randomisation. 
-Let $Z$ be the random variable for the participant's randomised treatment arm, let $Z=z$ denote an arm in which we want to impute missing values, and $Z=r$ denote the reference arm.
+\subsection{Setting} 
+Following \citet{ian:RBIcausal},
+we assume that quantitative outcome measurements are scheduled at baseline and at $\tmax$ occasions after randomisation. 
+Let $Z$ be the random variable for the participant's randomised treatment arm, where $Z=z$ denotes an arm in which we want to impute missing values, and $Z=r$ denotes the reference arm.
 Let $Y_t$ be the random variable for the participant's outcome at visit $t=0,...,\tmax$. 
-It is convenient to define 
-$\boldsymbol{Y}_{\pret}=(Y_0,\ldots,Y_t)$, the vector of all outcomes up to  and including visit $t$; 
-$\boldsymbol{Y}_{\postt}=(Y_{t+1},\ldots,Y_\tmax)$, the vector of all outcomes after visit $t$; 
+It is convenient to define row vectors
+$\boldsymbol{Y}_{\pret}=(Y_0,\ldots,Y_t)$ containing all outcomes up to  and including visit $t$; 
+$\boldsymbol{Y}_{\postt}=(Y_{t+1},\ldots,Y_\tmax)$ containing all outcomes after visit $t$; 
 and
-$\boldsymbol{Y}=(Y_0,\ldots,Y_\tmax)$, the vector of all outcomes.
+$\boldsymbol{Y}=(Y_0,\ldots,Y_\tmax)$, containing all outcomes.
 Let $D$ be the random variable for the participant's last visit prior to discontinuing treatment, so $D=0,...,\tmax$.
 $Y_t$ is observable for all $t$ but only observed for $t \le D$, because we assume no off-treatment data. 
 We aim to impute the unobserved values of $Y_t$ for $t>D$: we stress that these are the outcomes that existed but were unobserved, not the outcomes that would have existed if treatment had been continued.
@@ -119,15 +123,19 @@ We aim to impute the unobserved values of $Y_t$ for $t>D$: we stress that these 
     Bayesian approach with an improper prior and assuming MAR. The model has unstructured
     mean $\boldsymbol{\mu}_z$ and unstructured variance-covariance matrix $\boldsymbol{\Sigma}_z$.
 
-\item For each treatment arm $z$, draw a mean vector $\boldsymbol{\mu}_z^*$ and variance-covariance matrix from the
-    posterior distribution $\boldsymbol{\Sigma}_z^*$.
+\item For each treatment arm $z$, draw a mean vector $\boldsymbol{\mu}_z^*$ and variance-covariance matrix $\boldsymbol{\Sigma}_z^*$ from the posterior distribution.
 
-\item For each treatment arm  $z$ and each possible treatment discontinuation visit $t$, use the drawn values to build a hypothetical  joint  distribution of 
-the outcomes $\boldsymbol{Y}_{\pret}$ up to time $t$ 
+\item For each treatment arm  $z$ and each observed treatment discontinuation visit $t$, use the drawn values to build a hypothetical  joint  distribution of 
+the outcomes $\boldsymbol{Y}_{\pret}$ up to visit $t$ 
 and 
-the outcomes $\boldsymbol{Y}_{\postt}$ after time  $t$, 
+the outcomes $\boldsymbol{Y}_{\postt}$ after visit  $t$, 
 using one of the methods described below.
 Thus a MVN distribution is built for $\boldsymbol{Y}|Z=z,D=t$.
+We define the means
+$\boldsymbol{\mu}_{z,\pret}$,
+$\boldsymbol{\mu}_{z,\postt}$
+to be the parts of $\boldsymbol{\mu}_{z}$ up to and after visit $t$ respectively.
+
 Five methods are mainly distinguished by their choice of mean: 
 \begin{enumerate}
 \item Jump to reference (J2R):
@@ -146,9 +154,8 @@ where $\boldsymbol{e}_p$ is a row vector $(1,\ldots,1)$ of length $p$.
 mean = $\left( \boldsymbol{\mu}_{z,\pret}^*, \mu_{z,t}^*\boldsymbol{e}_{\tmax-t} \right)$.
 \end{enumerate}
 
-The variance matrices are constructed so that the regression coefficient matrix and conditional variance matrix of the potential outcomes after visit  $t$ given those before visit $t$ are taken from arm $z$ for MAR and LMCF, and from arm $r$ for J2R, CIR and CR 
+The variance matrices are constructed so that the regression coefficient matrix and conditional variance matrix of the potential outcomes after visit  $t$, given those before visit $t$, are taken from arm $z$ for MAR and LMCF, and from arm $r$ for J2R, CIR and CR 
 \citet{Carpenter++13,ian:RBIcausal}.
-[NOTE we didn't code the \emph{RBI alternative} approach of \citet{ian:RBIcausal} that instead uses $\boldsymbol{\beta}_t(\tmax)$ and $\boldsymbol{\Omega}_t(\tmax)$ for all RBI methods.]
 
 \item For each treatment arm $z$ and each observed treatment discontinuation visit $t$, construct the imputation distribution of  $\boldsymbol{Y}_{\postt}$ given  $\boldsymbol{Y}_{\pret}$. 
 Sample $\boldsymbol{Y}_{\postt}$ from this   conditional distribution, to create a “completed” data set.
@@ -167,11 +174,12 @@ The causal model has previously been stated for two arms only. Here we extend it
 % Novelties: K depends on z as well as t in general
 We define the potential outcome $Y_t(z,s)$ at visit $t$ as the outcome that would have been observable if, possibly contrary to fact, a participant received active treatment $z$ for $s$ periods only.
 In particular, $Y_t(z,0)$ is the potential outcome if never treated: it is the same for all $z$ and is written $Y_t(0)$. Similarly $Y_t(z,\tmax)$ is the potential outcome if always treated with $z$.
-We define 
-$\boldsymbol{Y}_{\pret}(z,s)$, $\boldsymbol{Y}_{\postt}(z,s)$ and $\boldsymbol{Y}(z,s)$ as before.
 We let 
-$\mu_t(z,s) = \E[Y_t(z,s)]$, the mean of the potential outcome at visit $t$ if active treatment $z$ were received for $s$ periods only. Similarly we define 
-$\boldsymbol{\mu}_\pret(z,s)$, $\boldsymbol{\mu}_\postt(z,s)$ and $\boldsymbol{\mu}(z,s)$.
+$\mu_t(z,s) = \E[Y_t(z,s)]$, the mean of the potential outcome at visit $t$ if active treatment $z$ were received for $s$ periods only. 
+We define row vectors
+$\boldsymbol{Y}_{\pret}(z,s)$, $\boldsymbol{Y}_{\postt}(z,s)$, $\boldsymbol{Y}(z,s)$,
+$\boldsymbol{\mu}_\pret(z,s)$, $\boldsymbol{\mu}_\postt(z,s)$ and $\boldsymbol{\mu}(z,s)$
+ as before.
 
 [Omit?:] 
 The variance-covariance matrix  of the potential  outcomes is $\boldsymbol{\Sigma}(s)=\varb{\boldsymbol{Y}(s)}$ with submatrices 
@@ -201,7 +209,9 @@ In practice we make a choice of $\boldsymbol{K}_{z,t}$ determined by just two pa
 \end{eqnarray}
 where  $v_t$ is the time (on a suitable scale) of visit $t$.
 
-[AT PRESENT $(k_0, k_1)$ ARE FIXED BUT IT MAY BE POSSIBLE TO LET THEM DEPEND ON ARM. THIS MAKES SENSE FOR A TRIAL WITH MORE THAN 2 ARMS. WOULD PROBABLY CODE THEM AS A VARIABLE IN DATA SET SO COULD LET THEM VARY BY OTHER FACTORS E.G. REASON?]
+[At present $(k_0, k_1)$ are fixed but it may be possible to let them depend on arm. 
+This makes sense for a trial with more than 2 arms. 
+Would probably code them as a variable in data set so could let them vary by any individual factors e.g. reason for missing data]
 
 Estimation involves other assumptions which make explicit the ideas of \citet{Carpenter++13}: 
 that randomisation is independent of all potential outcomes; 
@@ -223,20 +233,32 @@ These give the mean of the imputation model:
 [Again we can handle variances... how much to say?]
 
 
+\subsection{Interim missing values}
+
+Interim missing values are values that are missing while the individual remains on treatment and are identified by being followed by later observed values. 
+In the RBI algorithm and causal model, applying the constructed imputation distribution to missing values in $\boldsymbol{Y}_{\pret}$ implies imputation under MAR.
+We consider MAR imputation of interim missing values to be the procedure that is most likely to be appropriate in practice, since interim missing values that occur while on treatment are unlikely to follow the same pattern as post-discontinuation missing values that occur when off treatment. 
+This differs from the behaviour of the Stata package \citep{Cro++16} which by default imputes interim missing values using the same procedure as post-discontinuation values, with MAR as an option.
+
+[ADD SOMETHING ON INDIVIDUALS WITH NO OBSERVED VALUES]
+
 \subsection{Delta adjustment}
 
 Delta adjustment allows imputations to differ sytematically from RBI methods and so provides a framework for performing sensitivity analysis around RBI assumptions.
 We follow the approach of the five macros. 
 Delta adjustment provides an increment which is added on to all values imputed after treatment discontinuation, but not to interim missing values. 
-It is specified by the options delta and dlag which we denote as $a_u$, a user-specified shift for time $u$, and $b_w$, a user-specified scaling multiplier that controls how the user-defined shift for time $u$ is applied to all times $\ge u$.
+It is specified by two user-specified $T$-dimensional row vectors $\boldsymbol{a}$ and $\boldsymbol{b}$,
+where $a_u$ is a shift for time $u$, 
+and $b_w$ is a scaling multiplier that controls how the user-defined shift for time $u$ is applied at time $u+w$.
 Formally, any imputed value $Y^*_{z,t}$ is replaced by $Y^*_{z,t} + \sum_{u=t+1}^{u=\tmax} a_u b_{u-t}$.
-This means that values of delta are cumulated after treatment discontinuation. 
+This means that elements of $\boldsymbol{a}$  are cumulated after treatment discontinuation. 
 
 For example, consider an individual who discontinued treatment at the 2nd time point. 
-Under the setting \texttt{dlag=c(1,1,...,1)}, we take the vector of delta’s starting at the 3rd time point and add their cumulative sums to the imputed values. 
-Modifying dlag modifies this behaviour, so that the vector of delta’s starting at the 3rd time point is multiplied elementwise by the vector dlag. 
-A common increment of 3 at all time points after treatment discontinuation would be achieved by setting \texttt{delta=c(3,3,3,...)} and \texttt{dlag=c(1,0,0,...)}.
-An increment of 3 at the time point immediately after discontinuation that is halved at each subsequent time point is specified by  \texttt{delta=c(3,3,3,...)} and \texttt{dlag=c(1,-1/2,-1/4,...)}.
+Under the setting $b_w=1$ for all $w$, we take the vector $\boldsymbol{a}$ starting at the 3rd element and add the cumulative sums to the imputed values. 
+Modifying $\boldsymbol{b}$ modifies this behaviour, so that the vector of $\boldsymbol{a}$ starting at the 3rd time point is multiplied elementwise by the vector $\boldsymbol{b}$. 
+A common increment of 3 at all time points after treatment discontinuation would be achieved by setting $\boldsymbol{a}=(3,3,3,...)$ and $\boldsymbol{b}=(1,0,0,...)$.
+An increment of 3 at the time point immediately after discontinuation that is halved at each subsequent time point is specified by  
+$\boldsymbol{a}=(3,3,3,...)$ and $\boldsymbol{b}=(1,-1/2,-1/4,...)$.
 
 %For example, if $b=(1,0.7, 0.5,...)$ then a participant who discontinues treatment just after visit $t$ has 
 %their imputed value at time $t+1$ incremented by $a_{t+1}$, 
@@ -245,16 +267,11 @@ An increment of 3 at the time point immediately after discontinuation that is ha
 
 Delta adjustment can apply either with RBI or the causal method and is always applied after imputation.
 
-\subsection{Interim missing values}
-
-Interim missing values are values that are missing while the individual remains on treatment and are identified by being followed by later observed values. They are always imputed under MAR. Imputing interim missing values in a different way from post-discontinuation missing values is the procedure that is most likely to be appropriate in practice, since interim missing values that occur while on treatment are unlikely to follow the same pattern as post-discontinuation missing values that occur when off treatment. This differs from the behaviour of the Stata package \citep{Cro++16} which by default imputes interim missing values using the same procedure as post-discontinuation values, with MAR as an option.
-
-[ADD SOMETHING ON INDIVIDUALS WITH NO OBSERVED VALUES?]
-
 \subsection{Covariates}
 
 Covariates are used to improve the plausibility of MAR assumptions and to improve the precision of imputed values \citep{ian:MItutorial}. 
-In \texttt{mimix}, they are included in the multivariate normal model fitting as part of the variable $Y_0$. [KEVIN IS THIS CORRECT? MIGHT THEY BE WRONGLY CARRIED FORWARD UNDER LMCF?]
+In \texttt{mimix}, they are included in the multivariate normal model fitting as part of the variable $Y_0$. 
+[KEVIN IS THIS CORRECT? MIGHT THEY BE WRONGLY CARRIED FORWARD UNDER LMCF?]
 
 Missing values in covariates are not allowed in \texttt{mimix}. For these missing values in the randomised setting, single imputation methods are preferred, so mean imputation or the missing indicator method should be used before calling \texttt{mimix} \citep{ian:MIinRCTs}.
 
@@ -262,7 +279,7 @@ Missing values in covariates are not allowed in \texttt{mimix}. For these missin
 
 \section{Package}
 
-\subsection{Arguments} [KEVIN ARE WE ALLOWED TO CHANGE THE ORDER? BELOW MAKES MOST SENSE TO ME.]
+\subsection{Arguments} 
 
 \begin{tabular}{llp{.8\linewidth}}\hline
 & Option & Description \\ \hline
@@ -285,8 +302,8 @@ Missing values in covariates are not allowed in \texttt{mimix}. For these missin
 & K1 	&	 Causal constant for use with Causal method. The treatment effect assumed at post-discontinuation times, implied by K0, decays exponentially by a factor K1 per time unit. \\
 
 \multicolumn{3}{l}{\em Delta method options}\\
-& delta 	&	 Optional vector of delta values to add onto imputed values (a’s in Rogers paper). Length must equal number of time points.\\
-& dlag 	&	 vector of delta values to add onto imputed values (non-mandatory) (b’s in Rogers paper) Length must equal number of time points. Default is c(1,1,1,...). \\
+& delta 	&	 Optional vector $\boldsymbol{a}$ of values to add onto imputed values as described above under ``Delta adjustment''. Length must equal number of time points.\\
+& dlag 	&	 Optional vector $\boldsymbol{b}$ of values to modify the values in delta. Length must equal number of time points. \\
 
 \multicolumn{3}{l}{\em Computation options}\\
 & M 	&	 Number of imputations to be created. \\
@@ -296,7 +313,8 @@ Missing values in covariates are not allowed in \texttt{mimix}. For these missin
 & prior 	&	 Prior for the variance-covariance matrix when fitting multivariate normal distributions: Jeffreys (default), uniform or ridge.	\\
 & burnin 	&	 Number of burn-in iterations when fitting multivariate normal distributions.	\\
 & bbetween 	&	 Number of iterations between imputed data sets when fitting multivariate normal distributions.	\\
-& mle 	&	 Logical option to use maximum likelihood parameter estimates instead of MCMC draw parameters. [NEED TO WRITE A COMMENT ABOUT THIS -- OR UNDOCUMENT IT?]	\\ \hline
+& mle 	&	 Logical option to use maximum likelihood parameter estimates instead of MCMC draw parameters. 
+[NEED TO WRITE A COMMENT ABOUT THIS -- KEVIN, OR CAN WE UNDOCUMENT IT?]	\\ \hline
 \end{tabular}
 
 \subsection{Algorithm}
@@ -310,47 +328,120 @@ The program works through the following steps.
 \item Perform delta adjustment if specified.
 \item Repeat steps 2-5 M times and form into a single data frame.
 \end{enumerate}
-The baseline value of the outcome could be handled as an outcome, but this would allow a treatment effect at baseline [IAN CHECK]. We instead recommend handling it as a covariate. 
+The baseline value of the outcome could be handled as an outcome or as a covariate. 
+[Which do we recommend?] 
 
 The program is based on Suzie Cro’s Stata program \texttt{mimix}.
 
 \subsection{Outputs}
 
 The M imputed data sets are output concatenated as one large dataset appended to
-the original unimputed dataset. [KEVIN IS IT A DATA SET, A DATA FRAME, OR OTHER?] 
+the original unimputed dataset.
+[KEVIN IS IT A DATA SET, A DATA FRAME, OR OTHER?] 
 
-The user can use the as.mids() function in the mice package to convert the output data  to mids data type and hence to perform analysis using Rubin's rules.
+The user can use the \texttt{as.mids()} function in the \texttt{mice} package to convert the output data  to \texttt{mids} data type and hence to perform analysis using Rubin's rules.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Examples}
+\section{Example: asthma trial data}
 
-KEVIN TO DRAFT PLEASE USING ASTHMA DATA.
+These data are taken from \citet{Cro++16} and represent 2 arms of a 5-arm trial. 
+They contain 183 patients with asthma who were randomised to active treatment or placebo. 
+The primary outcome is FEV at 12 weeks, and FEV is also measured at baseline and at 2, 4, and 8 weeks of follow-up.
+The data contain 732 records (one per patient per follow-up visit) and 5 variables: 
+id, a patient identifier; 
+time, the visit number; 
+treat, the randomised group (1=placebo, 2=active); 
+base, the baseline FEV, to be regarded as a covariate;
+and fev, the outcome variable.
+
+The data are missing after patients discontinue their randomised treatment. A treatment policy estimand is therefore estimated using reference-based imputation. For example, J2R is implemented as follows
+\begin{verbatim}
+asthmaJ2R <- mimix(data='asthma', covar=base, depvar=fev, treatvar=treat, idvar=id, timevar=time,
+    method='J2R', reference=1, M=5, seed=101, prior=ridge, burnin=1000)
+\end{verbatim}
+
+[KEVIN, IT SEEMS COVAR MUST BE STRING BUT DEPVAR A VARNAME, IS THIS CORRECT? NEEDS A COMMENT?]
+
+Note that the imputed data are in wide format. 
+[KEVIN / ALL - I THINK THIS IS A PROBLEM!?]
+The primary outcome can be analysed using an analysis of covariance by
+\begin{verbatim}
+library(mice)     
+fit <- with(data= as.mids(asthmaJ2R), lm(fev.12 ~ treat + base))
+summary(pool(fit))    
+\end{verbatim}
+
+[GIVE RESULTS]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Comparisons with other packages}
 
-KEVIN TO DRAFT -- THESE ARE JUST MY NOTES. Would a table be suitable?
+[TO DISCUSS -- TEXT OR TABLE? BOTH ARE INCLUDED BELOW.]
 
-\begin{enumerate}
-\item flavours of LMCF in 5 macros
-\item handling participants with no observed outcomes
-\item how baseline covariates are modelled: SAS, can interact with time; Stata, R, can't
-\item handling of interim missing values
-\item anything to say about algorithm differences? prior choice?
-\end{enumerate}
+\subsection{Comparison with Stata}
+This mimix is based on the Stata version and has similar functionality while adding
+the causal method and delta adjustment. 
+As with the Stata version the input data requires the longitudinal input data in
+long format with one record per individual at each timepoint.
+
+The program differs in how interim missing cases -- those cases which 
+have a missing measurement at a timepoint previous to a later observed measurement -- are treated.        
+Under Stata by default, the interim missing are treated the same as for the post-discontinuation
+missing unless the interim option is explicitly used. 
+Here the interims are treated as under MAR, the post-discontinuations then imputed under
+the specified method. There is no interim option as there is in Stata.
+
+Unlike Stata an option is supplied whereby the prior used in the MCMC draws can be changed from the 
+default jeffreys (as in Stata) to either the ridge or uniform.
+
+\subsection{Comparison with SAS}
+
+Whilst this program is based on the Stata program, the latter is an adaptation of the SAS macro miwithd,
+written by James Roger, subsequently updated to the Five\_Macros suite of macros.
+This program uses the same approach for the delta adjustment as described in the Five\_Macros.
+
+In comparing outputs from our program with the Five\_Macros it is to be noted that interaction between treatment and covariates
+is not allowed in the SAS macros, and comparisons are only valid for example in testing the Causal model by specifically not
+not using the covbytime and catcovbytime options in the Five\_Macros.
+
+Not using these options also means that the LMCF method can be compared with either ALMCF or OLMCF in the Five\_Macros: these are the same in the mimix setting with no covariate interacting with time.
+
+When there is no observed data (common in the acupuncture data) the first mean is used in Stata,
+a warning is given in the Five\_Macros.
+
+\subsection{summary table}
+
+\begin{tabular}{p{.2\textwidth}p{.2\textwidth}p{.2\textwidth}p{.2\textwidth}}\hline
+	&	Five macros in SAS	&	mimix in Stata	&	mimix in R	\\\hline
+{\em Functionality}	&		&		&		\\
+RBI	&	yes	&	yes	&	yes	\\
+Causal model	&	yes	&	no	&	yes	\\
+Delta method	&	yes	&	no	&	yes	\\\hline
+{\em Options}	&		&		&		\\
+Interim missing	&	MAR	&	RBI or MAR	&	MAR	\\
+MCMC options	&	seed and thinning (=burnin)	&	seed, burnin and thinning	&	seed, burnin, thinning and prior	\\
+Covariates interacting with treatment	&	never	&	always	&	always	\\
+Covariates interacting with time	&	optional	&	never	&	never	\\
+LMCF	&	several flavours: ALMCF, OLMCF, AFCMCF, OFCMCF	&	ALMCF only?	&	ALMCF only?	\\
+No observed data	&	Warning	&	First mean is used	&	?	\\\hline
+\end{tabular}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Limitations and discussion}
+\section{Limitations and discussion: sketch only so far}
 
 \begin{itemize}
-\item flexible package
+\item Flexible package
 \item doesn't cover other outcome types; e.g. methods have been proposed for recurrent events \citep{Keene++14}
-\item The suitability of the Rubin's rules standard errors has been debated \cite{ian:Carpenter_letter,Carpenter++14,Cro++19}...
-\item trials should be designed consistently with their estimand, so if the treatment-policy estimand is of interest then outcomes should be collected after treatment discontinuation. Analysis options for this setting are still in development: options include including treatment discontinuation time in the model and imputing under MAR [ref Tom at GSK]; using RBI or causal model and reserving the post-discontinuation data for model checking; or using RBI or causal model and using the post-discontinuation data to estimate model parameters such as $K_{z,t}$. 
+\item The suitability of the Rubin's rules standard errors has been debated \citep{ian:Carpenter_letter,Carpenter++14,Cro++19}
+\item Trials should be designed consistently with their estimand, so if the treatment-policy estimand is of interest then outcomes should be collected after treatment discontinuation. Analysis options for this setting are still in development: options include including treatment discontinuation time in the model and imputing under MAR [ref Tom at GSK]; using RBI or causal model and reserving the post-discontinuation data for model checking; or using RBI or causal model and using the post-discontinuation data to estimate model parameters such as $K_{z,t}$. 
+\item We didn't code the \emph{RBI alternative} approach of \citet{ian:RBIcausal} that instead uses $\boldsymbol{\beta}_t(\tmax)$ and $\boldsymbol{\Omega}_t(\tmax)$ for all RBI methods.
+
 \end{itemize}
 
 %\bibliography{RJreferences}
