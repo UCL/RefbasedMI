@@ -22,7 +22,7 @@
 #' @param treatvar Treatment group, can be character
 #' @param idvar Participant identifier.
 #' @param timevar Time point for repeated measure
-#' @param method Reference-based imputation method: must be J2R, CR, CIR, MAR, Causal or LMCF,enclose in quotes. 
+#' @param method Reference-based imputation method: must be J2R, CR, CIR, MAR, Causal or LMCF, enclose in quotes. 
 #' @param reference  Reference group for J2R, CIR, CR methods
 #' @param methodvar column in data-set specifying individual method, enclose in quotes.
 #' @param referencevar column in data-set specifying reference group as forindividual method, enclose in quotes.
@@ -41,18 +41,22 @@
 #' @examples
 #' \dontrun{
 #' "performing jump to reference with treatment reference arm 1 on asthma trial data"  
-#' mimixout<-mimix(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,method="J2R",reference=1,M=5,seed=54321)
+#' mimixout<-mimix(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
+#'  method="J2R", reference=1,M=5,seed=54321)
 #' library(mice)
-#' "Fitting regression model to find treatment effects using Rubin's rules by treating output data frame as.mids() object "
+#' "Fitting regression model to find treatment effects using Rubin's rules by 
+#'      treating output data frame as.mids() object "
 #' fit<-with(data= as.mids(mimixout),expr = lm(fev.12~treat+base))
 #' summary(pool(fit))
-#' mimix(data=acupuncture,covar= c(head_base),depvar=head,treatvar=treat,idvar=id,timevar=time,method="CIR",reference=1,M=5,seed=54321,
+#' mimix(data=acupuncture,covar= c(head_base),depvar=head,treatvar=treat,idvar=id,
+#'  timevar=time,method="CIR",reference=1,M=5,seed=54321,
 #'   prior=jeffreys,burnin=1000)
 #' }
 
 # v0.0.12
 #mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
-mimix<- function(data,covar,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior=jeffreys,burnin=1000,bbetween=NULL,mle=FALSE) {
+mimix<- function(data,covar,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
+                 K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior=jeffreys,burnin=1000,bbetween=NULL,mle=FALSE) {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
   # this forces interims to be estimated as MAR by default
@@ -1147,7 +1151,8 @@ mimix<- function(data,covar,depvar,treatvar,idvar,timevar,method=NULL,reference=
     } else {
       
  # Imp_interims  consists of unimputed record followwed by imputed record for each m     
- testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
+ testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
+                                mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
     }
  #browser(text="0702")
  # this doesnt call proprocess as data already in wide format  
@@ -1317,14 +1322,16 @@ NULL
 #' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
 #' @examples
 #' \dontrun{
-#' testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,K0,K1)
+#' testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,
+#' paramBiglist,idvar,flag_indiv,M,delta,K0,K1)
 #'}
 
 # error in mata_miss and mata_nonmiss have duplicate hesd_base cols
 
 # make sure mg has the covariate.miss!
 
-pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
+pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
+                     mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
 {  
 #  browser(text="2802")
   # WARNING!!  check tail mata_Obs   
