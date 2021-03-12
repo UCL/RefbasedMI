@@ -82,6 +82,7 @@ then acts as a looping mechanism, norm2 is used as MCMC multivariate normal
 }
 \examples{
 \dontrun{
-testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,K0,K1)
+testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,
+paramBiglist,idvar,flag_indiv,M,delta,K0,K1)
 }
 }
