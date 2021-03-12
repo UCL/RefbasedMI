@@ -11,8 +11,8 @@ Description: This package imputes missing numerical outcomes for a longitudinal 
     the causal model and delta method.
     The reference-based methods are jump to reference (J2R), copy increments in reference (CIR), copy reference (CR),
     and the causal model, all of which must specify the reference treatment arm. Other methods are
-    missing at random (MAR) and the last mean carried forward (LMCF). Individual-specific imputation methods (and their reference 
-    groups) can be specified.  
+    missing at random (MAR) and the last mean carried forward (LMCF). Individual-specific imputation methods
+    (and their reference  groups) can be specified.  
 URL: https://https://github.com/UCL/mimix 
 License: GPL-3 
 Encoding: UTF-8
