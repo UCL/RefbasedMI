@@ -84,7 +84,7 @@
 #' \dontrun{
 #'  impCausalref1 <- mimix(data=acupuncture,covar=c("head_base","sex"),depvar=head,treatvar=treat,
 #'        idvar=id,timevar=time,
-#'        method=Causal,reference=1,K0=1,K1=0.5,M=5,seed=54321)
+#'        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
 #'  library(mice)         
 #'  fit<-with(as.mids(impCausalref1), lm(head.12~treat+head_base+sex))  
 #'  summary(pool(fit))    
