@@ -240,7 +240,23 @@ In the RBI algorithm and causal model, applying the constructed imputation distr
 We consider MAR imputation of interim missing values to be the procedure that is most likely to be appropriate in practice, since interim missing values that occur while on treatment are unlikely to follow the same pattern as post-discontinuation missing values that occur when off treatment. 
 This differs from the behaviour of the Stata package \citep{Cro++16} which by default imputes interim missing values using the same procedure as post-discontinuation values, with MAR as an option.
 
-[ADD SOMETHING ON INDIVIDUALS WITH NO OBSERVED VALUES]
+\subsection{Individuals with no observed values}
+
+[TEXT FOR DISCUSSION -- NEED TO WORK OUT HOW TO HANDLE THESE DISCREPANCIES]
+
+Individuals with no observed values are easily imputed under MAR, but for the other methods they are currently a problem that we need to resolve.
+
+We first consider J2R and CR. 
+These methods should construct the imputation distribution wholly from the reference arm. 
+They therefore correspond to MAR imputation if the wholly unobserved individual was in the reference arm. 
+Both the Stata and R programs do this correctly for an individual in the reference arm, but for an individual in a non-reference arms, J2R and CR do not agree with each other.
+
+We next consider CIR and LMCF. These are defined in terms of the last observed value, so they are formally undefined. 
+The Stata program imputes CIR the same as J2R, while LMCF differs from all other methods, except that it agrees with MAR at the first visit.
+The R program imputes CIR and J2R differently when in the non-reference arm.
+
+
+
 
 \subsection{Delta adjustment}
 
@@ -271,7 +287,6 @@ Delta adjustment can apply either with RBI or the causal method and is always ap
 
 Covariates are used to improve the plausibility of MAR assumptions and to improve the precision of imputed values \citep{ian:MItutorial}. 
 In \texttt{mimix}, they are included in the multivariate normal model fitting as part of the variable $Y_0$. 
-[KEVIN IS THIS CORRECT? MIGHT THEY BE WRONGLY CARRIED FORWARD UNDER LMCF?]
 
 Missing values in covariates are not allowed in \texttt{mimix}. For these missing values in the randomised setting, single imputation methods are preferred, so mean imputation or the missing indicator method should be used before calling \texttt{mimix} \citep{ian:MIinRCTs}.
 
@@ -314,7 +329,7 @@ Missing values in covariates are not allowed in \texttt{mimix}. For these missin
 & burnin 	&	 Number of burn-in iterations when fitting multivariate normal distributions.	\\
 & bbetween 	&	 Number of iterations between imputed data sets when fitting multivariate normal distributions.	\\
 & mle 	&	 Logical option to use maximum likelihood parameter estimates instead of MCMC draw parameters. 
-[NEED TO WRITE A COMMENT ABOUT THIS -- KEVIN, OR CAN WE UNDOCUMENT IT?]	\\ \hline
+[WE'RE EXPLORING WHETHER WE CAN HIDE THIS OPTION, WHICH WAS ONLY WRITTEN TO PLEASE JONATHAN BARTLETT]	\\ \hline
 \end{tabular}
 
 \subsection{Algorithm}
@@ -335,9 +350,9 @@ The program is based on Suzie Cro’s Stata program \texttt{mimix}.
 
 \subsection{Outputs}
 
-The M imputed data sets are output concatenated as one large dataset appended to
-the original unimputed dataset.
-[KEVIN IS IT A DATA SET, A DATA FRAME, OR OTHER?] 
+The M imputed data sets are output concatenated as one large data frame, comprising the 
+original unimputed dataset concatenated with all the imptued data sets.
+[CURRENTLY IN WIDE FORMAT, UNLIKE THE INPUT DATA AND UNLIKE STATA'S OUTPUT] 
 
 The user can use the \texttt{as.mids()} function in the \texttt{mice} package to convert the output data  to \texttt{mids} data type and hence to perform analysis using Rubin's rules.
 
@@ -356,30 +371,33 @@ treat, the randomised group (1=placebo, 2=active);
 base, the baseline FEV, to be regarded as a covariate;
 and fev, the outcome variable.
 
-The data are missing after patients discontinue their randomised treatment. A treatment policy estimand is therefore estimated using reference-based imputation. For example, J2R is implemented as follows
+The data are missing after patients discontinue their randomised treatment. 
+A treatment policy estimand is therefore estimated using reference-based imputation, with the placebo arm as reference. 
+For example, J2R is implemented as follows
 \begin{verbatim}
-asthmaJ2R <- mimix(data='asthma', covar=base, depvar=fev, treatvar=treat, idvar=id, timevar=time,
-    method='J2R', reference=1, M=5, seed=101, prior=ridge, burnin=1000)
+asthmaJ2R <- mimix(data=asthma, covar='base', depvar=fev, treatvar=treat, idvar=id, 
+    timevar=time, method='J2R', reference=1, M=5, seed=101, prior=ridge, burnin=1000)
 \end{verbatim}
 
-[KEVIN, IT SEEMS COVAR MUST BE STRING BUT DEPVAR A VARNAME, IS THIS CORRECT? NEEDS A COMMENT?]
-
-Note that the imputed data are in wide format. 
-[KEVIN / ALL - I THINK THIS IS A PROBLEM!?]
 The primary outcome can be analysed using an analysis of covariance by
 \begin{verbatim}
 library(mice)     
 fit <- with(data= as.mids(asthmaJ2R), lm(fev.12 ~ treat + base))
 summary(pool(fit))    
 \end{verbatim}
-
-[GIVE RESULTS]
+Results are as follows:
+\begin{verbatim}
+         term  estimate  std.error statistic       df      p.value
+1 (Intercept) 0.5821281 0.21097369  2.759245 19.15041 1.242142e-02
+2     treat.L 0.1585223 0.07119548  2.226578 81.64041 2.873017e-02
+3        base 0.6843152 0.09180436  7.454060 28.90698 3.315976e-08
+\end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Comparisons with other packages}
 
-[TO DISCUSS -- TEXT OR TABLE? BOTH ARE INCLUDED BELOW.]
+[TO DISCUSS -- TEXT, TABLE OR BOTH?]
 
 \subsection{Comparison with Stata}
 This mimix is based on the Stata version and has similar functionality while adding
@@ -407,7 +425,8 @@ In comparing outputs from our program with the Five\_Macros it is to be noted th
 is not allowed in the SAS macros, and comparisons are only valid for example in testing the Causal model by specifically not
 not using the covbytime and catcovbytime options in the Five\_Macros.
 
-Not using these options also means that the LMCF method can be compared with either ALMCF or OLMCF in the Five\_Macros: these are the same in the mimix setting with no covariate interacting with time.
+Not using these options also means that the LMCF method can be compared with either ALMCF or OLMCF in the Five\_Macros.
+[I STILL HAVE TO WORK OUT WHICH WE HAVE IMPLEMENTED.]
 
 When there is no observed data (common in the acupuncture data) the first mean is used in Stata,
 a warning is given in the Five\_Macros.
@@ -424,7 +443,7 @@ Delta method	&	yes	&	no	&	yes	\\\hline
 Interim missing	&	MAR	&	RBI or MAR	&	MAR	\\
 MCMC options	&	seed and thinning (=burnin)	&	seed, burnin and thinning	&	seed, burnin, thinning and prior	\\
 Covariates interacting with treatment	&	never	&	always	&	always	\\
-Covariates interacting with time	&	optional	&	never	&	never	\\
+Covariates interacting with time	&	optional	&	always	&	always	\\
 LMCF	&	several flavours: ALMCF, OLMCF, AFCMCF, OFCMCF	&	ALMCF only?	&	ALMCF only?	\\
 No observed data	&	Warning	&	First mean is used	&	?	\\\hline
 \end{tabular}

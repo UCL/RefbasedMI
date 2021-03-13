@@ -5,15 +5,16 @@
 \BOOKMARK [2][-]{subsection.2.2.2}{Reference-based imputation}{section.2.2}% 5
 \BOOKMARK [2][-]{subsection.2.2.3}{Causal model}{section.2.2}% 6
 \BOOKMARK [2][-]{subsection.2.2.4}{Interim missing values}{section.2.2}% 7
-\BOOKMARK [2][-]{subsection.2.2.5}{Delta adjustment}{section.2.2}% 8
-\BOOKMARK [2][-]{subsection.2.2.6}{Covariates}{section.2.2}% 9
-\BOOKMARK [1][-]{section.2.3}{Package}{section*.1}% 10
-\BOOKMARK [2][-]{subsection.2.3.1}{Arguments}{section.2.3}% 11
-\BOOKMARK [2][-]{subsection.2.3.2}{Algorithm}{section.2.3}% 12
-\BOOKMARK [2][-]{subsection.2.3.3}{Outputs}{section.2.3}% 13
-\BOOKMARK [1][-]{section.2.4}{Example: asthma trial data}{section*.1}% 14
-\BOOKMARK [1][-]{section.2.5}{Comparisons with other packages}{section*.1}% 15
-\BOOKMARK [2][-]{subsection.2.5.1}{Comparison with Stata}{section.2.5}% 16
-\BOOKMARK [2][-]{subsection.2.5.2}{Comparison with SAS}{section.2.5}% 17
-\BOOKMARK [2][-]{subsection.2.5.3}{summary table}{section.2.5}% 18
-\BOOKMARK [1][-]{section.2.6}{Limitations and discussion: sketch only so far}{section*.1}% 19
+\BOOKMARK [2][-]{subsection.2.2.5}{Individuals with no observed values}{section.2.2}% 8
+\BOOKMARK [2][-]{subsection.2.2.6}{Delta adjustment}{section.2.2}% 9
+\BOOKMARK [2][-]{subsection.2.2.7}{Covariates}{section.2.2}% 10
+\BOOKMARK [1][-]{section.2.3}{Package}{section*.1}% 11
+\BOOKMARK [2][-]{subsection.2.3.1}{Arguments}{section.2.3}% 12
+\BOOKMARK [2][-]{subsection.2.3.2}{Algorithm}{section.2.3}% 13
+\BOOKMARK [2][-]{subsection.2.3.3}{Outputs}{section.2.3}% 14
+\BOOKMARK [1][-]{section.2.4}{Example: asthma trial data}{section*.1}% 15
+\BOOKMARK [1][-]{section.2.5}{Comparisons with other packages}{section*.1}% 16
+\BOOKMARK [2][-]{subsection.2.5.1}{Comparison with Stata}{section.2.5}% 17
+\BOOKMARK [2][-]{subsection.2.5.2}{Comparison with SAS}{section.2.5}% 18
+\BOOKMARK [2][-]{subsection.2.5.3}{summary table}{section.2.5}% 19
+\BOOKMARK [1][-]{section.2.6}{Limitations and discussion: sketch only so far}{section*.1}% 20

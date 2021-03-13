@@ -5,6 +5,8 @@ if(!require(devtools)) install.packages('devtools')
 library(devtools) 
 install_url('https://cran.r-project.org/src/contrib/Archive/norm2/norm2_2.0.3.tar.gz')
 install_github("UCL/mimix")
+# 12mar2021: Kevin has put latest package on developer branch
+install_github("UCL/mimix", ref="developer")
 # couldn't update package: vectrs, mice
 
 # remember that mimix sessions need to include:

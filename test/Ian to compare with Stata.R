@@ -24,23 +24,24 @@ asthma$fev<-asthma$fev*1000
 head(asthma)
 
 # explore data (using skills learned from Michelle)
+library(tidyverse)
 asthma %>% count(treat)
 asthma %>% filter(!is.na(fev)) %>% 
   group_by(treat, time) %>% 
   summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
 
 # J2R
-impJ2R1 <- mimix(data="asthma",
+impJ2R1 <- mimix(data=asthma,
   covar=c("base","base2"),
-  depvar="fev",
-  treatvar="treat",
-  idvar="id",
-  timevar="time",
+  depvar=fev,
+  treatvar=treat,
+  idvar=id,
+  timevar=time,
   M=100,
   reference=1,
   method="J2R",
   seed=101,
-  prior="jeffreys",
+  prior=jeffreys,
   burnin=1000,
   bbetween=NULL,
   methodvar=NULL
