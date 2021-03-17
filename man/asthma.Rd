@@ -11,7 +11,7 @@ A data frame containing 732 rows and 5 columns
 \item{time}{}
 \item{treat}{}
 \item{base}{covariate}
-\item{fev}{dependent variable}
+\item{fev}{outcome variable}
 }
 }
 \usage{
@@ -25,9 +25,9 @@ The primary outcome variable is fev, measured at 2,4,8,12 weeks
 \dontrun{
  impJ2Rridge<-(mimix(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
     method="J2R",reference=1,delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior=ridge,burnin=1000)
- library(mice)     
- fit<-with(data= as.mids(impJ2Rridge),lm(fev.12~treat))
- summary(pool(fit))    
+ library(mice) 
+ fitJ2R<-with(data= as.mids(subset(impJ2Rridge[[2]],time==12)),lm(fev~treat+base))    
+ summary(pool(fitJ2R))    
 }     
 }
 \keyword{datasets}

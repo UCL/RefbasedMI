@@ -16,7 +16,7 @@ A data frame with 802 rows and 11 columns
 \item{practice_id}{}
 \item{treat}{}
 \item{head_base}{covariate}
-\item{head}{dependent variable}
+\item{head}{outcome variable}
 \item{withdrawal_reason}{}
 }
 }
@@ -34,8 +34,8 @@ The primary outcome is head, measured at time 3 and 12
        idvar=id,timevar=time,
        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
  library(mice)         
- fit<-with(as.mids(impCausalref1), lm(head.12~treat+head_base+sex))  
- summary(pool(fit))    
+ fitacup<-with(as.mids(subset(impCausalref1[[2]],time==12)), lm(head~treat+head_base+sex))
+ summary(pool(fitacup))    
 }
 }
 \keyword{datasets}
