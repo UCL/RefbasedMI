@@ -47,14 +47,7 @@
 #library(amelia)
 
 
-#' @title process LMCF method
-#' @description process LMCF method
-#' @details This is based on Suzie Cro's Stata program
-#' @details when no observed data first mean is used in Stata 
-#' @details may be different here  
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2 
-#' @return mata_means
+
 
 LMCF_loop <- function(c_mata_miss,mata_Means)
 {
@@ -68,13 +61,6 @@ LMCF_loop <- function(c_mata_miss,mata_Means)
   return(mata_means)
 }
 
-#' @title process CIR method
-#' @description process CIR method
-#' @details This is based on Suzie Cro's Stata program
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2   
-#' @param MeansC vector of means after mcmc draws using variance from reference group 
-#' @return mata_means
 
 
 
@@ -126,15 +112,6 @@ CIR_loop <- function(c_mata_miss,mata_Means,MeansC)
 
 
 
-#' @title process Causal method
-#' @description process Causal method
-#' @details This is based on "White,Royes,Best" paper
-#' @param c_mata_miss vector of col locaton of missing values , eg 5 6  
-#' @param mata_Means vector of means after mcmc draws eg 17 1 16.8 15.5 14.6 13.2   
-#' @param MeansC vector of means after mcmc draws using variance from reference group 
-#' @param K0 Causal constant for use with Causal method     
-#' @param K1 exponential decaying Causal constant for use with Causal method  0<k1<1
-#' @return mata_means
 
 
 Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
@@ -270,18 +247,7 @@ Causal_loop<- function(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
 # dont include rhtis in the final package , jus for test purposes only!
-#' @title find descriptive stats on the  M imputed data set
-#' @description find descriptive stats on the  M imputed data set
-#' @details select on patient id and find their means etc
-#' @param id patient identifier
-#' @param datlist imputed dataset of M imputations
-#' @param varlist list of derived variables ,varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
-#' @return printout of descriptve stats
-#' @examples
-#' \dontrun{
-#' varlist <- c("fev.2","fev.4","fev.8","fev.12","base")
-#' analyselist(5099,impdataset,varlist)
-#' }
+
 
 
 analyselist <-function(id,datlist,varlist) {
@@ -293,29 +259,6 @@ analyselist <-function(id,datlist,varlist) {
    t(round(pastecs::stat.desc(datano)[,varlist],8)[c(1,9,13,4,8,5),])
  }
 
-#' @title ddd delta's to imputed values
-#' @description add delta's to imputed values
-#' @details Adding delta values after wthdrawal
-#'  Specifying delta and dlag allows imputations to differ sytematically from RBI methods. 
-#'  They provide an increment which is added on to all values imputed after 
-#'  treatment discontinuation, but not to interim (intermediate) missing values. 
-#'  Values of delta are cumulated after treatment discontinuation.
-#'  For example, for an individual who discontinued treatment at the 2nd time point, we take 
-#'  the vector of delta's starting at the 3rd time point and add their cumulative sums to the imputed values. 
-#'  Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is 
-#'  multipled elementwise by the vector dlag.
-#'  The formula for the increment at time k for an individual who discontinued after time p is
-#'   b_1xa_{p+1} + b_2xa_{p+2} + ... + b_{k-p}xa_k
-#'   where delta=(a_1,a_2,...) and 
-#'         dlag=(b_1,b_2,...). 
-#' A common increment of 3 at all time points after treatment discontinuation is achieved 
-#' by setting  delta=c(3,3,3,...) and dlag=c(1,0,0,...).
-#' @param vec_tst  vector of visit names
-#' @param ncovar number of covariates
-#' @param mata_imp the imputed values (as well as the complete)  and missing pattern
-#' @param delta vector (a values in Roger's paper) length = number of time points
-#' @param dlag vector  (b values in Roger's paper) length = number of time points
-#' @return mata_imp the adjusted imputed vaues (and unadjusted non-missing)
 
 
 AddDelta<-function(vec_tst,ncovar,mata_imp,delta,dlag)  {

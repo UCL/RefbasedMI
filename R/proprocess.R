@@ -1,26 +1,12 @@
 
 
-#' @title pre-process long longitudinal data into wide format 
-#' @description process data into wide format for group method
-#' @details checks method finds missingness pattern
-#' @param data  data in long format
-#' @param covar covariates and base depvar complete
-#' @param depvar dependent variable
-#' @param treatvar treatment group
-#' @param idvar patient id
-#' @param timevar time variable for repeated visit
-#' @param M number imputations
-#' @param reference reference group
-#' @param method RBI method
-#' @return list of outputs
 
 
 #preprocess data for group method
-#edits to get("data" 05/01/21)
-
 preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,method=NULL)  {
   #extract relevant vars
    
+  #browser(text="1403")
   #to investigate interims invoke browser and edit(finaldat) 
   #browser()
   # if covar null (or 1st depvar complete) then ceate baseval covar
@@ -193,6 +179,8 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   
 
   rownames(ex1s)<- NULL
+  # put labels to put back original treat  levels (when not orig 1,2..)
+  ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
   print(ex1s)
 
 
@@ -203,28 +191,12 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
 }
 
-#' @title pre-process long longitudinal data into wide format for individual-specific  
-#' @description process data into wide format for individual-specified method
-#' @details checks methodvar finds missingness pattern
-#' @param data  data in long format
-#' @param covar covariates and base depvar complete
-#' @param depvar dependent variable
-#' @param treatvar treatment group
-#' @param idvar patient id
-#' @param timevar time variable for repeated visit
-#' @param M number imputations
-#' @param reference reference group must be NULL
-#' @param method RBI method  must be NULL
-#' @param methodvar column location in data specifying individual RBI methods 
-#' @param referencevar  column location in data specifying individual reference group for RBI method
-#' @return list of outputs
-
 
 
 
 #preprocess data for individual method
 preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=NULL,method=NULL,methodvar,referencevar)  {
- #browser()
+ #browser(text="1403")
   #check covars complete
   stopifnot(sum(is.na(get("data")[,covar]))==0)
   #tryCatch(stopifnot(sum(is.na(mxdata[,covar]))!=0,error=stop("Error: not all covariates are complete !!")))
@@ -415,25 +387,6 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
 }
 
 
-
-#' @title performs imputation for individual-specific method
-#' @description alternative logic for individual method
-#' @details checks methodindiv not null
-#' @param methodvar  individual method col
-#' @param referencevar  individual reference col
-#' @param mg  pattern lookup table
-#' @param m where we are in the imputations
-#' @param M number of total imputations.
-#' @param paramBiglist  list of Beta and Sigma parameters from mcmc
-#' @param i in loop through mg rows
-#' @param treatvar treatment group
-#' @param c_mata_nonmiss    vector of positions of nonmissing 
-#' @param c_mata_miss 2,3,4 vector of missing positionals
-#' @param mata_miss 0,1 indicators of missing values in repeated time visits
-#' @param mata_nonmiss 0,1 indicators of nonmissing values
-#' @param K0 Causal constant for use with Causal method
-#' @param K1 exponential decaying Causal constant for use with Causal method
-#' @return list of outputs
 
 
 

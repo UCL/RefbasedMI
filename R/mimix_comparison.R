@@ -1,7 +1,8 @@
 #' mimix: Comparisons with Stata and SAS   
 #' 
 #' @description 
-#' mimix is available in Stata whils th Five_macros suite does similar in SAS  
+#' mimix is based on the Stata version and similar is available in the Five_macros suite of SAS 
+#'  (also relevant are the mymcmc and RM_Conj SAS macros)  
 #' 
 #' @section  Comparison with Stata:
 #' This mimix is based on the Stata version and has similar functionality while adding
@@ -33,12 +34,13 @@
 #'  
 #'  
 #' @references 
-#'     Cro s, Morris T, Kenward G,Carpenter Joshttps://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
-#'     White I, Royes J, Best N, https://arxiv.org/abs/1705.04506
-#'     Roger J,
-#'     URL: https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#sensitivity-analysis, 
+#' Cro s, Morris T, Kenward G,Carpenter Joshttps://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796638/
+#' White I, Royes J, Best N, https://arxiv.org/abs/1705.04506
+#' 
+#' URL: https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#sensitivity-analysis, 
+#'         User_guide_to_5macros_38.pdf   Roger J. (2017)  
 #' @docType package
-#' @name mimix_Comparison 
+#' @name aa_mimix_Comparison 
 NULL
 
 

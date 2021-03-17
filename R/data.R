@@ -10,15 +10,15 @@
 #'   \item{time}{}
 #'   \item{treat}{}
 #'   \item{base}{covariate}
-#'   \item{fev}{dependent variable}
+#'   \item{fev}{outcome variable}
 #'   }
 #' @examples
 #' \dontrun{
 #'  impJ2Rridge<-(mimix(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
 #'     method="J2R",reference=1,delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior=ridge,burnin=1000)
-#'  library(mice)     
-#'  fit<-with(data= as.mids(impJ2Rridge),lm(fev.12~treat))
-#'  summary(pool(fit))    
+#'  library(mice) 
+#'  fitJ2R<-with(data= as.mids(subset(impJ2Rridge[[2]],time==12)),lm(fev~treat+base))    
+#'  summary(pool(fitJ2R))    
 #' }     
 "asthma"
 
@@ -41,7 +41,7 @@
 #'  \item{PATIENT.SEX}{}
 #'  \item{POOLED.INVESTIGATOR}{}
 #'  \item{basval}{}
-#'  \item{HAMD17.TOTAL}{dependent variable}
+#'  \item{HAMD17.TOTAL}{outcome variable}
 #'  \item{change}{}
 #'  \item{miss_flag}{}
 #'  \item{methodcol}{individual-specific method}
@@ -49,12 +49,20 @@
 #'  }
 #' @examples
 #' \dontrun{
+#'  # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
+#'  # method and reference 
 #'  impIndiv <- mimix(data=antidepressant,covar=c("basval","PATIENT.SEX"),depvar=HAMD17.TOTAL,
-#'  treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-#'  timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)
-#'  library(mice)  
-#'  fit<-with(data= as.mids(impantiIndivDt),lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+PATIENT.SEX))
-#'  summary(pool(fit))    
+#'         treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+#'          timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)
+#'  library(mice)+basval+ression
+#'  fit<-with(data= as.mids(impIndiv[[1]]),lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+PATIENT.SEX))
+#'  summary(pool(fit))  
+#'  impantdep <- mimix(data=antidepressant,covar=c("basval","PATIENT.SEX"),depvar=HAMD17.TOTAL,
+#'          treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+#'          timevar=VISIT.NUMBER,method="J2R",reference=1,M=2,seed=54321)
+#'  fitdep21<-with(data= as.mids(subset(impantdep[[2]],VISIT.NUMBER==7)),
+#'               lm(HAMD17.TOTAL~TREATMENT.NAME))
+#'  summary(pool(fitdep21)) 
 #' }
 "antidepressant"
 
@@ -77,7 +85,7 @@
 #'  \item{practice_id}{}
 #'  \item{treat}{}
 #'  \item{head_base}{covariate}
-#'  \item{head}{dependent variable}
+#'  \item{head}{outcome variable}
 #'  \item{withdrawal_reason}{}
 #'  }
 #' @examples 
@@ -86,8 +94,8 @@
 #'        idvar=id,timevar=time,
 #'        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
 #'  library(mice)         
-#'  fit<-with(as.mids(impCausalref1), lm(head.12~treat+head_base+sex))  
-#'  summary(pool(fit))    
+#'  fitacup<-with(as.mids(subset(impCausalref1[[2]],time==12)), lm(head~treat+head_base+sex))
+#'  summary(pool(fitacup))    
 #' }
 "acupuncture"
 
