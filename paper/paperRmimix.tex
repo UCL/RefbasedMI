@@ -1,5 +1,7 @@
 % !TeX root = RJwrapper.tex
 
+% comments from Matteo, 18/3/2021
+
 % article type: add-on package. 
 %``short introductions to contributed R packages that are already available on
 %CRAN or Bioconductor, and going beyond package vignettes in aiming to provide broader
@@ -66,12 +68,15 @@ In this setting, an analysis under the commonly used missing at random (MAR) ass
 The implicit assumptions behind this approach were explored by \citet{ian:RBIcausal}, who proposed a causal model in which the treatment effect after discontinuation is a specified fraction of the treatment effect at the point of discontinuation. They showed that J2R, CR and CIR are the special cases of this causal model in which the treatment effect disappears, decays or is maintained after treatment discontinuation, while LMCF and MAR are not special cases of the causal model. 
 
 % software 
-The RBI methods of \citet{Carpenter++13} were implemented in SAS in what have become known as ``the five macros'' and are available on the web page (on www.missingdata.org.uk) of the DIA working group for missing data. These macros also provide for ``delta adjustment'' in which imputed values are modified by a user-specified amount \citep{Ratitch++13}: this is useful is performing sensitivity analysis, since the RBI methods make a number of untestable assumptions \citep{ian:ZAMSTAR}.
+The RBI methods of \citet{Carpenter++13} were implemented in SAS in what have become known as ``the five macros'' and are available on the web page (on 
+https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data) [JAMES is this correct?]
+% was www.missingdata.org.uk
+of the DIA working group for missing data. These macros also provide for ``delta adjustment'' in which imputed values are modified by a user-specified amount \citep{Ratitch++13}: this is useful in performing sensitivity analysis, since the RBI methods make a number of untestable assumptions \citep{ian:ZAMSTAR}.
 The methods were then implemented in Stata by \citet{Cro++16}.
 A practical guide to their use is given by \citet{Cro++20}.
 
 % Aims of paper
-We have implemented the RBI methods in a new R package, which includes the a full implementation of the causal model. 
+We have implemented the RBI methods in a new R package, which includes a full implementation of the causal model. 
 The causal model was previously specified for a two-arm trial and has been extended here for a multi-arm trial.
 The aim of this paper is to describe our implementation of \texttt{mimix} in R, to illustrate its use, and to describe its novel features by comparison with the implementations in SAS and Stata.
 
@@ -102,7 +107,7 @@ The aim of this paper is to describe our implementation of \texttt{mimix} in R, 
 \subsection{Setting} 
 Following \citet{ian:RBIcausal},
 we assume that quantitative outcome measurements are scheduled at baseline and at $\tmax$ occasions after randomisation. 
-Let $Z$ be the random variable for the participant's randomised treatment arm, where $Z=z$ denotes an arm in which we want to impute missing values, and $Z=r$ denotes the reference arm.
+Let $Z$ be the random variable for the participant's randomised treatment arm, where $Z=z$ denotes any arm (active treatment or reference) in which we want to impute missing values, and $Z=r$ denotes the reference arm.
 Let $Y_t$ be the random variable for the participant's outcome at visit $t=0,...,\tmax$. 
 It is convenient to define row vectors
 $\boldsymbol{Y}_{\pret}=(Y_0,\ldots,Y_t)$ containing all outcomes up to  and including visit $t$; 
@@ -180,19 +185,18 @@ We define row vectors
 $\boldsymbol{Y}_{\pret}(z,s)$, $\boldsymbol{Y}_{\postt}(z,s)$, $\boldsymbol{Y}(z,s)$,
 $\boldsymbol{\mu}_\pret(z,s)$, $\boldsymbol{\mu}_\postt(z,s)$ and $\boldsymbol{\mu}(z,s)$
  as before.
-
-[Omit?:] 
-The variance-covariance matrix  of the potential  outcomes is $\boldsymbol{\Sigma}(s)=\varb{\boldsymbol{Y}(s)}$ with submatrices 
-$\boldsymbol{\Sigma}_{\pret\pret}(s)$,
-$\boldsymbol{\Sigma}_{\postt\postt}(s)$ and
-$\boldsymbol{\Sigma}_{\postt\pret}(s)$.
+%The variance-covariance matrix  of the potential  outcomes is $\boldsymbol{\Sigma}(s)=\varb{\boldsymbol{Y}(s)}$ with submatrices 
+%$\boldsymbol{\Sigma}_{\pret\pret}(s)$,
+%$\boldsymbol{\Sigma}_{\postt\postt}(s)$ and
+%$\boldsymbol{\Sigma}_{\postt\pret}(s)$.
 We define 
-the matrix of regression coefficients of  potential outcomes after visit  $t$ on those up to visit  $t$
-as $\boldsymbol{\beta}_t(s) = \boldsymbol{\Sigma}_{\postt\pret}(s) \boldsymbol{\Sigma}_{\pret\pret}(s)^{-1}$, and 
-the residual variance of the potential outcomes after visit  $t$ given those up to visit  $t$ as
-$\boldsymbol{\Omega}_t(s) = \boldsymbol{\Sigma}_{\postt\pret}(s)
-\boldsymbol{\Sigma}_{\pret\pret}(s)^{-1}
-\boldsymbol{\Sigma}_{\postt\pret}(s)^T$.
+the matrix of regression coefficients of  potential outcomes after visit  $t$, $\boldsymbol{Y}_{\postt}(z,s)$, on those up to visit  $t$,  $\boldsymbol{Y}_{\pret}(z,s)$,
+as $\boldsymbol{\beta}_t(z,s)$.
+%  = \boldsymbol{\Sigma}_{\postt\pret}(s) \boldsymbol{\Sigma}_{\pret\pret}(s)^{-1}$, and 
+%the residual variance of the potential outcomes after visit  $t$ given those up to visit  $t$ as
+%$\boldsymbol{\Omega}_t(s) = \boldsymbol{\Sigma}_{\postt\pret}(s)
+%\boldsymbol{\Sigma}_{\pret\pret}(s)^{-1}
+%\boldsymbol{\Sigma}_{\postt\pret}(s)^T$.
 
 
 The key model assumption describes how the maintained effect of treatment after
@@ -229,8 +233,7 @@ These give the mean of the imputation model:
 \boldsymbol{K}_{z,t} \left\{\boldsymbol{\mu}_{\pret}(z,t)-\boldsymbol{\mu}_{\pret}(0)\right\} +
 \boldsymbol{\mu}_{\postt}(0).
 \end{eqnarray}
-
-[Again we can handle variances... how much to say?]
+The variance matrix for the imputation model is drawn from the reference arm as described in \citet{ian:RBIcausal}.
 
 
 \subsection{Interim missing values}
@@ -242,25 +245,17 @@ This differs from the behaviour of the Stata package \citep{Cro++16} which by de
 
 \subsection{Individuals with no observed values}
 
-[TEXT FOR DISCUSSION -- NEED TO WORK OUT HOW TO HANDLE THESE DISCREPANCIES]
+[TEXT FOR DISCUSSION / OMISSION. SUZIE CAN YOU EXPLAIN WHAT THE CODE DOES FOR CIR/LMCF?]
 
-Individuals with no observed values are easily imputed under MAR, but for the other methods they are currently a problem that we need to resolve.
-
-We first consider J2R and CR. 
-These methods should construct the imputation distribution wholly from the reference arm. 
-They therefore correspond to MAR imputation if the wholly unobserved individual was in the reference arm. 
-Both the Stata and R programs do this correctly for an individual in the reference arm, but for an individual in a non-reference arms, J2R and CR do not agree with each other.
-
-We next consider CIR and LMCF. These are defined in terms of the last observed value, so they are formally undefined. 
-The Stata program imputes CIR the same as J2R, while LMCF differs from all other methods, except that it agrees with MAR at the first visit.
-The R program imputes CIR and J2R differently when in the non-reference arm.
+The algorithm described above applies naturally to individuals with no observed values under MAR, J2R and CR. 
+The other methods, CIR, LMCF and the causal model all depend on a last observed value which does not exist. However they all appear to give sensible values.
 
 
 
 
 \subsection{Delta adjustment}
 
-Delta adjustment allows imputations to differ sytematically from RBI methods and so provides a framework for performing sensitivity analysis around RBI assumptions.
+Delta adjustment allows imputations to differ syStematically from RBI methods and so provides a framework for performing sensitivity analysis around RBI assumptions.
 We follow the approach of the five macros. 
 Delta adjustment provides an increment which is added on to all values imputed after treatment discontinuation, but not to interim missing values. 
 It is specified by two user-specified $T$-dimensional row vectors $\boldsymbol{a}$ and $\boldsymbol{b}$,
@@ -339,12 +334,13 @@ The program works through the following steps.
 \item Set up a summary table based on treatment arm and missing data pattern (i.e.\ which timepoints are unobserved).
 \item Fit a multivariate normal distribution to each treatment arm using MCMC methods in package norm2 \citep{norm2}.
 \item Impute all interim missing values under a MAR assumption, looping over treatments and patterns.
-\item Impute post-discontinuation missing values under the user-specified assumption, looping over treatments and patterns. If methodvar and/or refvar is specified then the loop is also over teh values of these.
+\item Impute post-discontinuation missing values under the user-specified assumption, looping over treatments and patterns. If methodvar and/or refvar is specified then the loop is also over the values of these.
 \item Perform delta adjustment if specified.
 \item Repeat steps 2-5 M times and form into a single data frame.
 \end{enumerate}
+
 The baseline value of the outcome could be handled as an outcome or as a covariate. 
-[Which do we recommend?] 
+[Which do we recommend? Matteo prefers as a covariate as it's always observed, but if incompete it needs to be an outcome?] 
 
 The program is based on Suzie Cro’s Stata program \texttt{mimix}.
 
@@ -352,7 +348,6 @@ The program is based on Suzie Cro’s Stata program \texttt{mimix}.
 
 The M imputed data sets are output concatenated as one large data frame, comprising the 
 original unimputed dataset concatenated with all the imptued data sets.
-[CURRENTLY IN WIDE FORMAT, UNLIKE THE INPUT DATA AND UNLIKE STATA'S OUTPUT] 
 
 The user can use the \texttt{as.mids()} function in the \texttt{mice} package to convert the output data  to \texttt{mids} data type and hence to perform analysis using Rubin's rules.
 
@@ -375,14 +370,14 @@ The data are missing after patients discontinue their randomised treatment.
 A treatment policy estimand is therefore estimated using reference-based imputation, with the placebo arm as reference. 
 For example, J2R is implemented as follows
 \begin{verbatim}
-asthmaJ2R <- mimix(data=asthma, covar='base', depvar=fev, treatvar=treat, idvar=id, 
-    timevar=time, method='J2R', reference=1, M=5, seed=101, prior=ridge, burnin=1000)
+asthmaJ2R <- mimix(data = asthma, covar = 'base', depvar = fev, treatvar = treat, idvar = id, 
+    timevar = time, method = 'J2R', reference = 1, M = 5, seed = 101, prior = ridge, burnin = 1000)
 \end{verbatim}
 
 The primary outcome can be analysed using an analysis of covariance by
 \begin{verbatim}
 library(mice)     
-fit <- with(data= as.mids(asthmaJ2R), lm(fev.12 ~ treat + base))
+fit <- with(data = as.mids(asthmaJ2R), lm(fev.12 ~ treat + base))
 summary(pool(fit))    
 \end{verbatim}
 Results are as follows:
@@ -392,6 +387,9 @@ Results are as follows:
 2     treat.L 0.1585223 0.07119548  2.226578 81.64041 2.873017e-02
 3        base 0.6843152 0.09180436  7.454060 28.90698 3.315976e-08
 \end{verbatim}
+
+
+NEEDS MORE EXAMPLE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -445,7 +443,7 @@ MCMC options	&	seed and thinning (=burnin)	&	seed, burnin and thinning	&	seed, b
 Covariates interacting with treatment	&	never	&	always	&	always	\\
 Covariates interacting with time	&	optional	&	always	&	always	\\
 LMCF	&	several flavours: ALMCF, OLMCF, AFCMCF, OFCMCF	&	ALMCF only?	&	ALMCF only?	\\
-No observed data	&	Warning	&	First mean is used	&	?	\\\hline
+No observed data	&	Warning	&	First mean is used?	&	?	\\\hline
 \end{tabular}
 
 
@@ -460,6 +458,9 @@ No observed data	&	Warning	&	First mean is used	&	?	\\\hline
 \item The suitability of the Rubin's rules standard errors has been debated \citep{ian:Carpenter_letter,Carpenter++14,Cro++19}
 \item Trials should be designed consistently with their estimand, so if the treatment-policy estimand is of interest then outcomes should be collected after treatment discontinuation. Analysis options for this setting are still in development: options include including treatment discontinuation time in the model and imputing under MAR [ref Tom at GSK]; using RBI or causal model and reserving the post-discontinuation data for model checking; or using RBI or causal model and using the post-discontinuation data to estimate model parameters such as $K_{z,t}$. 
 \item We didn't code the \emph{RBI alternative} approach of \citet{ian:RBIcausal} that instead uses $\boldsymbol{\beta}_t(\tmax)$ and $\boldsymbol{\Omega}_t(\tmax)$ for all RBI methods.
+\item As for any MCMC procedure, an adequate number of iterations is required to achieve convergence and hence suitable imputed values. 
+For the multivariate normal model being fitted here, we believe that 1000 iterations are likely to be ample. 
+We have not implemented diagnostic plots for convergence [KEVIN but does norm2 have any that we could borrow?]
 
 \end{itemize}
 

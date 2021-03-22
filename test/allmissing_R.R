@@ -59,12 +59,15 @@ for(i in 1:length(methods)){
                      methodvar=NULL
   )
 }
-print("Ref=1")
+library(tidyverse)
+
+cat("\nRef=1\n")
 for(i in 1:length(methods)){
   print(methods[i])
   print(imp1[[i]] %>% filter(.id==5001))
 }
-print("Ref=2")
+
+cat("\nRef=2\n")
 for(i in 1:length(methods)){
   print(methods[i])
   print(imp2[[i]] %>% filter(.id==5001))
