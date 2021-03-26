@@ -180,7 +180,11 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
   rownames(ex1s)<- NULL
   # put labels to put back original treat  levels (when not orig 1,2..)
-  ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
+ # browser(text="2203")
+  # gives wrng ordering
+  # ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
+  ex1s[,treatvar] <- ordered(ex1s[,treatvar], labels=as.character(unique(tmptreat)))
+   
   print(ex1s)
 
 

@@ -22,7 +22,7 @@
 #' @section Comparison with SAS:
 #' 
 #' Whilst this program is based on the Stata program, the latter is an adaptation of the SAS macro miwithd,
-#' written by james Roger, subsequently updated to the Five_Macros suite of macros
+#' written by James Roger, subsequently updated to the Five_Macros suite of macros
 #' This program uses the same approach for the delta adjustment as described in the Five_macros, 
 #' in comparing outputs from our program with the Five_macros it is to be noted that interaction between treatment and covariates
 #' is not allowed in the SAS macros, and comparisons are only valid for example in testing the Causal model by specifically not
@@ -38,9 +38,10 @@
 #' White I, Royes J, Best N, https://arxiv.org/abs/1705.04506
 #' 
 #' URL: https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#sensitivity-analysis, 
-#'         User_guide_to_5macros_38.pdf   Roger J. (2017)  
+#'    
+#' User_guide_to_5macros_38.pdf   Roger J. (2017)  
 #' @docType package
-#' @name aa_mimix_Comparison 
+#' @name mimix_comparison 
 NULL
 
 

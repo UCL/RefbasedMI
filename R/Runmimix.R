@@ -19,20 +19,20 @@
 #' @param data  Dataset in long format
 #' @param covar Covariates - baseline.  Must be complete (no missing values), enclose in quotes.
 #' @param depvar Outcome variable
-#' @param treatvar Treatment group, can be character
+#' @param treatvar Treatment group, can be numeric or character  
 #' @param idvar Participant identifier.
 #' @param timevar Time point for repeated measure
-#' @param method Reference-based imputation method: must be J2R, CR, CIR, MAR, Causal or LMCF, enclose in quotes. 
-#' @param reference  Reference group for J2R, CIR, CR methods
-#' @param methodvar column in data-set specifying individual method, enclose in quotes.
-#' @param referencevar column in data-set specifying reference group as forindividual method, enclose in quotes.
+#' @param method Reference-based imputation method: must be "J2R", "CR", "CIR","MAR", "Causal" or "LMCF" 
+#' @param reference  Reference group for "J2R", "CIR", "CR" methods , can be numeric or string
+#' @param methodvar column in data-set specifying individual method
+#' @param referencevar column in data-set specifying reference group as for individual method, 
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
 #' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide),length as number of time points
 #' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros use guide),length as number of time points
 #' @param M Number of imputations to be created
 #' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
-#' @param prior  Prior when fitting multivariate normal distributions. It can be one of jeffreys (default), uniform or ridge
+#' @param prior  prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge" 
 #' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
 #' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
 #' @param mle logical option - not recommended !
@@ -53,11 +53,13 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.13
+# v0.0.14
 # @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
-#mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
+# mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
+
 mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
-                 K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior=jeffreys,burnin=1000,bbetween=NULL,mle=FALSE) {
+                 K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
+  {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
   # this forces interims to be estimated as MAR by default
@@ -68,12 +70,82 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
   treatvar <- deparse(substitute(treatvar))
   idvar<-deparse(substitute(idvar)) 
   timevar<-deparse(substitute(timevar))
+  
+  # check that reference is category  of treatment var
+  # but check refernce is not null ( because method not need or us indiv specicif cols
+  if (!is.null(reference) ) {
+    if (!(reference %in% get("data")[,(substitute(treatvar))]) )  { stop("reference must be a category of treatment") }
+  }
+  
+    #if  (!reference %in% (get("data")[,(substitute(treatvar))]))  { stop("reference must be a category of treatment") }
+  
+ # if (!exists(deparse(substitute(methodvar))) || is.null(methodvar) ) {} 
+ 
+# maybe not best [lace to put them??  
+  # methodvar<- deparse(substitute(methodvar))
+ #  referencevar <- deparse(substitute(referencevar))
+  
   # must be null when using methodvar
   #if (!is.null(method)) {method<-deparse(substitute(method))}
-  prior<-deparse(substitute(prior))
+  #prior<-deparse(substitute(prior))
     
+  #browser(text="1903")
+  # try read covar without quotes
+  scovar<-substitute(covar)
+
+  # check if covar null
+  if (length(scovar) > 0 ) 
+  {
+    # term on rhs copied & pasted!  "‘c’"
+    # this  unicode ("\U2018","c","\U2019") for Left & right single quotation mark   
+    # package wont accept non-ascii char so replace
+  #  if (sQuote(scovar)[[1]]== "‘c’")
+    # by
+   # browser(text="2503")
+    if (sQuote(scovar)[[1]]== paste0("\U2018","c","\U2019") )
+   { 
+    covarname<-vector(mode="list",length=(length(scovar)-1))
+    for ( i in 2:length(scovar))
+       {
+         covarname[[i-1]] <-names(get("data"))[[grep(scovar[[i]],names(get("data")))]]
+       }
+         covarvector<-as.vector(unlist(covarname))
+    } else {
+     covarvector <- names(get("data"))[[grep(scovar,names(get("data")))]]
+   }
+  covar<-covarvector
+  }
+  #else covar just NULL
+  
   # print a warning if reference = NULL
-  if (is.null(reference)) {cat("nWARNING !! reference value NULL, required for J2R,CIR,CR,Causal")} 
+  
+ # browser(text="2203")
+  
+
+  reference<-substitute(reference)
+  
+  # make sure reference converted to numeric by using lookup between unique treatvar and unique tmptreat
+
+  # check refernce consistent with treatvar
+  #if ( (typeof(get("data")[,treatvar])=="character") & (typeof(reference) != "character")) { stop("reference must be consistent with treatment") }
+  # not really works because refernce is type symbol try this instead
+  
+  # this necessary now?? replaced by simpler test earlier 
+  # if (typeof(reference)=="character" ) {
+  #  if (!grep(substitute(reference),unique(get("data")[,treatvar]) )>0) { stop("reference must be consistent with treatment") }
+  # }  else {
+  #   if (typeof(get("data")[,treatvar])=="character") { stop("reference and treatment not both character types") }
+  # }
+  
+  if (!is.null(method)) {
+     if (is.null(reference)) {cat("nWARNING !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")} 
+  }
+    
+  # reference may be null eg if referencevar used
+  if (!is.null(reference)) { 
+    ref_pos<-grep(reference,unique(get("data")[,treatvar]))
+    reference<-(as.numeric(unique(head(tmptreat))[ref_pos]))
+  }
  
   
   # try recoding treat, eg 2,3 into 1,2,...
@@ -98,7 +170,16 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
   # insert error checks  HERE
   #check not both meth and methodundiv specified.
   # stopifnot(method=="NULL" | methodvar=="NULL")
-  if (!(is.null(method) | is.null(methodvar))) {stop("Either method or methodvar must be specified but NOT both") }
+  
+  # to put quotes in method
+  if (!is.null(substitute(method))) {method<-paste0("",(substitute(method)),"")} 
+  if (!is.null(substitute(methodvar))) {methodvar<-paste0("",(substitute(methodvar)),"")} 
+  
+  # this wont work no quoted etc
+  if (!xor( is.null(method) , is.null(methodvar)) ) {stop("Either method or methodvar must be specified but NOT both and at least one") }
+   
+  
+  #if (!(is.null(method) | is.null(methodvar))) {stop("Either method or methodvar must be specified but NOT both") }
   # establish whether specifying individual or group by creating a flag var
   if (!is.null(method)) {
     flag_indiv <-0
@@ -186,6 +267,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
 
   #browser(text="1403")
 
+ 
+  
   if (!is.null(method) ) {
       # change 1403
       # testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method))
@@ -209,7 +292,14 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
 
   }
   # for user specified
+  
+  
   else if (!is.null(methodvar) ) {
+    
+    # previously ,no need here causee error
+    #methodvar<- deparse(substitute(methodvar))
+    
+    referencevar <- deparse(substitute(referencevar))
     #changed due to quotes around arguments 
     # testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar))
     testlist =  preproIndivdata(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar)
@@ -469,7 +559,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
 # browser(text="0501")
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
     #unnecessary now recoded
- #browser()
+# browser(text="2303")
     trtgpindex<-which(trtgp==ntreat)
     referindex<-which(reference==ntreat)
   
@@ -512,7 +602,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
         # need to distinguish between meth and methodindiv
     #    browser(text="1102")
         if (flag_indiv==0 ) {
-
+   # browser(text="2303")
           referindex<- reference
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
@@ -1064,7 +1154,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
     # browser(text="1603")
      
      # return long data set
-     varyingnames <- names(impdataset[,grep(depvar,names(impdataset))])
+    # varyingnames <- names(impdataset[,grep(depvar,names(impdataset))])
+     varyingnames<-names((impdataset)[,grepl(paste0(depvar,"\\."),colnames(impdataset))])
      impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".",v.names = depvar,timevar=timevar)
      # re-set time levels to original as could have been transformed to 1,2..)
      impdatalong[,timevar]<-levels(as.factor(unique(get("data")[,timevar])))[impdatalong[,timevar]]
@@ -1081,14 +1172,31 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
      # finally re-order
      impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,timevar]),])
      
+     
+     # if idvar ="id" then wil be duplicste id cols name so  delete the 2nd occurence which is the last col
+     # this when individual specific cols dataset has idvar equal to id  
+     if (idvar =="id") {
+       impdatamergeord[,ncol(impdatamergeord)]<-NULL
+     }else {
+       # need .id variable  to enable  use of mice in after-analysis
+       # overwrite values inid col
+       impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+     }
+     
      # overwrite values inid col
-     impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+     #impdatamergeord[,"id"]<- impdatamergeord[,idvar]
      # and rename  id col 
+  #   browser(text="2401")
+     
      names(impdatamergeord)[names(impdatamergeord)=="id"]<-".id"
     
+     #drop patt - only needed it for testing
+     # drop patt
+     impdatamergeord<- within(impdatamergeord,rm(patt))
      
-     return(list(impdataset, impdatamergeord))   # return for indiv-specific
      
+    # return(list(impdataset, impdatamergeord))   # return for indiv-specific
+     return(impdatamergeord)
    }   
 
       #load("rawint8.Rda")
@@ -1336,7 +1444,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   else if (method==6)   {model<-"CAUSAL" }
   
   # like to insert no. of missing after interims imputed 
-  # browser(text="1002")
+ #  browser(text="1002")
   cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
   cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
   
@@ -1350,7 +1458,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   #   mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
   #   mata_Obs<-mata_Obs.reorder
   
+  
   m_mg_iter<-0
+  #  create a dup col to preserve origial numeric levels
+  #browser(text="2303")
+  mg[,"orig_treat"] <- mg[,treatvar]
+  
   for (i in 1:nrow(mg))
   {
   
@@ -1379,7 +1492,17 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     cnt<- mg$cases[i]
     #browser()
     # treatment grp
-    trtgp<- mg[i,treatvar]
+    
+    #assign before recode to preservefor trtgpindex a few lines down
+   # instead of  trtgp<- mg[i,treatvar]
+      trtgp<- mg[i,"orig_treat"]
+    
+    # but note in case need to change to the character values
+   
+    mg[,treatvar] <- ordered(mg[,treatvar], labels=as.character(unique(tmptreat)))
+    
+    
+    
     
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
@@ -1387,14 +1510,17 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     
     #browser(text="1403")
     if  (!is.null(method) ) {
-      cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ",cnt,"\n") }
+      #cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ",cnt,"\n") }
+      #try this
+      cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) }
     else if(!is.null(methodvar) ) {
       cat(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n\n")
     }
     
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
     #unneceassary now recoded
-    #browser()
+    
+    #necessary!
     trtgpindex<-which(trtgp==ntreat)
      
     # try ths when lmcf or mar? . ie no or NULL  refernce !! 0702
@@ -1510,7 +1636,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         # need to distinguish between meth and methodindiv
         
         if (flag_indiv==0 ) {
-         # browser(text="0902")
+        #  browser(text="0902")
           referindex<- reference
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
@@ -1646,7 +1772,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           }
           # 'LMCF'
           else if (method==5) {
-            #browser(text="0602")
+         #   browser(text="2003")
             #mata_Means <-  get(paste0("param",trtgp,m))[1]
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
             # convert from list to matrix
@@ -1959,9 +2085,13 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # try putting recoded treat levels back here !
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
   
+ # browser(text="2003")
   # in order to output in long format with original data set 
-  varyingnames<-names((impdataset)[,grepl(depvar,colnames(impdataset))])
-
+  # but in acupuncture this catches head_base as well as head.3 head.12 
+  #varyingnames<-names((impdataset)[,grepl(depvar,colnames(impdataset))])
+  # be more specific! 
+  varyingnames<-names((impdataset)[,grepl(paste0(depvar,"\\."),colnames(impdataset))])
+  
   #  impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".")
   # the extra arguments necessary when depvar something like Hamd17.total.7..   
   impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".",v.names = depvar,timevar=timevar)
@@ -1981,13 +2111,25 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # sort
   impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,timevar]),])
   
+  #browser(text="2403")
   # overwrite values inid col
-  impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+  # if idvar ="id" then wil be duplicste id cols name so  delete the 2nd occurence which is the last col
+  if (idvar =="id") {
+    impdatamergeord[,ncol(impdatamergeord)]<-NULL
+  }else {
+    # need .id variable  to enable  use of mice in after-analysis
+    impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+  }
+  
   # and rename  id col 
   names(impdatamergeord)[names(impdatamergeord)=="id"]<-".id"
   
+  #browser(text="2303")
+  # drop patt
+  impdatamergeord<- within(impdatamergeord,rm(patt))
   
-  return(list(impdataset,impdatamergeord)) 
+  #return(list(impdataset,impdatamergeord)) 
+  return(impdatamergeord) 
 }     
 
 
