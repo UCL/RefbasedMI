@@ -21,7 +21,7 @@ mimix(
   dlag = NULL,
   M = 1,
   seed = 101,
-  prior = jeffreys,
+  prior = "jeffreys",
   burnin = 1000,
   bbetween = NULL,
   mle = FALSE
@@ -34,19 +34,19 @@ mimix(
 
 \item{depvar}{Outcome variable}
 
-\item{treatvar}{Treatment group, can be character}
+\item{treatvar}{Treatment group, can be numeric or character}
 
 \item{idvar}{Participant identifier.}
 
 \item{timevar}{Time point for repeated measure}
 
-\item{method}{Reference-based imputation method: must be J2R, CR, CIR, MAR, Causal or LMCF, enclose in quotes.}
+\item{method}{Reference-based imputation method: must be "J2R", "CR", "CIR","MAR", "Causal" or "LMCF"}
 
-\item{reference}{Reference group for J2R, CIR, CR methods}
+\item{reference}{Reference group for "J2R", "CIR", "CR" methods , can be numeric or string}
 
-\item{methodvar}{column in data-set specifying individual method, enclose in quotes.}
+\item{methodvar}{column in data-set specifying individual method}
 
-\item{referencevar}{column in data-set specifying reference group as forindividual method, enclose in quotes.}
+\item{referencevar}{column in data-set specifying reference group as for individual method,}
 
 \item{K0}{Causal constant for use with Causal method}
 
@@ -60,7 +60,7 @@ mimix(
 
 \item{seed}{Seed value. Specify this so that a new run of the command will give the same imputed values.}
 
-\item{prior}{Prior when fitting multivariate normal distributions. It can be one of jeffreys (default), uniform or ridge}
+\item{prior}{prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge"}
 
 \item{burnin}{Number of burn-in iterations when fitting multivariate normal distributions.}
 

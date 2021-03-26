@@ -34,18 +34,19 @@ The primary outcome is HAMD17.TOTAL measured at visit number 4,5,6,7.
 \examples{
 \dontrun{
  # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
- # method and reference 
- impIndiv <- mimix(data=antidepressant,covar=c("basval","PATIENT.SEX"),depvar=HAMD17.TOTAL,
-        treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-         timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)
- library(mice)+basval+ression
- fit<-with(data= as.mids(impIndiv[[1]]),lm(HAMD17.TOTAL.7~TREATMENT.NAME+basval+PATIENT.SEX))
+ # method and reference indivdually specified columns 
+ impIndiv <- mimix(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
+     treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+     timevar=VISIT.NUMBER,methodvar=methodcol,referencevar=referencecol,M=5,seed=54321)        
+ library(mice)
+ fit<-with(data= as.mids(subset(impIndiv,VISIT.NUMBER==7)),
+               lm(HAMD17.TOTAL~TREATMENT.NAME+basval+PATIENT.SEX))
  summary(pool(fit))  
- impantdep <- mimix(data=antidepressant,covar=c("basval","PATIENT.SEX"),depvar=HAMD17.TOTAL,
+ impantdep <- mimix(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
          treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-         timevar=VISIT.NUMBER,method="J2R",reference=1,M=2,seed=54321)
- fitdep21<-with(data= as.mids(subset(impantdep[[2]],VISIT.NUMBER==7)),
-              lm(HAMD17.TOTAL~TREATMENT.NAME))
+         timevar=VISIT.NUMBER,method="J2R",reference=1,M=5,seed=54321)
+ fitdep21<-with(data= as.mids(subset(impantdep,VISIT.NUMBER==7)),
+              lm(HAMD17.TOTAL~TREATMENT.NAME+basval))
  summary(pool(fitdep21)) 
 }
 }
