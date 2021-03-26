@@ -1,4 +1,6 @@
 # mimix
+ *0.0.14*
+
 <h2>Multiple imputation sensitivity analysis for longitudinal trials using R</h2> 
 
 We aim to port the functionality of the Stata program **mimix**  into R 
