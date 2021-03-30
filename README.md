@@ -1,7 +1,7 @@
 <a href ="https://www.ctu.mrc.ac.uk/"><img src="MRCCTU_at_UCL_Logo.png" width="50%" /></a>
 
-# mimix
- *0.0.10*
+# RefBasedMI (mimix)
+ *0.0.15*
 
 # An R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
@@ -117,58 +117,69 @@ Arguments in function mimix()
 
 # examples
 
+### Sample data: asthma trial
 
-### Jump to reference (J2R) with Placebo treatment group as reference,  
-
-recode Placebo/Drug treatment to 1,2 
-
-impdatasetJ2R-mimix("asthma",c("base"),"fev","treat","id","time",1000,1,"J2R",54321,"jeffreys",1000,NULL,NULL,NULL,NULL,NULL,NULL,NULL,mle=0 )
+# J2R analysis with control as reference
+asthmaJ2R <- mimix(data = asthma, covar = base, depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
+	prior = "ridge", burnin = 1000)
+ 
+# Analysis
 
 fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
 functions from mice package
 
 library(mice)
 
-fit<-with(impdatasetJ2R, lm(fev.12~treat+base))
-
-summary(pool(fit))
-
-### Jump to reference (J2R) with  Drug treatment group as reference, with delta adjustment 
-<explain delta adjustment here>
- 
-impdatasetJ2Rdelt<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"J2R",101,"jeffreys",1000,NULL,NULL,c(0.5,0.5,1,1),(1,1,1,1) )
-
-fit<-with(impdatasetJ2Rdelt, lm(fev.12~treat+base))
+fit<-with(as.mids(subset(asthmaJ2R,time==12)), lm(fev~treat+base))
 
 summary(pool(fit))
 
 
-### Using the Causal method
+# Delta method - all values are 1 unit lower than expected under J2R
+impJ2Rridge <- mimix(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, 
+	delta = c(-1, 0, 0, 0), M = 5, seed = 101, prior = "ridge")      
 
+fit<-with(as.mids(subset(impJ2Rridge,time==12)), lm(fev~treat+base))
+
+summary(pool(fit))
+
+
+
+### Sample data: antidepressant trial
+
+# Mixed methods
+
+methodcol and referencecol are variables in the data set 
+
+NOTE - either method or methodvar to be specified but NOT both
+
+antidepIndiv <- mimix(data = antidepressant, covar = c(basval, PATIENT.SEX),depvar = HAMD17.TOTAL, treatvar = TREATMENT.NAME, idvar = PATIENT.NUMBER, 
+    timevar = VISIT.NUMBER, methodvar = methodcol, referencevar = referencecol, 
+	  M = 5, seed = 54321)        
+
+# Analysis
+
+antidepIndiv <- with(data =  as.mids(subset(antidepIndiv, VISIT.NUMBER == 7)),	lm(HAMD17.TOTAL ~ TREATMENT.NAME + basval + PATIENT.SEX))
+summary(pool(antidepIndiv))  
+
+### Sample data: acupuncture trial 
+
+# Causal model: treatment effect halves every 1 time unit 
+# after treatment discontinuation
 Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR 
 
-Example   Causal model with reference arm  treatment group 1
+acuCausal <- mimix(data = acupuncture, covar = c(head_base), depvar = head,	treatvar = treat, idvar = id, timevar = time, method = "Causal", 
+	reference = 1, K0 = 1, K1 = 0.5, M = 5, seed = 54321)
+ 
+# Analysis
+
+acufit <- with(as.mids(subset(impCausalref, time == 12)),	lm(head ~ treat + head_base ))
+summary(pool(acufit))    
 
 
-impCausal <- mimix("antidepressant",covar=c("basval"),"change","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,1,"Causal",54321,,,NULL,NULL,NULL,,,K0=1,K1=0.9,0)
-
-fit<-with(data= as.mids(impCausal), expr = lm(change.7~TREATMENT.NAME+basval))
-
-summary(pool(fit))
-
-### MAR method, with delta adjustment
-
-impdataMARdel<-mimix("asthma",c("base"),"fev","treat","id","time",1000,2,"MAR",54321,"jeffreys",1000,NULL,NULL,NULL,c(2,2,1.5,1.5),NULL,,, )
 
 
-### Individual specific method, with delta adjustment
 
-methodcol and referencecol variables in the data set 
-
-NOTE - either method or methodcol to be specified but NOT both
-
-impdataInd <- 
-mimix("antidepressant",c("basval","POOLED.INVESTIGATOR","PATIENT.SEX"),"HAMD17.TOTAL","TREATMENT.NAME","PATIENT.NUMBER","VISIT.NUMBER",1000,1,NULL,54321,c("ridge"),1000,NULL,"methodcol","referencecol",c(3,3,3,3 ),c(1,0,0,0),,,)
 
 
 
