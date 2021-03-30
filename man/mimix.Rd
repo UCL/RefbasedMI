@@ -74,7 +74,7 @@ The M imputed data sets are output concatenated as one large dataframe in long f
 appended to the original unimputed data-set
 }
 \description{
-main wrapper for running mimix
+main wrapper for running RefBasedMI (mimix)
 }
 \details{
 The program works through the following steps
