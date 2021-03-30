@@ -60,7 +60,7 @@
 #'  # method and reference indivdually specified columns 
 #'  impIndiv <- mimix(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
 #'      treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-#'      timevar=VISIT.NUMBER,methodvar=methodcol,referencevar=referencecol,M=5,seed=54321)        
+#'      timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)        
 #'  library(mice)
 #'  fit<-with(data= as.mids(subset(impIndiv,VISIT.NUMBER==7)),
 #'                lm(HAMD17.TOTAL~TREATMENT.NAME+basval+PATIENT.SEX))

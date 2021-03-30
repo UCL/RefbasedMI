@@ -15,7 +15,9 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
     # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
   ##2311 make sure .id is id ! 
   #browser()
-    fevdata<- get("data")[c(idvar,covar,depvar,timevar,treatvar)]
+  #change order put covar last
+  #  browser(text="2703")
+    fevdata<- get("data")[c(idvar,depvar,timevar,treatvar,covar)]
   # extract covar cols 1 row per id to merge onto the wide data
     uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
     ntreatcol<- get("data")[c(treatvar)]
@@ -27,7 +29,14 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
 
  # reshape from long to wide longitudinal data with as many depvars as time points
-  sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+ 
+#   investigatte moving covar to end
+ #   browser(text="2603")
+    # no covar
+    fevdata<- get("data")[c(idvar,depvar,timevar,treatvar)]
+    uniqcovar<-unique(get("data")[c(idvar,covar)])
+  
+     sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   #assumes no NA for these vars should add in checking routines !!
   #check how many covars used
@@ -38,10 +47,12 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
  # print(utils::head(uniqdat))
 
-  finaldatOld<- merge(sts4,uniqdat,by=idvar)
+  
+ # finaldatOld<- merge(sts4,uniqdat,by=idvar)
   # now no need to merge because covar ,treat already specified in fevdata
-  finaldat<- sts4
-
+ # but 2703 now use merge for covar at end col
+       #finaldat<- sts4
+     finaldat<- merge(sts4,uniqcovar,by=idvar)
 
  # print(utils::head(finaldat))
   # now try and sort on treatvar, doesnt work so instead of sorting , select on treat
@@ -91,7 +102,9 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
     #add names
     colnames(tmp_covpatt) <- paste0(c(covar),".miss")
     # than combine below the dummies onto the finaldat
-     sts4Dpatt<-cbind(finaldat,tmp_covpatt,STSdummy,patt)
+    # 2703 move covar to  col following depvar
+     #sts4Dpatt<-cbind(finaldat,tmp_covpatt,STSdummy,patt)
+    sts4Dpatt<-cbind(finaldat,STSdummy,tmp_covpatt,patt)
   }   else {
     sts4Dpatt<-cbind(finaldat,STSdummy,patt)
   }
@@ -220,7 +233,8 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   # convert to numic should be done outside function in main.
 
   #11/05/20
-  fevdata<- get("data")[c(idvar,covar,depvar,timevar,treatvar,methodvar,referencevar)]
+  # change order for covar didnt work so take out treatvar covar and use uniqdat
+  fevdata<- get("data")[c(idvar,depvar,timevar,methodvar,referencevar)]
   # now covar added to data list so need need for unique?
   uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
   ntreatcol<- get("data")[c(treatvar)]
@@ -236,8 +250,8 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
 ## uniqdat<-unique(get(data)[c(idvar,covar,treatvar,methodindiv)])
 
   # merge on the covariates and treatment to names
-##  finaldat<- merge(sts4,uniqdat,by=idvar)
-  finaldat<-sts4
+  finaldat<- merge(sts4,uniqdat,by=idvar)
+#  finaldat<-sts4
 
   #in order to aggregate by pattern need create dummy vars
 
@@ -266,8 +280,8 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
     tmp_covpatt<-apply(as.data.frame(sts4Dpatt[,covar]),MARGIN=2,function(x) ifelse(!is.na(x),0,1))
     #add names
     colnames(tmp_covpatt) <- paste0(c(covar),".miss")
-
-    sts4Dpatt<-cbind(finaldat,tmp_covpatt,STSdummy,patt)
+# 2703 move covar to  col following depvar
+    sts4Dpatt<-cbind(finaldat,STSdummy,tmp_covpatt,patt)
   }   else {
     sts4Dpatt<-cbind(finaldat,STSdummy,patt)
   }
