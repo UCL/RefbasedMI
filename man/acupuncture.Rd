@@ -3,18 +3,9 @@
 \docType{data}
 \name{acupuncture}
 \alias{acupuncture}
-\title{acupuncture.}
+\title{Sample data: acupuncture trial}
 \format{
-An object of class \code{data.frame} with 802 rows and 11 columns.
-}
-\usage{
-acupuncture
-}
-\description{
-A dataset containing trial results of a randomised, double-blind, parallel-group studies comparing active treatment with placebo
-}
-\details{
-@format A data frame with 802 rows and 11 columns
+A data frame with 802 rows and 11 columns
 \describe{
 \item{id}{}
 \item{time}{}
@@ -24,9 +15,27 @@ A dataset containing trial results of a randomised, double-blind, parallel-group
 \item{chronicity}{}
 \item{practice_id}{}
 \item{treat}{}
-\item{head_base}{}
-\item{head}{}
+\item{head_base}{covariate}
+\item{head}{outcome variable}
 \item{withdrawal_reason}{}
+}
+}
+\usage{
+acupuncture
+}
+\description{
+A data set containing results of a randomised, double-blind, parallel-group
+comparing active treatment with placebo
+The primary outcome is head, measured at time 3 and 12
+}
+\examples{
+\dontrun{
+ impCausalref1 <- mimix(data=acupuncture,covar=c(head_base),depvar=head,treatvar=treat,
+       idvar=id,timevar=time,
+       method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
+ library(mice)         
+ fitacup<-with(as.mids(subset(impCausalref,time==12)), lm(head~treat+head_base+sex))
+ summary(pool(fitacup))    
 }
 }
 \keyword{datasets}

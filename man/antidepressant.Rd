@@ -3,8 +3,7 @@
 \docType{data}
 \name{antidepressant}
 \alias{antidepressant}
-\title{antidepressant.
-A data set containing  antidepressant trial data as described in paper by White,Royes,Best}
+\title{Sample data: antidepressant trial}
 \format{
 dataframe containing 688 rows and 14 columns
 \describe{
@@ -17,18 +16,38 @@ dataframe containing 688 rows and 14 columns
 \item{PATIENT.SEX}{}
 \item{POOLED.INVESTIGATOR}{}
 \item{basval}{}
-\item{HAMD17.TOTAL}{}
+\item{HAMD17.TOTAL}{outcome variable}
 \item{change}{}
 \item{miss_flag}{}
-\item{methodcol}{}
-\item{referencecol}{}
+\item{methodcol}{individual-specific method}
+\item{referencecol}{individual-specific reference arm}
 }
 }
 \usage{
 antidepressant
 }
 \description{
-antidepressant.
-A data set containing  antidepressant trial data as described in paper by White,Royes,Best
+A data set containing antidepressant trial data as described in paper
+by White,Royes,Best (2019)
+The primary outcome is HAMD17.TOTAL measured at visit number 4,5,6,7.
+}
+\examples{
+\dontrun{
+ # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
+ # method and reference indivdually specified columns 
+ impIndiv <- mimix(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
+     treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+     timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)        
+ library(mice)
+ fit<-with(data= as.mids(subset(impIndiv,VISIT.NUMBER==7)),
+               lm(HAMD17.TOTAL~TREATMENT.NAME+basval+PATIENT.SEX))
+ summary(pool(fit))  
+ impantdep <- mimix(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
+         treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
+         timevar=VISIT.NUMBER,method="J2R",reference=1,M=5,seed=54321)
+ fitdep21<-with(data= as.mids(subset(impantdep,VISIT.NUMBER==7)),
+              lm(HAMD17.TOTAL~TREATMENT.NAME+basval))
+ summary(pool(fitdep21)) 
+}
 }
 \keyword{datasets}
