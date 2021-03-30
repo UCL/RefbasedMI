@@ -1,5 +1,5 @@
 # mimix
- *0.0.14*
+ *0.0.15*
 
 <h2>Multiple imputation sensitivity analysis for longitudinal trials using R</h2> 
 
