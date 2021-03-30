@@ -164,8 +164,8 @@ summary(pool(antidepIndiv))
 
 # Sample data: acupuncture trial 
 
-# Causal model: treatment effect halves every 1 time unit 
-# after treatment discontinuation
+### Causal model: treatment effect halves every 1 time unit 
+### after treatment discontinuation
 Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR 
 
 acuCausal <- mimix(data = acupuncture, covar = c(head_base), depvar = head,	treatvar = treat, idvar = id, timevar = time, method = "Causal", 
