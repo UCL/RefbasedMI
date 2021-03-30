@@ -65,7 +65,7 @@ within the R environment type
 
 followed by 
 
-    install_github("UCL/mimix")
+    install_github("UCL/RefBasedMI")
 
 
 # usage
@@ -117,13 +117,13 @@ Arguments in function mimix()
 
 # examples
 
-### Sample data: asthma trial
+## Sample data: asthma trial
 
-# J2R analysis with control as reference
+### J2R analysis with control as reference
 asthmaJ2R <- mimix(data = asthma, covar = base, depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
 	prior = "ridge", burnin = 1000)
  
-# Analysis
+### Analysis
 
 fit specified model to each imputed data set (assigned as mids class) and pool results together (Rubin's rules),
 functions from mice package
@@ -135,7 +135,7 @@ fit<-with(as.mids(subset(asthmaJ2R,time==12)), lm(fev~treat+base))
 summary(pool(fit))
 
 
-# Delta method - all values are 1 unit lower than expected under J2R
+### Delta method - all values are 1 unit lower than expected under J2R
 impJ2Rridge <- mimix(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, 
 	delta = c(-1, 0, 0, 0), M = 5, seed = 101, prior = "ridge")      
 
@@ -145,9 +145,9 @@ summary(pool(fit))
 
 
 
-### Sample data: antidepressant trial
+## Sample data: antidepressant trial
 
-# Mixed methods
+### Mixed methods
 
 methodcol and referencecol are variables in the data set 
 
@@ -157,12 +157,12 @@ antidepIndiv <- mimix(data = antidepressant, covar = c(basval, PATIENT.SEX),depv
     timevar = VISIT.NUMBER, methodvar = methodcol, referencevar = referencecol, 
 	  M = 5, seed = 54321)        
 
-# Analysis
+### Analysis
 
 antidepIndiv <- with(data =  as.mids(subset(antidepIndiv, VISIT.NUMBER == 7)),	lm(HAMD17.TOTAL ~ TREATMENT.NAME + basval + PATIENT.SEX))
 summary(pool(antidepIndiv))  
 
-### Sample data: acupuncture trial 
+# Sample data: acupuncture trial 
 
 # Causal model: treatment effect halves every 1 time unit 
 # after treatment discontinuation
@@ -171,7 +171,7 @@ Note K0=1,K1=0 equivalent to J2R,  K0=1,K1=1 equivalent to CIR
 acuCausal <- mimix(data = acupuncture, covar = c(head_base), depvar = head,	treatvar = treat, idvar = id, timevar = time, method = "Causal", 
 	reference = 1, K0 = 1, K1 = 0.5, M = 5, seed = 54321)
  
-# Analysis
+### Analysis
 
 acufit <- with(as.mids(subset(impCausalref, time == 12)),	lm(head ~ treat + head_base ))
 summary(pool(acufit))    
