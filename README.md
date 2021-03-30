@@ -113,7 +113,7 @@ Arguments in function mimix()
 
 **K1**	         exponential decaying Causal constant for use with Causal method
 
-**mle**	        option to use mle's insted of MCMC draws 
+
 
 # examples
 
@@ -162,7 +162,7 @@ antidepIndiv <- mimix(data = antidepressant, covar = c(basval, PATIENT.SEX),depv
 antidepIndiv <- with(data =  as.mids(subset(antidepIndiv, VISIT.NUMBER == 7)),	lm(HAMD17.TOTAL ~ TREATMENT.NAME + basval + PATIENT.SEX))
 summary(pool(antidepIndiv))  
 
-# Sample data: acupuncture trial 
+## Sample data: acupuncture trial 
 
 ### Causal model: treatment effect halves every 1 time unit 
 ### after treatment discontinuation
