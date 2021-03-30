@@ -1,46 +1,164 @@
 #' @title Main function for performing reference-based multiple imputation of longitudinal data  
-#' @description main wrapper for running mimix
-#' @details This is based on Suzie Cro's Stata program
-#' @details sets up a summary table based on missing data pattern- mg  mimix_group                                                                   
-#' @details reflects the pattern and treatment group configuration of the raw data
-#' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
+#' @description main wrapper for running RefBasedMI (mimix)
+#' @details The program works through the following steps
+#' @details 1. set up a summary table based on treatment arm and missing data pattern
+#' @details    (i.e. which timepoints are unobserved)
+#' @details 2. Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2
+#' @details 3. Impute all interim missing values  under a MAR assumption, looping ove treatments and patterns
+#' @details 4. Impute post-discontinuation missing values under the user-specified assumption,
+#' @details    looping over treatments and patterns (and over methodvar and referncevar if specified)
+#' @details 5. Perform delta-adjustment if specified
+#' @details 6. Repeat steps 2-5 M times and form into a single data frame 
+#' @details The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline
+#' @details We instead  recommend handling it as a covariate 
+#' @details The program is based on Suzie Cro's Stata program mimix
+#' @details The user can use the as.mids() function in the mice package to convert the output data to mids data type and hence 
+#' @details to perform analysis using Rubin's rules.    
 #' @export mimix
 #' @import mice
-#' @param data  Dataset in wide format
-#' @param covar Covariates - may include the baseline value of depvar. Must be complete (no missing values).
-#' @param depvar Dependent (outcome) variable
-#' @param treatvar Treatment group, coded 1,2,..
-#' @param idvar Participant id
+#' @param data  Dataset in long format
+#' @param covar Covariates - baseline.  Must be complete (no missing values), enclose in quotes.
+#' @param depvar Outcome variable
+#' @param treatvar Treatment group, can be numeric or character  
+#' @param idvar Participant identifier.
 #' @param timevar Time point for repeated measure
-#' @param M Number of imputations to be created
-#' @param reference  Reference group for J2R, CIR, CR methods
-#' @param method Reference-based imputation method: must be ...
-#' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
-#' @param prior  Prior for the variance-covariance matrix when fitting multivariate normal distributions. Jeffreys (default), uniform or ridge
-#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
-#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
-#' @param methodvar   vector designating variable in data-set specifying individual method 
-#' @param referencevar   vector designating variable in data-set specifying reference group corresponding to individual method
-#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points
-#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points
+#' @param method Reference-based imputation method: must be "J2R", "CR", "CIR","MAR", "Causal" or "LMCF" 
+#' @param reference  Reference group for "J2R", "CIR", "CR" methods , can be numeric or string
+#' @param methodvar column in data-set specifying individual method
+#' @param referencevar column in data-set specifying reference group as for individual method, 
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 exponential decaying Causal constant for use with Causal method
-#' @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
-#' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
+#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide),length as number of time points
+#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros use guide),length as number of time points
+#' @param M Number of imputations to be created
+#' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
+#' @param prior  prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge" 
+#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
+#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
+#' @param mle logical option - not recommended !
+#' @return The M imputed data sets are output concatenated as one large dataframe in long format
+#' @return appended to the original unimputed data-set
 #' @examples
 #' \dontrun{
-#' mimixout<-mimix("asthma",c("base"),"fev","treat","id","time",5,1,"J2R",,,,,,,,,1,0.5,)
+#' #performing jump to reference with treatment reference arm 1 on asthma trial data  
+#' mimixout<-mimix(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
+#'  method="J2R", reference=1,M=5,seed=54321)
 #' library(mice)
-#' fit<-with(data= as.mids(mimixout),expr = lm(fev.12~treat+base))
+#' #Fitting regression model to find treatment effects using Rubin's rules by 
+#' #    treating output data frame as.mids() object 
+#' fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
 #' summary(pool(fit))
-#' mimix("acupuncture",c("head_base"),"head","treat","id","time",1000,1,"CIR",54321,
-#'     "jeffreys",1000,NULL,NULL,NULL,NULL,NULL,K0=1,K1=1,mle=0  )
+#' mimix(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
+#'  timevar=time,method="CIR",reference=1,M=5,seed=54321,
+#'   prior=jeffreys,burnin=1000)
 #' }
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
+# v0.0.15
+# @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
+# mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
+
+mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
+                 K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
+  {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
   # this forces interims to be estimated as MAR by default
+ # browser(text="0503") 
+  #covar <- deparse(substitute(covar))
+  #  deparse puts argument in quotes 
+  depvar <- deparse(substitute(depvar))
+  treatvar <- deparse(substitute(treatvar))
+  idvar<-deparse(substitute(idvar)) 
+  timevar<-deparse(substitute(timevar))
+  
+  # check that reference is category  of treatment var
+  # but check refernce is not null ( because method not need or us indiv specicif cols
+ # browser(text="2903")
+  if (!is.null(reference) ) {
+    if (!(reference %in% get("data")[,(substitute(treatvar))]) )  { stop("reference must be a category of treatment") }
+  }
+  
+    #if  (!reference %in% (get("data")[,(substitute(treatvar))]))  { stop("reference must be a category of treatment") }
+  
+ # if (!exists(deparse(substitute(methodvar))) || is.null(methodvar) ) {} 
+ 
+# maybe not best [lace to put them??  
+  # methodvar<- deparse(substitute(methodvar))
+ #  referencevar <- deparse(substitute(referencevar))
+  
+  # must be null when using methodvar
+  #if (!is.null(method)) {method<-deparse(substitute(method))}
+  #prior<-deparse(substitute(prior))
+    
+  #browser(text="1903")
+  # try read covar without quotes
+  scovar<-substitute(covar)
+
+  # check if covar null
+  if (length(scovar) > 0 ) 
+  {
+    # term on rhs copied & pasted!  "‘c’"
+    # this  unicode ("\U2018","c","\U2019") for Left & right single quotation mark   
+    # package wont accept non-ascii char so replace
+  #  if (sQuote(scovar)[[1]]== "‘c’")
+    # by
+   # browser(text="2503")
+    if (sQuote(scovar)[[1]]== paste0("\U2018","c","\U2019") )
+   { 
+    covarname<-vector(mode="list",length=(length(scovar)-1))
+    for ( i in 2:length(scovar))
+       {
+         covarname[[i-1]] <-names(get("data"))[[grep(scovar[[i]],names(get("data")))]]
+       }
+         covarvector<-as.vector(unlist(covarname))
+    } else {
+     covarvector <- names(get("data"))[[grep(scovar,names(get("data")))]]
+   }
+  covar<-covarvector
+  }
+  #else covar just NULL
+  
+  # print a warning if reference = NULL
+  
+ # browser(text="2203")
+  
+
+  reference<-substitute(reference)
+  
+  # make sure reference converted to numeric by using lookup between unique treatvar and unique tmptreat
+
+  # check refernce consistent with treatvar
+  #if ( (typeof(get("data")[,treatvar])=="character") & (typeof(reference) != "character")) { stop("reference must be consistent with treatment") }
+  # not really works because refernce is type symbol try this instead
+  
+  # this necessary now?? replaced by simpler test earlier 
+  # if (typeof(reference)=="character" ) {
+  #  if (!grep(substitute(reference),unique(get("data")[,treatvar]) )>0) { stop("reference must be consistent with treatment") }
+  # }  else {
+  #   if (typeof(get("data")[,treatvar])=="character") { stop("reference and treatment not both character types") }
+  # }
+  
+  if (!is.null(method)) {
+     if (is.null(reference)) {cat("nWARNING !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")} 
+  }
+    
+  # reference may be null eg if referencevar used
+  if (!is.null(reference)) { 
+    ref_pos<-grep(reference,unique(get("data")[,treatvar]))
+    reference<-(as.numeric(unique(head(tmptreat))[ref_pos]))
+  }
+ 
+  
+  # try recoding treat, eg 2,3 into 1,2,...
+  # should work whether treatvar numeric or char    
+  tmptreat<<-factor(unlist(get("data")[,treatvar]))         
+  initial_levels_treat <- levels(tmptreat)
+  levels(tmptreat) <- 1:(nlevels(tmptreat))
+ # treatvar<-as.numeric(as.character(tmptreat))
+# need to check with char and 2,3  
+  data[,treatvar]<-as.numeric(as.character(tmptreat))
+  
+  
   testinterim<-1
   #browser(text="2912")
   if (class(mle) !="logical" & mle !=0 & mle !=1 ) { stop("mle must be logical value") } 
@@ -48,12 +166,21 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   # 29/10 change mor user friendly
   # stopifnot(class(get(data)) == "data.frame")
-   if (class(get(data)) != "data.frame") {stop("data must be type dataframe")}
+   if (class(get("data")) != "data.frame") {stop("data must be type dataframe")}
   
   # insert error checks  HERE
   #check not both meth and methodundiv specified.
   # stopifnot(method=="NULL" | methodvar=="NULL")
-  if (!(is.null(method) | is.null(methodvar))) {stop("Either method or methodvar must be specified but NOT both") }
+  
+  # to put quotes in method
+  if (!is.null(substitute(method))) {method<-paste0("",(substitute(method)),"")} 
+  if (!is.null(substitute(methodvar))) {methodvar<-paste0("",(substitute(methodvar)),"")} 
+  
+  # this wont work no quoted etc
+  if (!xor( is.null(method) , is.null(methodvar)) ) {stop("Either method or methodvar must be specified but NOT both and at least one") }
+   
+  
+  #if (!(is.null(method) | is.null(methodvar))) {stop("Either method or methodvar must be specified but NOT both") }
   # establish whether specifying individual or group by creating a flag var
   if (!is.null(method)) {
     flag_indiv <-0
@@ -82,8 +209,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   #browser()
   if (length(covar)!=0) {
    # stopifnot(sum(!stats::complete.cases(get(data)[,covar]))==0)
-    if (sum(!stats::complete.cases(get(data)[,covar]))!=0) {stop("covariates not complete!!")}
-    stopifnot( (sapply((get(data)[,covar]), is.factor)) | (sapply((get(data)[,covar]), is.numeric)) )
+    if (sum(!stats::complete.cases(get("data")[,covar]))!=0) {stop("covariates not complete!!")}
+    stopifnot( (sapply((get("data")[,covar]), is.factor)) | (sapply((get("data")[,covar]), is.numeric)) )
     
     # really should be integer
     # if need to convert
@@ -96,7 +223,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
  # build in checks specifically  for delta
  
-  ntimecol<- get(data)[c(timevar)]
+  ntimecol<- get("data")[c(timevar)]
   ntime<-nrow(unique(ntimecol))
   # only run if delta specified
   if (!is.null(delta)) {
@@ -125,7 +252,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
               method=="CIR" | method=="CLIR" |
               method=="CR" |
               method=="LMCF" | method=="LAST"  |
-              method=="CAUSAL" | method== "CASUAL" | method== "CUASAL"),
+              method=="CAUSAL" | method== "CASUAL" ),
 
              is.numeric(M),
              is.character(depvar),
@@ -139,9 +266,14 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
             )
   }
 
+  #browser(text="1403")
 
+ 
+  
   if (!is.null(method) ) {
-    testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method))
+      # change 1403
+      # testlist = do.call( preprodata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method))
+    testlist<- preprodata(data,covar,depvar,treatvar,idvar,timevar,M,reference,method)
 #browser(text="0720")
         reference <- testlist[[7]]
 
@@ -161,8 +293,19 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
   }
   # for user specified
+  
+  
   else if (!is.null(methodvar) ) {
-    testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar))
+    
+    # previously ,no need here causee error
+    #methodvar<- deparse(substitute(methodvar))
+    
+    # dont think this right, adds "\ 's"
+    #referencevar <- deparse(substitute(referencevar))
+    
+    #changed due to quotes around arguments 
+    # testlist = do.call( preproIndivdata,list(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar))
+    testlist =  preproIndivdata(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar)
     # need to re-set meth for individual
     #meth <- testlist[[8]][1]
     
@@ -200,13 +343,19 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   names(mata_Obs)[names(mata_Obs)=="Obs_treat"]<-treatvar
 
 
+ # covars move to end?
+ # browser(text="2603")
 
-
-  tst<-stats::reshape(get(data)[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  tst<-stats::reshape(get("data")[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   #1612 make readable in pass2
-  tst2<<-c(covar,names(tst[,-1]))
-
+  
+  
+  # change order to put covar last as in Stata  2603
+  
+  #tst2<<-c(covar,names(tst[,-1]))
+  tst2<<-c(names(tst[,-1]),covar)
+  
 
 
   # put commas in
@@ -221,7 +370,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
     assign(paste0("prenormdat",val),subset(finaldatS,finaldatS[,treatvar]==val))
   }
 
-
+# browser(text="2903")
 
   #*CREATE AN EMPTY MATRIX FOR COLLECTING IMPUTED DATA
   # just an empty row but take dimensions and col types fron mata_obs
@@ -238,6 +387,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   # browser()
   # is this line needed?
   #mata_all_new[ mata_all_new>=0] <-NA
+  
   mata_all_newlist <- vector('list',M*nrow(mg))
   #Warning message:
   #In Ops.factor(left, right) : ‘>=’ not meaningful for factors
@@ -281,11 +431,11 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
       #need to error check when ridge or invwish used, the accompanying parameter values supplied.
 
-  #browser()
+  #browser(text="0803")
 
       if ( prior[1] == "ridge" ) {
         # find sd of depvar over all times for ridge option
-        sd_depvar<- stats::sd((get(data)[,depvar]),na.rm=TRUE)
+        sd_depvar<- stats::sd((get("data")[,depvar]),na.rm=TRUE)
         if ( is.na(prior[2])) { prior[2]<-(sd_depvar*0.1) }}
       # invwish not implemented!
       #if ( priorvar[1] == "invwish" ) { stopifnot(priorvar[2]>0 & priorvar[3]>0 ) }
@@ -294,6 +444,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 
 
       # mle false or 0, true or 1     
+      #browser(text="2603")
   
       if (mle==FALSE) { 
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
@@ -353,15 +504,18 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   # not fpr indiv-specific 
   if (flag_indiv==0) {
-   cat("\nImputing interim missing values using MAR:\n\n")
+   cat("\nImputing interim missing values under MAR:\n\n")
   }  
   else {
     cat("\nImputing missing values using individual-specific method:\n\n")
   }
+  
+  #browser(text="0103")
   #initialise interim 
   interim<-0
   # construct structure to savde interim ids but this get reinitialised to many times!
   interim_id<- mata_Obs[c(mg[1,1]),"id"] 
+  
   #interim_pos <- c(0,0,0,0,0)
   
   #18/11 see if rawplusinterim works here!
@@ -416,7 +570,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 # browser(text="0501")
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
     #unnecessary now recoded
- #browser()
+# browser(text="2303")
     trtgpindex<-which(trtgp==ntreat)
     referindex<-which(reference==ntreat)
   
@@ -459,7 +613,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         # need to distinguish between meth and methodindiv
     #    browser(text="1102")
         if (flag_indiv==0 ) {
-
+   # browser(text="2303")
           referindex<- reference
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
@@ -507,8 +661,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
             # MAR sigma gives correc tinterim but incorrect subsequents  
             # 1st phase to find interims and apply MAR sigmas
          #   browser(text="0101") 
-        #  browser(text="0401")
-            if ((miss_count == 1) & (c_mata_miss[1] < length(mata_means)) ) # 1 missing and not at end point 5115 
+         # browser(text="0401")
+          # now covar has moved to end need adjust by length of covar 2703
+            if ((miss_count == 1) & (c_mata_miss[1] < length(mata_means)-length(covar)) ) # 1 missing and not at end point 5115 
             {
               interim<-1
                     #     cat(paste0("miss+_count=1 paramBiglist= ?"))
@@ -542,19 +697,32 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
                     # construct vector to save interims ids
                #11/11   interim_id <- rbind(interim_id, mata_Obs[c(mg[i,"cumcases"]),"id"] )  
                 
-                   
+                 # browser(text="0103") # check logic ,eg c_mata_miss 45  
                   
                 } else 
                 # note that if all missing then wont be interims and c_mata_nonmiss is integer(0) ie NUL
-          if (length(c_mata_nonmiss)!=0) {(c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) }   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!  
-                  #  cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition   
-                { interim<-1
-                } #need to include outside the for loop  when condition b=miss_count
+          #if (length(c_mata_nonmiss)!=0) {(c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) }   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!  
+                                    #  cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition   
+                # browser(text="1203")
+                  # now covar has moved to end need adjust by excluding positons of covars at the end 
+                  covar_pos<-length(mata_means) -length(covar)
+                 # c_mata_nonmiss_nocov <-which( c_mata_nonmiss <covar_pos)
+                  c_mata_nonmiss_nocov <-c_mata_nonmiss[c(which( c_mata_nonmiss <=covar_pos))]
+                  
+                  # then only if not all missing 2803  but not sure what to d when all missing!
+                  # poss just pass them thru into pass2 with a flag? 
+                  if (length(c_mata_nonmiss[c(which( c_mata_nonmiss <=covar_pos))]) != 0 )
+                    {
+                      if ( (length(c_mata_nonmiss)!=0) & (c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss_nocov)))   #{print("tf")}
+                        
+                      { interim<-1 } #need to include outside the for loop  when condition b=miss_count
+                  }  
               } #if
             } #for
             #  else if doesnt work need to process the miss_count element because not processed in for loop  
             #else if ( (b==miss_count) & ( c_mata_miss[b] < length(mata_means))
-            if  ((c_mata_miss[miss_count]) < length(mata_means) )
+          # now covar has moved to end need adjust by length of covar 2703
+            if  ((c_mata_miss[miss_count]) < length(mata_means)-length(covar) )
             {
               interim<-1
               
@@ -674,6 +842,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
        # preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
 
         # drop id  cols from raw data
+       # browser(text="1801")
+        # check is id droppe if 1st col jus drop 1st vco
+        #WARNING make sure no id col in 1st
         preraw <-(mata_Obs[c(startrow:stoprow),!(names(mata_Obs) %in% c(idvar))])
         raw1 <- preraw[,c_mata_nonmiss]
 
@@ -687,7 +858,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
         # all missing ? didnt think we did ths scenario, ie base depvar always complete?
         # but what if no covar , ie no base depvar! need find suitable Sigma
         # ie when no covar selected and All missing then no Sigmas have been calculated 
-        if (length(c_mata_nonmiss)==0)  {
+       # browser(text="1203")
+        # covars always non missing
+      #  browser(text="2903")  
+        if (length(c_mata_nonmiss)-length(covar)==0)  {
           ## routine copied from mimix line 1229
 
           # change 9/5/20 becaus error list obj cannot be coerced to double
@@ -704,7 +878,10 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
           # raw and m1 null fields so hut use m2
           meanval = as.matrix(m2)
 
-          mata_y1 = meanval+Z%*%(U)
+        # falls over so change 2903
+          #mata_y1 = meanval+Z%*%(U)
+          mata_y1 <-  m2 +Z%*%(U)
+          
           #set dimensions mata_new to mata_y1
           #define new matrix from observed,  id column  (the last)
           mata_new <- preraw
@@ -832,6 +1009,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 # check for interim 11/11 
   # browser(text="0201")
   # only check for interims if not indiv specifc 1102
+ # browser(text="0103")
+    # check catching interims correct;  
   if (flag_indiv==0) {
     if ( (interim==1) & (length(c_mata_miss)!=0))
       {
@@ -871,9 +1050,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
   # save te MAR data-set and need the .imp=0's to replace in the final data output after pass2
  # browser(text="0912 check mata_Obs id col")
- # browser(text="1801")
+#  browser(text="0503")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
-
+  
   # if regression requested
   #If (regress = TRUE) {
   #     impdatamids <- as.mids(impdataset,  .id="SNO",.imp="II")
@@ -906,15 +1085,27 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
      #rawplusinterim <- fillinterims(impdataset,interim_id,Mimp=M)
     
      # browser(text="0202")
-     rawplusinterim <- fillinterims(impdataset,interim_id,M)
+      # add col name to interim_id
+      
+     colnames(interim_id)<-idvar
+     rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar)
+ #    browser(text="0103") # check deriving  mata_Obs!!
+     
+     #check .id in correrct ccols for mata_Obs
      Imp_Interims<<-rawplusinterim[[2]] 
      #0312
-    # browser(text="0312")
+   # browser(text="2802")
      # 1sty obtain rawplusinterim_1
      test1611impD<-rawplusinterim[[2]]
      test1611imp1<-subset(as.matrix(test1611impD[test1611impD$.imp==1,]))
      # need match with mata_Obs
      impMarint0<-rawplusinterim[[1]]
+     
+     # error here! when cols miss-aligned as .id at end in one data set  rather than beginning as in the other ,readjust in fillinterms!!!  
+     
+     # all cols  need be in same pose, .id need brough to 1st col from last col 
+     # sould be ok now  perhaps check that this is true!
+    # impMarint0<- impMarint0[,c(which(colnames(impMarint0)==".id"),which(colnames(impMarint0)!=".id"))]
      
      impMarint0[impMarint0[,'.id'] %in% test1611imp1[,'.id'], ] <- test1611imp1
      impMarint1 <-impMarint0 
@@ -923,16 +1114,28 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   
      STSdummy<- apply(as.data.frame(impMarint1nopatt)[,grepl(paste0(depvar,".","[0-9]"),names(as.data.frame(impMarint1nopatt)))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
   #careful using grep because if same phrses in covar then will be duplicated like head_base and head so must use paste as above
-     
+   
+     # covars move to end?
+  #   browser(text="2603")
+       
         colnames(STSdummy) <- paste0(colnames(STSdummy),'.miss')
      #also if covar then have to include these
- #    browser(text="0301")
-     if (length(covar)!=0 )
+  #   browser(text="0301")
+     
+  # ths change because cova now last col       
+      if (length(covar)!=0 )
       { 
        #assume covars complete hence .miss just col of 0's 
-       impMarint1nopatt[,paste0(covar,".miss")]<- impMarint1nopatt[,covar]
-       impMarint1nopatt[,paste0(covar,".miss")]<- 0
-      } 
+      # impMarint1nopatt[,paste0(covar,".miss")]<- impMarint1nopatt[,covar]
+      # impMarint1nopatt[,paste0(covar,".miss")]<- 0
+        
+      # just need edit onto STSdummy
+        covar_miss<-data.frame(matrix(0,ncol=length(covar),nrow=nrow(STSdummy)))
+        names(covar_miss)<-paste0(covar,".miss")
+        
+        STSdummy<-cbind(STSdummy,covar_miss)
+                        
+          } 
      
      sts4D<-(cbind(impMarint1nopatt,STSdummy))
         
@@ -990,10 +1193,54 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
     }  # testinterim   
    }else {
      # also run report  on nas
-     #browser(text="1202")
+    # browser(text="0503")
      cat(paste0("\nNumber of final na values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
-     return(impdataset)   # return for indiv-specific
+    # browser(text="1603")
      
+     # return long data set
+    # varyingnames <- names(impdataset[,grep(depvar,names(impdataset))])
+     varyingnames<-names((impdataset)[,grepl(paste0(depvar,"\\."),colnames(impdataset))])
+     impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".",v.names = depvar,timevar=timevar)
+     # re-set time levels to original as could have been transformed to 1,2..)
+     impdatalong[,timevar]<-levels(as.factor(unique(get("data")[,timevar])))[impdatalong[,timevar]]
+     # timevar must be numeric (integer?)
+     impdatalong[,timevar]<-as.numeric(impdatalong[,timevar])
+
+     
+     # merge onto original data set
+     impdatamerge<-(merge(get("data"),impdatalong,by.x = c(idvar,timevar),by.y = c(".id",timevar)))
+     # can delete all .x's 
+     impdatamerge<-(impdatamerge[,-c(grep(("\\.x"),colnames(impdatamerge)))])
+     # and remove all .y suffixes
+     names(impdatamerge)<-gsub("*.y","",names(impdatamerge))
+     # finally re-order
+     impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,timevar]),])
+     
+     
+     # if idvar ="id" then wil be duplicste id cols name so  delete the 2nd occurence which is the last col
+     # this when individual specific cols dataset has idvar equal to id  
+     if (idvar =="id") {
+       impdatamergeord[,ncol(impdatamergeord)]<-NULL
+     }else {
+       # need .id variable  to enable  use of mice in after-analysis
+       # overwrite values inid col
+       impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+     }
+     
+     # overwrite values inid col
+     #impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+     # and rename  id col 
+  #   browser(text="2401")
+     
+     names(impdatamergeord)[names(impdatamergeord)=="id"]<-".id"
+    
+     #drop patt - only needed it for testing
+     # drop patt
+     impdatamergeord<- within(impdatamergeord,rm(patt))
+     
+     
+    # return(list(impdataset, impdatamergeord))   # return for indiv-specific
+     return(impdatamergeord)
    }   
 
       #load("rawint8.Rda")
@@ -1031,7 +1278,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   # to be consistent with Stata move the base col after the fevs!
   #mata_Obs <- testlist$finaldatS
  # mata_Obs <- test2211[[1]]
- # browser(text="0301")
+# browser(text="2803")
+ 
   mata_Obs<- finaldatSS
   #trweat pos need to be last?
   colx<-grep(treatvar,colnames(mata_Obs))
@@ -1043,9 +1291,19 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   idcol<- grep(paste0(".id"),colnames(mata_Obs))
   # beginning mata_Obs.reorder<-mata_Obs[,c(idcol,2:(idcol-1),(idcol+1):length(mata_Obs))]
   #this only has to be done once !! better to do it at beinning of call
-  mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
+  # movde id co to last col
+  #if (idcol==1) {  
+   # mata_Obs.reorder<-mata_Obs[,c((idcol+1):length(mata_Obs),idcol)]
+  #}else{  
+  
+  # dont think nee this? 
+ #  mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
+  #}
   mata_Obs<-mata_Obs.reorder
   
+  # move id to 1st col
+  idcol<-paste0(".",idvar)
+  mata_Obs<- mata_Obs[c(idcol,setdiff(names(mata_Obs),idcol))]
   
   #*CREATE AN EMPTY MATRIX FOR COLLECTING the after mar  IMPUTED DATA
   GI<-c(0)
@@ -1081,9 +1339,13 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
   if (flag_indiv==1) {
        return(impdataset)
     } else {
- testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
+      
+ # Imp_interims  consists of unimputed record followwed by imputed record for each m 
+      
+ testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
+                                mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1,timevar,data)
     }
- #browser(text="0702")
+# browser(text="0702")
  # this doesnt call proprocess as data already in wide format  
 
  # this leagcay prob delete    
@@ -1117,16 +1379,16 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NUL
 # do.call( preprodata,list( rawplusinterim ,covar,depvar,treatvar,idvar,timevar,M,reference,method))
  
 
-#' @title to obtain the M'th imputed data set from the output list into one dataset
-#' @description to append the M imputed data sets wit hte original unimputed data
-#' @details This combines the imputations found from the M pattern groups
-#' @param varlist  list of data containing imputed values from the M pattern groups
-#' @return impdatasets
+# #' @title to obtain the M'th imputed data set from the output list into one dataset
+# #' @description to append the M imputed data sets wit hte original unimputed data
+# #' @details This combines the imputations found from the M pattern groups
+# #' @param varlist  list of data containing imputed values from the M pattern groups
+# #' @return impdatasets
 
 
 getimpdatasets <- function(varlist){
   #12129/5/20
- #browser(text="1212")
+ #browser(text="1801")
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
@@ -1205,61 +1467,22 @@ getimpdatasets <- function(varlist){
   
   } # length
   
+ 
   return(impdatasets)
 }
 
 
-#' mimix: A package for Reference-based imputation for longitudinal clinical trials with protocol deviation
-#' 
-#' similar to the Stata mimix function
-#' 
-#' The mimix package contains the functions preprodata and preproIndivdata to 
-#'  process long longitudinal data into wide data format
-#'  
-#'  pass2Loop performs 2nd pass after interims found by MAR 
-#'  
-#'  Also the function Addelta to add delta adjustment to the imputed estimates 
-#' @docType package
-#' @name mimix
-NULL     
-
-#' @title  Performs the imputation for the specified method after MAR ran
-#' @description 2nd pass for specified method after 1st pass MAR ran
-#' @details reads the summary table based on missing data pattern- mg  mimix_group                                                                   
-#' @details reflects the pattern and treatment group configuration of the raw data
-#' @details then acts as a looping mechanism, norm2 is used as MCMC multivariate normal 
-#' @param Imp_Interims Interim cases
-#' @param method - Specified model to run Reference-based imputation method
-#' @param mg  the summary table based on missing data patern
-#' @param ntreat vector of treatment groups
-#' @param depvar response variable 
-#' @param covar covariate variable(s)  
-#' @param treatvar Treatment group, coded 1,2,..
-#' @param reference  Reference group for J2R, CIR, CR methods
-#' @param trtgp treatmet grp
-#' @param mata_Obs raw data with interims imputed 
-#' @param mata_all_newlist   raw data with interims imputed in list
-#' @param paramBiglist list of MCMC beta and Sigma parameters 
-#' @param idvar Participant id
-#' @param flag_indiv flag whether specified individual column in data  
-#' @param M number of imputations
-#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Rogers paper),length as number of time points
-#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Rogers paper),length as number of time points
-#' @param K0 Causal constant for use with Causal method
-#' @param K1 exponential decaying Causal constant for use with Causal method
-#' @return impdataset the M imputed data-sets appended to the "missing values" data-set in wide format
-#' @examples
-#' \dontrun{
-#' testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,K0,K1)
-#'}
 
 # error in mata_miss and mata_nonmiss have duplicate hesd_base cols
 
 # make sure mg has the covariate.miss!
 
-pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1)
+pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
+                     mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1,timevar,data)
 {  
-  #browser(text="0702")
+ # browser(text="2802")
+  # note mata_all_newlist now reset so check whether previous outputs should hae been saved?
+  # WARNING!!  check tail mata_Obs   
   # mle option? 
   # this doesnt call proprocess as data already in wide format 
   # for reporting purposes try here rather than runmimix
@@ -1271,9 +1494,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   else if (method==6)   {model<-"CAUSAL" }
   
   # like to insert no. of missing after interims imputed 
-  # browser(text="1002")
+ #  browser(text="1002")
   cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
-  cat(paste0("\nImputng post-discontinuation missing values using ",model,":\n\n"))
+  cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
   
   # 2411 mata_all_newlist <- vector('list',M*nrow(mg))
   # browser(text="0312")
@@ -1285,7 +1508,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   #   mata_Obs.reorder<-mata_Obs[,c(1:(idcol-1),(idcol+1):length(mata_Obs),idcol)]
   #   mata_Obs<-mata_Obs.reorder
   
+  
   m_mg_iter<-0
+  #  create a dup col to preserve origial numeric levels
+  #browser(text="2303")
+  mg[,"orig_treat"] <- mg[,treatvar]
+  
   for (i in 1:nrow(mg))
   {
   
@@ -1314,22 +1542,35 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     cnt<- mg$cases[i]
     #browser()
     # treatment grp
-    trtgp<- mg[i,treatvar]
+    
+    #assign before recode to preservefor trtgpindex a few lines down
+   # instead of  trtgp<- mg[i,treatvar]
+      trtgp<- mg[i,"orig_treat"]
+    
+    # but note in case need to change to the character values
+   
+    mg[,treatvar] <- ordered(mg[,treatvar], labels=as.character(unique(tmptreat)))
+    
+    
+    
     
     pattern <- mg$patt[i]
     #cat("\ntrtgp = ", trtgp)
     
     
-    #browser()
+    #browser(text="1403")
     if  (!is.null(method) ) {
-      cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ",cnt,"\n") }
+      #cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ",cnt,"\n") }
+      #try this
+      cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) }
     else if(!is.null(methodvar) ) {
       cat(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n\n")
     }
     
     #need to convert (relate) treatment group to position in ntreat (create Pindex vector)
     #unneceassary now recoded
-    #browser()
+    
+    #necessary!
     trtgpindex<-which(trtgp==ntreat)
      
     # try ths when lmcf or mar? . ie no or NULL  refernce !! 0702
@@ -1396,6 +1637,11 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
       # just use as a look upi table ! so
       
       df1<-as.data.frame(mata_Obs)
+        # move id to 1st col prob shoul check cols agree
+      # move id to 1st col
+      idcol<-paste0(".",idvar)
+      test_Imp<- as.data.frame(test_Imp)[c(idcol,setdiff(colnames(test_Imp),idcol))]
+      
       df2<-as.data.frame(test_Imp)
       
       # repeat for all depvar cols
@@ -1407,7 +1653,11 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     
    
       # actually faster using match than fmatch
-    
+      
+      # WARNINg !! check that col pos are same 
+      # IMPORTANT
+      # this is where the interim values are inserted into mat_Obs baed on id 
+      
       for ( pos in 1:length(depcols)) {
         df1[,depcols[pos]][match(df2$.id,df1$.id)]<-df2[,depcols[pos]]
       }      
@@ -1428,7 +1678,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         
         # this doesnt delete treat
         #mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
-        mata_new<-mata_Obs[c(st:en),!(names(mata_Obs) %in% c(idvar))]
+        # need both  idvars just in case
+        mata_new<-(mata_Obs[c(st:en),!(names(mata_Obs) %in% c(idvar,paste0(".",idvar)))])
+        #mata_new<-mata_Obs[c(st:en),!(names(mata_Obs) %in% c(idvar))]
         #browser() # treat defined within fun
         GI <- array(data=mg[i,treatvar],dim=c(mg[i,"cases"],1))
         #II  no imputations
@@ -1443,7 +1695,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         # need to distinguish between meth and methodindiv
         
         if (flag_indiv==0 ) {
-         # browser(text="0902")
+        #  browser(text="0902")
           referindex<- reference
           #FOR INDIVIDUALS WITH  MISSING DATA  `m' TIMES
           # dependent on method chosen
@@ -1579,7 +1831,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           }
           # 'LMCF'
           else if (method==5) {
-            #browser(text="0602")
+         #   browser(text="2003")
             #mata_Means <-  get(paste0("param",trtgp,m))[1]
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
             # convert from list to matrix
@@ -1649,7 +1901,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         # need insert routine when ALL missing values
         # else
         ###################### MNAR IMPUTATION ################
-        
+  #      browser(text="1801")   
         
         #make sure these are single row vectors! as mistake in LMCF but have to be duplicate rows so add ,s
         #and move after dup fun
@@ -1694,7 +1946,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         # preraw <- mata_Obs[c(startrow:stoprow),2:ncol(mata_Obs)]
         
         # drop id  cols from raw data
-        preraw <-(mata_Obs[c(startrow:stoprow),!(names(mata_Obs) %in% c(idvar))])
+        # check is id droped if 1st col jus drop 1st col
+        #preraw <-(mata_Obs[c(startrow:stoprow),!(names(mata_Obs) %in% c(idvar))])
+        preraw<- (mata_Obs[c(startrow:stoprow),])[,-1]
         raw1 <- preraw[,c_mata_nonmiss]
         
         ##### try inserting routine for all missing values here NOt really necessary!! ### 20/1/20 #####
@@ -1704,7 +1958,10 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         
         
         # all missing ? didnt think we did ths scenario, ie base depvar always complete?
-        if (length(c_mata_nonmiss)==0)  {
+        # covars wil lalwatys be complete
+     #   browser(text="2903")
+        
+        if (length(c_mata_nonmiss)-length(covar)==0)  {
           ## routine copied from mimix line 1229
           
           # change 9/5/20 becaus error list obj cannot be coerced to double
@@ -1721,8 +1978,11 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           # raw and m1 null fields so hut use m2
           meanval = as.matrix(m2)
           
-          mata_y1 = meanval+Z%*%(U)
-          #set dimensions mata_new to mata_y1
+          # falls over so change 2903
+          # mata_y1 = meanval+Z%*%(U)
+          mata_y1 = m2 + Z%*%(U)
+          
+           #set dimensions mata_new to mata_y1
           #define new matrix from observed,  id column  (the last)
           mata_new <- preraw
           # mata_new has to be already defined
@@ -1785,7 +2045,8 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           # gen erate inverse normal
           Z<-stats::qnorm(matrix(stats::runif( mg[i,"cases"]* miss_count,0,1),mg[i,"cases"],miss_count))
           # check same input parameters for inverse norm gen as in stata
-          
+         
+         # browser(text="1801") 
           #for debug 20/01
           #  print(paste0('mg[i,X1] =',mg[i,"X1"],' miss_count= ',miss_count))
           
@@ -1810,7 +2071,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           #save U,Z for imp(m) and patt(i)
           # this worked for Z
           
-          
+      #    browser(text="2903")
           
           #assuming this  from Stata if "`interim'"==""{
           # SNO just id col
@@ -1860,8 +2121,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     
   } #for M StOP HERE!!
   # browser(text="passtoloop")
-  #browser(text="1801")
+ # browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method))
+ #browser(text="0903")
   # but need to adjust orig data set to set interims back to missing
   # get .imp=0 's
   assign(paste0("Imp_Interims_",0),subset(as.matrix(Imp_Interims[Imp_Interims$.imp==0,])))
@@ -1885,22 +2147,63 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     impdataset[,depcolsf[pos]][match(paste(test_Imp$.id,test_Imp$.imp),paste(impdataset$.id,impdataset$.imp))]<-test_Imp[,depcolsf[pos]]
   }  
   # moved from getimpdatasets fun
+ # browser(text="1403")
   cat(paste0("\n\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
   #cat(paste("\ntest pass2 in runmimx"))
-  return(impdataset) 
+  # try putting recoded treat levels back here !
+  impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
+  
+ # browser(text="2003")
+  # in order to output in long format with original data set 
+  # but in acupuncture this catches head_base as well as head.3 head.12 
+  #varyingnames<-names((impdataset)[,grepl(depvar,colnames(impdataset))])
+  # be more specific! 
+  varyingnames<-names((impdataset)[,grepl(paste0(depvar,"\\."),colnames(impdataset))])
+  
+  #  impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".")
+  # the extra arguments necessary when depvar something like Hamd17.total.7..   
+  impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".",v.names = depvar,timevar=timevar)
+    # this would do if we didnt want all original data cols
+  # but we prob do so need merge orig data
+  # re-set time levels to original as could have been transformed to 1,2 as in antidepressant data)
+  impdatalong[,timevar]<-levels(as.factor(unique(get("data")[,timevar])))[impdatalong[,timevar]]
+  # timevar must be numeric (integer?)
+  impdatalong[,timevar]<-as.numeric(impdatalong[,timevar])
+  
+  
+  impdatamerge<-(merge(get("data"),impdatalong,by.x = c(idvar,timevar),by.y = c(".id",timevar)))
+  # can delete all .x's 
+  impdatamerge<-(impdatamerge[,-c(grep(("\\.x"),colnames(impdatamerge)))])
+  # and remove all .y suffixes
+  names(impdatamerge)<-gsub("*.y","",names(impdatamerge))
+  # sort
+  impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,timevar]),])
+  
+  #browser(text="2403")
+  # overwrite values inid col
+  # if idvar ="id" then wil be duplicste id cols name so  delete the 2nd occurence which is the last col
+  if (idvar =="id") {
+    impdatamergeord[,ncol(impdatamergeord)]<-NULL
+  }else {
+    # need .id variable  to enable  use of mice in after-analysis
+    impdatamergeord[,"id"]<- impdatamergeord[,idvar]
+  }
+  
+  # and rename  id col 
+  names(impdatamergeord)[names(impdatamergeord)=="id"]<-".id"
+  
+  #browser(text="2303")
+  # drop patt
+  impdatamergeord<- within(impdatamergeord,rm(patt))
+  
+  #return(list(impdataset,impdatamergeord)) 
+  return(impdatamergeord) 
 }     
 
-#' @title fills missing interims distinguishing from post-discontinuation
-#' @description fills missing interims distinguishing from post-discontinuation
-#' @details checks methodindiv not null
-#' @param impdata the data with missing values 
-#' @param interims the interim cases with estimated MAR values
-#' @param Mimp the number of imputations specified , ie M total imputsations
-#' @return list of 1st data set with interims imputed plus M interim cases of each interim case to be matche in 2nd pass  
 
 
-fillinterims<- function(impdata,interims,Mimp=M ) {
-  #2811
+fillinterims<- function(impdata,interims,Mimp=M,idvar ) {
+ # browser(text="2602")
   #0312 browser(text="not means")
   #2711browser(text="find estimate over all imps")
   #convert to data.table
@@ -1909,20 +2212,43 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   interims_dt <- data.table::as.data.table(interims)
   
   #browser(text="2402")
+  # to stop odd error   [,default'(x,i) : invalid subscript type list , use merge instead of impMarint_dt[interims_dt] 
+  
   
   data.table::setkey(impMarint_dt,.id)
-  data.table::setkey(interims_dt,V1)
-  #merge
+  # doesnr recognise idvar
+  #data.table::setkey(interims_dt, idvar)
+  
+  # the data.table  bracket method  causes problems when package downloaded from giythub
+  # so replace with merge (like a rght join)
+  #impboth<-impMarint_dt[interims_dt]
+  # need merge on common name so to rename ,only if use merge?
+  #data.table::setnames(interims_dt,old="V1",new=".id")
+
+  # replacing this which extracts the interim rows from imputed data  
+  #impMarint_dt[interims_dt])
+  #impboth<- merge(impMarint_dt,interims_dt)
+  tmpdata<-merge(impdata, interims ,by.x=  ".id",by.y= idvar)
+  # but to be the same as impMarint_dt[interims_dt]) need to move id to last col and sort 
+  tmpdata<-tmpdata[,c(2:(ncol(tmpdata)),1)]
+  impboth<-tmpdata[order(tmpdata$.id,tmpdata$.imp),]
+  
+  
+  # this is the wrong merge!
+  #impboth<- merge(impMarint_dt,interims_dt,by=".id") 
+  
   #(impMarint_dt[interims_dt])
   # convert to 0, 1 =missing
   # sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
   # exclude last non-response cols
-  test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
+  #test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
+  test10<-sapply(impboth,function(x) ifelse(is.na(x) ,1,0) )
   test10x<-test10[,c(1:(ncol(test10)-3))]
   # find max non-missing
   lastvalid<-apply(test10x,1, function(x) max(which(x==0))  )
   #merge back
-  test1611<-cbind(impMarint_dt[interims_dt],lastvalid)
+ #test1611<-cbind(impMarint_dt[interims_dt],lastvalid)
+  test1611<-cbind(impboth,lastvalid)
   #if (test1611$.id == shift(test1611$.id,-1) ) {
   
   # over many imps, find mean value by interims for imp>0 then combineback to
@@ -1968,11 +2294,24 @@ fillinterims<- function(impdata,interims,Mimp=M ) {
   test1611impD02<-as.matrix(test1611impD[test1611impD$.imp==2,])
   #test1611impD02<-as.matrix(test1611impDl[test1611impDl[,1]==2,])
   
+#  browser(text="2802")
+  # the .id col in impMarint must be sent to the 1st col to align with test1611impD
+  #impMarint[,c(ncol(impMarint),1:(ncol(impMarint)-1))]
+  # maybe use after fillnterins called?
+  #neworder<- c(which(colnames(impMarint_dt)==".id"),which(colnames(impMarint_dt)!=".id"))
+  #data.table::setcolorder(impMarint_dt,neworder)
+  
+  # is ths necessary??
   impMarint <- as.matrix(impMarint_dt)
+  
+  
   impMarint0<-as.matrix(impMarint_dt[impMarint_dt$.imp==0,])
   # this works well (but MUST Be MATRICES)   
   #212 impMarint0[impMarint0[,'.id'] %in% test1611impD02[,'.id'], ] <- test1611impD02
   # so .imp=0 now has interims filled and can be treated as original data  
+  
+  # return imputed at imp=0 plus interims imputed values
+  # but tr make sure sae vars in eah to facilitae replacement 
   
   return(list(impMarint0,test1611impD))
 }
