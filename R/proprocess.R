@@ -5,7 +5,7 @@
 #preprocess data for group method
 preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,method=NULL)  {
   #extract relevant vars
-   
+  # browser(text="impdatset")
   #browser(text="1403")
   #to investigate interims invoke browser and edit(finaldat) 
   #browser()
