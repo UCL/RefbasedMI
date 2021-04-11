@@ -53,7 +53,7 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.16
+# v0.0.17
 # @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
@@ -920,6 +920,9 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
           II <- array(data=m,dim=c(mg[i,"cases"],1))
           # SNO just id col
           SNO <- mata_Obs[c(startrow:stoprow),1]
+          #browser(text="colnames")
+          #needed as 1 column 
+          SNO<-as.data.frame(SNO)
           colnames(SNO)[which(colnames(SNO)=="SNO")]<-idvar
           mata_new=cbind(GI,II,mata_new,SNO)
           mata_all_newlist[[m_mg_iter]]=mata_new
@@ -1433,7 +1436,7 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
 
 getimpdatasets <- function(varlist){
   #12129/5/20
- #browser(text="id3")
+ #browser(text="match")
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
@@ -1655,7 +1658,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
       #  tet_mata_Obs_x<- tet_mata_Obs_x[,-grep(".miss",colnames(tet_mata_Obs_x))]
       
       # have have same cols in interim file 
-     # browser(text="inpass2interims")
+      #browser(text="inpass2interims")
       ImpInters <-    get(paste0("Imp_Interims_",m))
  #     browser(text="1112") #NOTE depvar = fev in antidep data!!??r
        # set treatname ,may have to do others sometime?
@@ -1716,13 +1719,14 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
       
       #depvarnames<-names((mata_Obs)[,grepl(paste0(depvar,"\\."),colnames(mata_Obs))])
       
-      depvarnames<-colnames((ImpInters)[,grepl(paste0(depvar,"\\."),colnames(ImpInters))])
+      # needed to edit for antidepressant
+      depvarnames<-colnames(ImpInters)[grepl(paste0(depvar,"\\."),colnames(ImpInters))]
       matchseq<-match(ImpInters[,idvar],mata_Obs[,idvar])
       for (jj in 1:length(matchseq) ) {
-        mata_Obs[,depvarnames][matchseq[jj],]<-ImpInters[,depvarnames][jj,]
+        mata_Obs[,depvarnames][matchseq[jj],]<-as.data.frame(ImpInters)[,depvarnames][jj,]
       }
       
-      
+   
       #mata_Obs <- df1 
       
       #browser(text="no missing values")
@@ -1737,7 +1741,10 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
         
         # change s not hard coded!
         #SNO<-mata_Obs[c(st:en),".id"]
+        
         SNO<-mata_Obs[c(st:en),idvar]
+        SNO<-as.data.frame(SNO)
+        colnames(SNO)[which(colnames(SNO)=="SNO")]<-idvar
         
         # this doesnt delete treat
         #mata_new <- mata_Obs[c(st:en),2:ncol(mata_Obs)]
@@ -2062,9 +2069,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           #SNO <- mata_Obs[c(startrow:stoprow),1]
           
           # not hard coded
-         # browser(text="SNO")
+        #  browser(text="SNO")
           #SNO <- mata_Obs[c(startrow:stoprow),".id"]
           SNO <- mata_Obs[c(startrow:stoprow),idvar]
+          #make sure col name consistent, ie idvar 
+          SNO<-as.data.frame(SNO)
+          colnames(SNO)[which(colnames(SNO)=="SNO")]<-idvar
           mata_new=cbind(GI,II,mata_new,SNO)
           mata_all_newlist[[m_mg_iter]]=mata_new
           
@@ -2200,7 +2210,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # browser(text="passtoloop")
  # browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method,idvar))
- #browser(text="finalgetimp")
+# browser(text="finalgetimp")
   # but need to adjust orig data set to set interims back to missing
   # get .imp=0 's
   assign(paste0("Imp_Interims_",0),subset(as.matrix(Imp_Interims[Imp_Interims$.imp==0,])))
@@ -2217,7 +2227,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   
   depcolsf<- grep(paste0(depvar),names(impdataset)) 
   # assume thes coorespnd with interim lookup ! prob ned a check here!!
-  
+ # browser(text="match")
   for ( pos in 1:length(depcolsf)) {
     #if (impdataset$.imp==0 ) 
     #impdataset[,depcolsf[pos]][match(test_Imp$.id,impdataset$.id)]<-test_Imp[,depcolsf[pos]]
