@@ -1,11 +1,11 @@
 #' RefBasedMI: Comparisons with Stata mimix and SAS 5macros   
 #' 
 #' @description 
-#' mimix is based on the Stata version and similar is available in the Five_macros suite of SAS 
+#' RefBasedMI is based on the Stata mimix program and similar is available in the Five_macros suite of SAS 
 #'  (also relevant are the earlier MIWithD and more later mymcmc and RM_Conj SAS macros)  
 #' 
 #' @section  Comparison with Stata:
-#' This mimix is based on the Stata version and has similar functionality while adding
+#' This program is based on the Stata mimix version and has similar functionality while adding
 #' the causal method and delta adjustment. 
 #' As with the Stata version the input data requires the longitudinal input data in
 #' long format with one record per individual at each timepoint.

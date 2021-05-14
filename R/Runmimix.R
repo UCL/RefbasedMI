@@ -1,22 +1,24 @@
 #' @title Main function for performing reference-based multiple imputation of longitudinal data  
-#' @description main wrapper for running RefBasedMI (mimix)
+#' @description main wrapper for running RefBasedMI (previously mimix)
 #' @details The program works through the following steps
-#' @details 1. set up a summary table based on treatment arm and missing data pattern
-#' @details    (i.e. which timepoints are unobserved)
-#' @details 2. Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2
-#' @details 3. Impute all interim missing values  under a MAR assumption, looping ove treatments and patterns
-#' @details 4. Impute post-discontinuation missing values under the user-specified assumption,
-#' @details    looping over treatments and patterns (and over methodvar and referncevar if specified)
-#' @details 5. Perform delta-adjustment if specified
-#' @details 6. Repeat steps 2-5 M times and form into a single data frame 
+#'  \itemize{
+#'  \item {1.} {set up a summary table based on treatment arm and missing data pattern
+#'       (i.e. which timepoints are unobserved) }
+#'  \item {2.} {Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2}
+#'  \item {3.} {Impute all interim missing values  under a MAR assumption, looping over treatments and patterns}
+#'  \item {4.} {Impute post-discontinuation missing values under the user-specified assumption,
+#'        looping over treatments and patterns (and over methodvar and referncevar if specified)}
+#'  \item {5.} {Perform delta-adjustment if specified}
+#'  \item {6.} {Repeat steps 2-5 M times and form into a single data frame} 
+#' }
 #' @details The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline
 #' @details We instead  recommend handling it as a covariate 
 #' @details The program is based on Suzie Cro's Stata program mimix
 #' @details The user can use the as.mids() function in the mice package to convert the output data to mids data type and hence 
 #' @details to perform analysis using Rubin's rules.    
-#' @export mimix
+#' @export RefBasedMI
 #' @import mice
-#' @param data  Dataset in long format
+#' @param data Dataset in long format
 #' @param covar Covariates - baseline.  Must be complete (no missing values), enclose in quotes.
 #' @param depvar Outcome variable
 #' @param treatvar Treatment group, can be numeric or character  
@@ -41,23 +43,23 @@
 #' @examples
 #' \dontrun{
 #' #performing jump to reference with treatment reference arm 1 on asthma trial data  
-#' mimixout<-mimix(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
+#' mimixout<-RefBasedMI(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
 #'  method="J2R", reference=1,M=5,seed=54321)
 #' library(mice)
 #' #Fitting regression model to find treatment effects using Rubin's rules by 
 #' #    treating output data frame as.mids() object 
 #' fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
 #' summary(pool(fit))
-#' mimix(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
+#' RefBasedMI(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
 #'  timevar=time,method="CIR",reference=1,M=5,seed=54321,
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.17
+# v0.0.18
 # @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
-mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
+RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
                  K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
   {
   # 6/11 try account for interims J2R MAR
@@ -764,7 +766,8 @@ mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,refer
                 #for (it_interim in 1:mg[i,"cases"]) {
                   # instead of printing interim ids
                   #  cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))
-                  cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ", cnt,"\n") 
+              #  browser(text="2904")  
+                cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ", cnt,"\n") 
                 #}             
               }
               
