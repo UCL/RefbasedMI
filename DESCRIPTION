@@ -1,6 +1,6 @@
 Package: RefBasedMI
 Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
-Version: 0.0.15
+Version: 0.0.18
 Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
 Maintainer: Ian White Ian.White <Ian.White@ucl.ac.uk>
 Description: This package imputes missing numerical outcomes for a longitudinal trial with protocol deviations.
@@ -13,7 +13,7 @@ Description: This package imputes missing numerical outcomes for a longitudinal 
     and the causal model, all of which must specify the reference treatment arm. Other methods are
     missing at random (MAR) and the last mean carried forward (LMCF). Individual-specific imputation methods
     (and their reference  groups) can be specified.  
-URL: https://github.com/UCL/mimix 
+URL: https://github.com/UCL/RefBasedMI 
 License: GPL-3 
 Encoding: UTF-8
 LazyData: true
