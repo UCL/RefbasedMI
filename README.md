@@ -65,7 +65,7 @@ within the R environment type
 
 followed by 
 
-    install_github("UCL/RefBasedMI")
+    devtools::install_github("UCL/RefBasedMI")
 
 
 # usage
