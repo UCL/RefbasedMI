@@ -1,7 +1,7 @@
 <a href ="https://www.ctu.mrc.ac.uk/"><img src="MRCCTU_at_UCL_Logo.png" width="50%" /></a>
 
 # RefBasedMI (mimix)
- *0.0.17*
+ *0.0.18*
 
 # An R package for Reference-based multiple imputation for sensitivity analysis of longitudinal trials with protocol deviation
 
