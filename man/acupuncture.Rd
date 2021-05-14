@@ -30,7 +30,7 @@ The primary outcome is head, measured at time 3 and 12
 }
 \examples{
 \dontrun{
- impCausalref1 <- mimix(data=acupuncture,covar=c(head_base),depvar=head,treatvar=treat,
+ impCausalref1 <- RefBasedMI(data=acupuncture,covar=c(head_base),depvar=head,treatvar=treat,
        idvar=id,timevar=time,
        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
  library(mice)         
