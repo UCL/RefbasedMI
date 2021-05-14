@@ -148,7 +148,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # try recoding treat, eg 2,3 into 1,2,...
   # should work whether treatvar numeric or char
-  browser(text="1405")
+ # browser(text="1405")
   tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
