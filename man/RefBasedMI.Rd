@@ -101,12 +101,12 @@ to perform analysis using Rubin's rules.
 }
 \examples{
 \dontrun{
-#performing jump to reference with treatment reference arm 1 on asthma trial data  
+#performing jump to reference with treatment reference arm 1 on asthma trial data
 mimixout<-RefBasedMI(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
  method="J2R", reference=1,M=5,seed=54321)
 library(mice)
-#Fitting regression model to find treatment effects using Rubin's rules by 
-#    treating output data frame as.mids() object 
+#Fitting regression model to find treatment effects using Rubin's rules by
+#    treating output data frame as.mids() object
 fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
 summary(pool(fit))
 RefBasedMI(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
