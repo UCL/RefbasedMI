@@ -7,13 +7,13 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   #extract relevant vars
   # browser(text="impdatset")
   #browser(text="1403")
-  #to investigate interims invoke browser and edit(finaldat) 
+  #to investigate interims invoke browser and edit(finaldat)
   #browser()
   # if covar null (or 1st depvar complete) then ceate baseval covar
 
   # extract relevant cols
     # fevdata<-dplyr::select(get(data),idvar,depvar,timevar)
-  ##2311 make sure .id is id ! 
+  ##2311 make sure .id is id !
   #browser()
   #change order put covar last
   #  browser(text="2703")
@@ -29,13 +29,13 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   #sts4<-tidyr::pivot_wider(fevdata,id_cols=c(idvar),names_from=timevar,names_prefix=depvar,values_from=depvar)
 
  # reshape from long to wide longitudinal data with as many depvars as time points
- 
+
 #   investigatte moving covar to end
  #   browser(text="2603")
     # no covar
     fevdata<- get("data")[c(idvar,depvar,timevar,treatvar)]
     uniqcovar<-unique(get("data")[c(idvar,covar)])
-  
+
      sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   #assumes no NA for these vars should add in checking routines !!
@@ -47,7 +47,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
  # print(utils::head(uniqdat))
 
-  
+
  # finaldatOld<- merge(sts4,uniqdat,by=idvar)
   # now no need to merge because covar ,treat already specified in fevdata
  # but 2703 now use merge for covar at end col
@@ -170,7 +170,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   names(ex1)[names(ex1)=="X1cum"]<-"cumcases"
 #8/5/20
   test_ex1<-merge(ex1,all_patt,by="patt")[order(merge(ex1,all_patt,by="patt")$exid),]
-#22/10 to see nterims browse ad examin finaldatS 
+#22/10 to see nterims browse ad examin finaldatS
  #browser()
   stopifnot(reference %in% t(ntreat))
   #rename to more user-friendly
@@ -181,15 +181,15 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   ex1s$exid<-NULL
   # prefer to call pattern
   names(ex1s)[names(ex1s)=="patt"]<-"pattern"
-  
+
   #browser(text="0902")
   cat(paste0("   ","\n\nSummary of missing data pattern by ",treatvar,":\n\n"))
-  
-  
+
+
   #print(paste0("summary missing pattern"))
   #browser(text="0902")
-  # setting roew names NULL automatically produces seqeential index 
-  
+  # setting row names NULL automatically produces sequential index
+
 
   rownames(ex1s)<- NULL
   # put labels to put back original treat  levels (when not orig 1,2..)
@@ -197,7 +197,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   # gives wrng ordering
   # ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
   ex1s[,treatvar] <- ordered(ex1s[,treatvar], labels=as.character(unique(tmptreat)))
-   
+
   print(ex1s)
 
 
@@ -326,7 +326,7 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   #want  join this to ex from mimix_group table
   #merge(uniqdat,sts4,by=idvar)
   pattmatd<-cbind(pattmat,patt)
-  
+
   #8/6/20
   #print(pattmatd)
 
@@ -358,11 +358,11 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
  #dont want to display cumcases
   # names(ex1s)[names(ex1s)=="X1cum"]<-"cumcases"
   ex1s$exid<-NULL
-  
+
   cat(paste0("Summary missing pattern:\n\n"))
 
- # browser(text="0902") 
-  #1202 change cumcases and patt and caes to patients as for non indiv 
+ # browser(text="0902")
+  #1202 change cumcases and patt and caes to patients as for non indiv
   #chaging to patients hs knock on effect in mg so leave as cases
   #names(ex1s)[names(ex1s)=="X1"]<-"patients"
   # dont want to display so
@@ -370,8 +370,8 @@ preproIndivdata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference=
   ex1s$exid<-NULL
   # prefer to call pattern
   names(ex1s)[names(ex1s)=="patt"]<-"pattern"
-  
-  # prints out the summay table 
+
+  # prints out the summay table
   print(ex1s)
   # dont need finaldat,exlid
 
@@ -435,7 +435,7 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
                        ifelse( ( methindiv=="CR" | methindiv=="cr" |methindiv=="Cr"|methindiv=="cR" ),2,
                                ifelse( ( methindiv=="MAR" | methindiv=="mar" |methindiv=="Mar"|methindiv=="MAr"|methindiv=="Mr"|methindiv=="MR" ),1,
                                        ifelse( ( methindiv=="CIR" | methindiv=="cir" |methindiv=="CIr"|methindiv=="cliR" ),4,
-                                            ifelse((toupper(methindiv)=="CAUSAL" | toupper(methindiv)== "CASUAL" | toupper(methindiv)== "CUASAL"),6,   
+                                            ifelse((toupper(methindiv)=="CAUSAL" | toupper(methindiv)== "CASUAL" | toupper(methindiv)== "CUASAL"),6,
                                                ifelse( ( methindiv=="LMCF" | methindiv=="lmcf" |methindiv=="Last"|methindiv=="last" ),5,9))))))
 
 #browser()
@@ -547,7 +547,7 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
 
     #
    # browser(text="1102")
-    # try unlist 
+    # try unlist
     mata_Means<-unlist(paramBiglist[[M*(trtgp-1)+m]][1])
 
     # convert from list to matrix
@@ -602,8 +602,8 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     S11 <-Sigmatrt[[1]][c_mata_nonmiss,c_mata_nonmiss]
     S12 <-matrix(Sigmatrt[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
     S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
-    
-    
+
+
   }
   # else if (meth=='Causal')
   # need to account for interims though
@@ -618,18 +618,18 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     #Kd =0 eq0iv to J2R?
     #Kd =1 equiv to CIR
     #Kd<-0.8
-    
+
     mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
-    
+
     #this temporary  fpr test purposes until algo decided upon
     SigmaRefer <- paramBiglist[[M*(refergp-1)+m]][2]
     # when reading in Stata sigmas
-    
-    
+
+
     S11 <-SigmaRefer[[1]][c_mata_nonmiss,c_mata_nonmiss]
     S12 <-matrix(SigmaRefer[[1]][c_mata_nonmiss,c_mata_miss],nrow=length(c_mata_nonmiss))
     S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
-    
+
     Sigma<- SigmaRefer
  }
   return(list(mata_means,Sigma,S11,S12,S22))

@@ -1249,7 +1249,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
      # merge onto original data set
-     impdatamerge<-(merge(get("data"),impdatalong,by.x = c(idvar,timevar),by.y = c(".id",timevar)))
+     impdatamerge<-(merge(get("data"),impdatalong,by.x = c(idvar,timevar),by.y = c(idvar,timevar)))
      # can delete all .x's
      impdatamerge<-(impdatamerge[,-c(grep(("\\.x"),colnames(impdatamerge)))])
      # and remove all .y suffixes
