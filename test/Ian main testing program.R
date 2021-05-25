@@ -23,7 +23,7 @@ setwd("C:/ado/ian/Rmimix/test")
 # Open and modify data
 load("C:/ado/ian/Rmimix/data/asthma.RData")
 asthma$treat[1:200]<-3 # creates a 3rd arm
-asthma$basq2 <- asthma$base^2 # creates a 2nd covariate
+asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
 head(asthma)
 
@@ -40,7 +40,7 @@ asthma %>% filter(!is.na(fev)) %>%
 
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
-  covar=c("base","basq2"),
+  covar=c("base","base2"),
   depvar=fev,
   treatvar=treat,
   idvar=id,
