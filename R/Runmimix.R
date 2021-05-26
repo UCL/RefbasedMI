@@ -105,17 +105,17 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     # package wont accept non-ascii char so replace
   #  if (sQuote(scovar)[[1]]== "‘c’")
     # by
-   # browser(text="2503")
+   # browser(text="2605")
     if (sQuote(scovar)[[1]]== paste0("\U2018","c","\U2019") )
    {
     covarname<-vector(mode="list",length=(length(scovar)-1))
     for ( i in 2:length(scovar))
        {
-         covarname[[i-1]] <-names(get("data"))[[grep(scovar[[i]],names(get("data")))]]
+         covarname[[i-1]] <-names(get("data"))[[grep(paste0("^",scovar[[i]],"$"),names(get("data")))]]
        }
          covarvector<-as.vector(unlist(covarname))
     } else {
-     covarvector <- names(get("data"))[[grep(scovar,names(get("data")))]]
+     covarvector <- names(get("data"))[[grep(paste0("^",scovar,"$"),names(get("data")))]]
    }
   covar<-covarvector
   }
@@ -160,7 +160,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # reference may be null eg if referencevar used
   if (!is.null(reference)) {
     ref_pos<-grep(reference,unique(get("data")[,treatvar]))
-    reference<-(as.numeric(unique(head(tmptreat))[ref_pos]))
+    reference<-(as.numeric(unique(tmptreat)[ref_pos]))
   }
 
   testinterim<-1
