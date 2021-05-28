@@ -34,35 +34,59 @@ asthma %>% filter(!is.na(fev)) %>%
   group_by(treat, time) %>% 
   summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
 
+# simple regression
+lm(fev~factor(treat)+base+base2, data=asthma)
+
+
 #####################################################################
 # Main methods - J2R, CIR, CR, MAR - after discontinuation
 #####################################################################
 
+# MAR
+impMAR <- RefBasedMI(data=asthma,
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=2,
+                      method="MAR",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
+)
+MAR1<-impMAR %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
-  covar=c("base","base2"),
-  depvar=fev,
-  treatvar=treat,
-  idvar=id,
-  timevar=time,
-  M=2,
-  reference=1,
-  method="J2R",
-  seed=101,
-  prior="jeffreys",
-  burnin=1000,
-  bbetween=NULL,
-  methodvar=NULL
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=2,
+                      reference=1,
+                      method="J2R",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
 )
-J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
+J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+# TEST: J2R1 should = MAR in reference group
+max(abs(J2R1-MAR1))
 
 # CR
-impCR1 <- mimix(data="asthma",
+impCR1 <- RefBasedMI(data=asthma,
                covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
+               depvar=fev,
+               treatvar=treat,
+               idvar=id,
+               timevar=time,
                M=2,
                reference=1,
                method="CR",
@@ -72,133 +96,150 @@ impCR1 <- mimix(data="asthma",
                bbetween=NULL,
                methodvar=NULL
 )
-CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
-# TEST
-max(abs(J2R1-CR1))
+CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+# TEST: CR1 should = MAR in reference group
+max(abs(CR1-MAR1))
 
 # CIR
-impCIR1 <- mimix(data="asthma",
-               covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
-               M=2,
-               reference=1,
-               method="CIR",
-               seed=101,
-               prior="jeffreys",
-               burnin=1000,
-               bbetween=NULL,
-               methodvar=NULL
+impCIR1 <- RefBasedMI(data=asthma,
+                     covar=c("base","base2"),
+                     depvar=fev,
+                     treatvar=treat,
+                     idvar=id,
+                     timevar=time,
+                     M=2,
+                     reference=1,
+                     method="CIR",
+                     seed=101,
+                     prior="jeffreys",
+                     burnin=1000,
+                     bbetween=NULL,
+                     methodvar=NULL
 )
-CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
-max(abs(J2R1-CIR1))
+CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+# TEST: CIR1 should = MAR in reference group
+max(abs(CIR1-MAR1))
 
+#####################################################################
 # same again with reference = active
+#####################################################################
 
 # J2R
-impJ2R2 <- mimix(data="asthma",
-                covar=c("base","base2"),
-                depvar="fev",
-                treatvar="treat",
-                idvar="id",
-                timevar="time",
-                M=2,
-                reference=2,
-                method="J2R",
-                seed=101,
-                prior="jeffreys",
-                burnin=1000,
-                bbetween=NULL,
-                methodvar=NULL
+impJ2R2 <- RefBasedMI(data=asthma,
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=2,
+                      reference=2,
+                      method="J2R",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
 )
+J2R2<-impJ2R2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+# TEST: J2R1 should = MAR in reference group
+max(abs(J2R2-MAR2))
 
 # CR
-impCR2 <- mimix(data="asthma",
-               covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
-               M=2,
-               reference=2,
-               method="CR",
-               seed=101,
-               prior="jeffreys",
-               burnin=1000,
-               bbetween=NULL,
-               methodvar=NULL
+impCR2 <- RefBasedMI(data=asthma,
+                     covar=c("base","base2"),
+                     depvar=fev,
+                     treatvar=treat,
+                     idvar=id,
+                     timevar=time,
+                     M=2,
+                     reference=2,
+                     method="CR",
+                     seed=101,
+                     prior="jeffreys",
+                     burnin=1000,
+                     bbetween=NULL,
+                     methodvar=NULL
+)
+CR2<-impCR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+# TEST: CR2 should = MAR in reference group
+max(abs(CR2-MAR2))
+
+# CIR
+impCIR2 <- RefBasedMI(data=asthma,
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=2,
+                      reference=2,
+                      method="CIR",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
+)
+CIR2<-impCIR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+# TEST: CIR2 should = MAR in reference group
+max(abs(CIR2-MAR2))
+
+#####################################################################
+## show similar results (imputed values and treatment effect) 
+## when used with a different seed 
+#####################################################################
+
+# CIR
+impCIR2A <- RefBasedMI(data=asthma,
+                       covar=c("base","base2"),
+                       depvar=fev,
+                       treatvar=treat,
+                       idvar=id,
+                       timevar=time,
+                       M=100,
+                       reference=1,
+                       method="CIR",
+                       seed=1037,
+                       prior="jeffreys",
+                       burnin=1000,
+                       bbetween=NULL,
+                       methodvar=NULL
 )
 
 # CIR
-impCIR2 <- mimix(data="asthma",
-                covar=c("base","base2"),
-                depvar="fev",
-                treatvar="treat",
-                idvar="id",
-                timevar="time",
-                M=2,
-                reference=2,
-                method="CIR",
-                seed=101,
-                prior="jeffreys",
-                burnin=1000,
-                bbetween=NULL,
-                methodvar=NULL
+impCIR2B <- RefBasedMI(data=asthma,
+                       covar=c("base","base2"),
+                       depvar=fev,
+                       treatvar=treat,
+                       idvar=id,
+                       timevar=time,
+                       M=100,
+                       reference=1,
+                       method="CIR",
+                       seed=4501,
+                       prior="jeffreys",
+                       burnin=1000,
+                       bbetween=NULL,
+                       methodvar=NULL
 )
 
-J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
-CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
-CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% filter(patt>0)
-max(abs(J2R1-CR1))
-max(abs(J2R1-CIR1))
-
-## show similar results (imputed values and treatment effect) when used with a different seed 
-
-# CIR
-impCIR2A <- mimix(data="asthma",
-                 covar=c("base","base2"),
-                 depvar="fev",
-                 treatvar="treat",
-                 idvar="id",
-                 timevar="time",
-                 M=100,
-                 reference=2,
-                 method="CIR",
-                 seed=1037,
-                 prior="jeffreys",
-                 burnin=1000,
-                 bbetween=NULL,
-                 methodvar=NULL
-)
-
-# CIR
-impCIR2B <- mimix(data="asthma",
-                 covar=c("base","base2"),
-                 depvar="fev",
-                 treatvar="treat",
-                 idvar="id",
-                 timevar="time",
-                 M=100,
-                 reference=2,
-                 method="CIR",
-                 seed=4501,
-                 prior="jeffreys",
-                 burnin=1000,
-                 bbetween=NULL,
-                 methodvar=NULL
-)
-
-fitA <- pool(with(as.mids(impCIR2A), lm(fev.12~as.factor(treat)+base+base2)))
+fitA <- pool(with(as.mids(impCIR2A %>% filter(time==12)), 
+                  lm(fev~as.factor(treat)+base+base2,subset=(time==12))
+                  ))
 summary(fitA)
-sqrt(fitA$pooled$b/fitA$pooled$m)
+sqrt(fitA$pooled$b/fitA$pooled$m) # Monte Carlo errors
 
-fitB <- pool(with(as.mids(impCIR2B), lm(fev.12~as.factor(treat)+base+base2)))
+fitB <- pool(with(as.mids(impCIR2B %>% filter(time==12)), 
+                  lm(fev~as.factor(treat)+base+base2,subset=(time==12))
+                  ))
 summary(fitB)
-sqrt(fitB$pooled$b/fitB$pooled$m)
+sqrt(fitB$pooled$b/fitB$pooled$m) # Monte Carlo errors
 
+# Monte Carlo Z statistics for the differences between runs
+(fitB$pooled$estimate-fitA$pooled$estimate) / 
+  sqrt(fitA$pooled$b/fitA$pooled$m+fitB$pooled$b/fitB$pooled$m)
 
+# IW 28MAY2021 - UPDATED ONLY TO HERE
 
 #####################################################################
 # interim missings and deltas
