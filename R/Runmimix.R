@@ -44,14 +44,14 @@
 #' \dontrun{
 #' #performing jump to reference with treatment reference arm 1 on asthma trial data
 #' mimixout<-RefBasedMI(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-#'  method="J2R", reference=1,M=5,seed=54321)
+#'  method="J2R", reference=2,M=5,seed=54321)
 #' library(mice)
 #' #Fitting regression model to find treatment effects using Rubin's rules by
 #' #    treating output data frame as.mids() object
 #' fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
 #' summary(pool(fit))
 #' RefBasedMI(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
-#'  timevar=time,method="CIR",reference=1,M=5,seed=54321,
+#'  timevar=time,method="CIR",reference=2,M=5,seed=54321,
 #'   prior=jeffreys,burnin=1000)
 #' }
 
@@ -753,7 +753,12 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
             #  else if doesnt work need to process the miss_count element because not processed in for loop
             #else if ( (b==miss_count) & ( c_mata_miss[b] < length(mata_means))
           # now covar has moved to end need adjust by length of covar 2703
-            if  ((c_mata_miss[miss_count]) < length(mata_means)-length(covar) )
+           # browser(text="interim")
+          # only works for last missing so instead
+            #if  ((c_mata_miss[miss_count]) < length(mata_means)-length(covar) )
+             deplen<- length(mata_means)-length(covar)
+             if ( length(setdiff(c(c_mata_miss[1]:deplen),c_mata_miss)) != 0 )
+
             {
               interim<-1
 
