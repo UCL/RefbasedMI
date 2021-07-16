@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for Rmimix
+# Revised 16jul2021
 # Revised 25may2021
 # Revised 8feb2021
 #####################################################################
@@ -37,6 +38,9 @@ asthma %>% filter(!is.na(fev)) %>%
 # simple regression
 lm(fev~factor(treat)+base+base2, data=asthma)
 
+# Set up test results holder
+start=TRUE
+test=as.data.frame(start)
 
 #####################################################################
 # Main methods - J2R, CIR, CR, MAR - after discontinuation
@@ -77,8 +81,9 @@ impJ2R1 <- RefBasedMI(data=asthma,
                       methodvar=NULL
 )
 J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+
 # TEST: J2R1 should = MAR in reference group
-max(abs(J2R1-MAR1))
+test$J2R1eqMAR <- max(abs(J2R1-MAR1))==0
 
 # CR
 impCR1 <- RefBasedMI(data=asthma,
@@ -98,7 +103,7 @@ impCR1 <- RefBasedMI(data=asthma,
 )
 CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CR1 should = MAR in reference group
-max(abs(CR1-MAR1))
+test$CR1eqMAR <- max(abs(CR1-MAR1))==0
 
 # CIR
 impCIR1 <- RefBasedMI(data=asthma,
@@ -118,7 +123,8 @@ impCIR1 <- RefBasedMI(data=asthma,
 )
 CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR1 should = MAR in reference group
-max(abs(CIR1-MAR1))
+test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-12
+
 
 #####################################################################
 # same again with reference = active
@@ -142,7 +148,7 @@ impJ2R2 <- RefBasedMI(data=asthma,
 )
 J2R2<-impJ2R2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 # TEST: J2R1 should = MAR in reference group
-max(abs(J2R2-MAR2))
+test$J2R2eqMAR <- max(abs(J2R2-MAR2))==0
 
 # CR
 impCR2 <- RefBasedMI(data=asthma,
@@ -162,7 +168,7 @@ impCR2 <- RefBasedMI(data=asthma,
 )
 CR2<-impCR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CR2 should = MAR in reference group
-max(abs(CR2-MAR2))
+test$CR2eqMAR <- max(abs(CR2-MAR2))==0
 
 # CIR
 impCIR2 <- RefBasedMI(data=asthma,
@@ -182,7 +188,18 @@ impCIR2 <- RefBasedMI(data=asthma,
 )
 CIR2<-impCIR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR2 should = MAR in reference group
-max(abs(CIR2-MAR2))
+test$CIR2eqMAR <- max(abs(CIR2-MAR2))<1E-12
+
+
+# TEST: no missing values after imputation
+test$nomiss <- sum(is.na(c(MAR1,MAR2, J2R1,J2R2,CR1,CR2,CIR1,CIR2)))==0
+
+
+# TEST: same sort order
+head(asthma)
+head(impCIR2 %>% filter(.imp==1))
+test$sortorder=sum((asthma %>% select(id,time))==(impCIR2 %>% filter(.imp==1) %>% select(id,time)))==0
+
 
 #####################################################################
 ## show similar results (imputed values and treatment effect) 
@@ -236,31 +253,45 @@ summary(fitB)
 sqrt(fitB$pooled$b/fitB$pooled$m) # Monte Carlo errors
 
 # Monte Carlo Z statistics for the differences between runs
-(fitB$pooled$estimate-fitA$pooled$estimate) / 
+MCZ <- (fitB$pooled$estimate-fitA$pooled$estimate) / 
   sqrt(fitA$pooled$b/fitA$pooled$m+fitB$pooled$b/fitB$pooled$m)
-
-# IW 28MAY2021 - UPDATED ONLY TO HERE
+MCZ
+test$diffseed <- max(abs(MCZ))<3 & max(abs(MCZ))>0.1
 
 #####################################################################
-# interim missings and deltas
+# interim missings should be imputed the same way by different methods
+# but final missings shouldn't
 #####################################################################
-intJ2R1 <- impJ2R1 %>% filter(.id==5051|.id==5115|.id==5333) %>% filter(.imp==1)
-intCIR2 <- impCIR2 %>% filter(.id==5051|.id==5115|.id==5333) %>% filter(.imp==1)
-intJ2R1
-intCIR2
+intJ2R1 <- impJ2R1 %>% filter(.id==5051|.id==5115|.id==5333) %>% 
+  filter(.imp==1) %>% arrange(id,time)
+intCIR2 <- impCIR2 %>% filter(.id==5051|.id==5115|.id==5333) %>% 
+  filter(.imp==1) %>% arrange(id,time)
+intorig <- asthma  %>% filter(id==5051|id==5115|id==5333) %>% arrange(id,time)
+summ <- intJ2R1 %>% select(id,time)
+summ$orig <- intorig$fev
+summ$J2R <-intJ2R1$fev 
+summ$CIR <-intCIR2$fev 
+summ$diff <-intJ2R1$fev-intCIR2$fev 
+summ
 # 5051 at time 8, 12 are post-discontinuation -> should differ
 # all others are obs/interim -> should agree
+test$interim <- 
+summ %>% filter((id==5051 & time>4) == (diff==0)) %>% select(diff) %>% summarise(interim=n()) ==0
+test
 
+#####################################################################
+# Deltas
+#####################################################################
 
 
 # DELTA
 # CIR
-impCIRDELTA <- mimix(data="asthma",
+impCIRDELTA <- RefBasedMI(data=asthma,
                  covar=c("base","base2"),
-                 depvar="fev",
-                 treatvar="treat",
-                 idvar="id",
-                 timevar="time",
+                 depvar=fev,
+                 treatvar=treat,
+                 idvar=id,
+                 timevar=time,
                  M=2,
                  reference=2,
                  method="CIR",
@@ -269,15 +300,16 @@ impCIRDELTA <- mimix(data="asthma",
                  burnin=1000,
                  bbetween=NULL,
                  methodvar=NULL,
-                 delta=c(1,2,3,4),dlag=c(1,2,3,4)
+                 delta=c(1,2,3,4),
+                 dlag=c(1,0,0,0)
 )
-# dropout after first visit should have delta's = cum(1*2,2*3,3*4)=2,8,20
-# dropout after 2nd visit should have delta's = cum(1*3,2*4)=3,11
-# dropout after 3rd visit should have delta = 1*4=4
-# CORRECT!
 
-frame=cbind(impCIR2,impCIRDELTA[,4:7]-impCIR2[,4:7])
-
+compare <- impCIR2 %>% 
+  inner_join(impCIRDELTA,by=c("id","time",".id",".imp","base","base2","treat")) %>% 
+  filter(.imp==1)
+compare$diff <- compare$fev.y-compare$fev.x
+compare %>% group_by(time) %>% summarise(meandiff=mean(diff))
+test$deltaworks <- compare %>% summarise(deltaworks=mean(diff)) !=0
 
 
 
@@ -285,47 +317,25 @@ frame=cbind(impCIR2,impCIRDELTA[,4:7]-impCIR2[,4:7])
 # TEST CAUSAL ROUTINES (was Ian_test_causal.R)
 #####################################################################
 # SETTINGS FOR THIS TEST
-K0=0.1
+K0=1
 K1=0.9
 tweak=3
 
 # MODIFY ASTHMA DATA
-asthma2=asthma
-asthma2$fev=(asthma2$fev+tweak*(asthma2$time==4)*(asthma2$treat==2))
+asthmamod=asthma
+asthmamod$fev = asthmamod$fev+tweak*(asthmamod$time==4)*(asthmamod$treat==3)
 
 library(tidyverse)
 # ggplot(data=asthma, aes(x=time,y=fev,group=id,colour=treat))+
 #   geom_line()
 
-# J2R - just to get data in right shape and to set up useful variables
-orig <- mimix(data="asthma",
-  covar=c("base"),
-  depvar="fev",
-  treatvar="treat",
-  idvar="id",
-  timevar="time",
-  M=1,
-  reference=1,
-  method="J2R",
-  seed=101,
-  prior="jeffreys",
-  burnin=1000,
-  bbetween=NULL,
-  methodvar=NULL
-) %>% filter(.imp==0) 
-nonmon = (is.na(orig$fev.2)&!is.na(orig$fev.4)| 
-                  is.na(orig$fev.4)&!is.na(orig$fev.8) | 
-                  is.na(orig$fev.8)&!is.na(orig$fev.12))
-pattern = (1000*!is.na(orig$fev.2)) + (100*!is.na(orig$fev.4))+ (10*!is.na(orig$fev.8)) + (!is.na(orig$fev.12))
-orig[nonmon,]
-
 # causal, original data
-causal1 <- mimix(data="asthma",
+causal1 <- RefBasedMI(data=asthma,
                  covar=c("base"),
-                 depvar="fev",
-                 treatvar="treat",
-                 idvar="id",
-                 timevar="time",
+                 depvar=fev,
+                 treatvar=treat,
+                 idvar=id,
+                 timevar=time,
                  M=1,
                  reference=1,
                  method="causal",
@@ -335,51 +345,67 @@ causal1 <- mimix(data="asthma",
                  bbetween=NULL,
                  methodvar=NULL,
                  K0=K0,K1=K1
-) %>% filter(.imp==1) %>% select("fev.2","fev.4","fev.8","fev.12")
+) %>% filter(.imp==1) 
 
 # causal, same K, modified data
-causal1m <- mimix(data="asthma2",
-                 covar=c("base"),
-                 depvar="fev",
-                 treatvar="treat",
-                 idvar="id",
-                 timevar="time",
-                 M=1,
-                 reference=1,
-                 method="causal",
-                 seed=101,
-                 prior="jeffreys",
-                 burnin=1000,
-                 bbetween=NULL,
-                 methodvar=NULL,
-                 K0=K0,K1=K1
-) %>% filter(.imp==1) %>% select("fev.2","fev.4","fev.8","fev.12")
+causal1mod <- RefBasedMI(data=asthmamod,
+                      covar=c("base"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=1,
+                      reference=1,
+                      method="causal",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL,
+                      K0=K0,K1=K1
+) %>% filter(.imp==1) 
 
-# key comparison
-diff=causal1m-causal1
-compare = cbind(orig,pattern,diff)
+# monotone pattern OXXX: id=5017, treat=3
+asthma %>% filter(id==5017)
+# monotone pattern OOXX: id=5030, treat=3
+asthma %>% filter(id==5030)
+# monotone pattern OOOX: id=5074, treat=3
+asthma %>% filter(id==5074)
+# non-monotone pattern XOXX: id=5051, treat=3
+asthma %>% filter(id==5051)
 
-orig[pattern==1100 & orig$treat==2,]
-causal1[pattern==1100 & orig$treat==2,]
-causal1m[pattern==1100 & orig$treat==2,]
-diff[pattern==1100 & orig$treat==2,]
-# each row should read 0,1,0.0625,0.00390625
-diff[pattern==1000 & orig$treat==2,]
-# each row should read 0,0,0,0
-diff[pattern==1110 & orig$treat==2,]
-# each row should read 0,1,0,0
+asthma %>% inner_join(asthmamod,by=c("id","time")) %>% filter(id==5030)
 
-# express as tests: check changes happen correctly
-abs(diff[pattern==1100 & orig$treat==2,"fev.8"]   - tweak*K0*K1^4) < 1E-10
-abs(diff[pattern==1100 & orig$treat==2,"fev.12"]  - tweak*K0*K1^8) < 1E-10
-abs(diff[pattern==1110 & orig$treat==2,"fev.4"]   - tweak)     < 1E-10
+compare <- causal1 %>% 
+  inner_join(causal1mod,by=c("id","time")) %>% 
+  inner_join(asthma,by=c("id","time")) %>% 
+  select(id,time,treat,fev,fev.x,fev.y)
+compare$diff <- compare$fev.y-compare$fev.x
+err=c()
 
-# check changes don't happen where they shouldn't
-abs(diff[pattern==1110 & orig$treat==2,"fev.12"]  - 0) < 1E-10
-abs(diff[pattern==1000 & orig$treat==2,"fev.8"]   - 0) < 1E-10
+# monotone pattern OXXX: id=5017, treat=3: unaffected by tweak
+err=rbind(err, sum(compare %>% filter(id==5017) %>% select(diff) - 0))
 
-# further tests needed for non-monotone cases
+# monotone pattern OOXX: id=5030, treat=3: fully affected by tweak
+err=rbind(err, sum(compare %>% filter(id==5030) %>% filter(time==2) %>% select(diff) - 0))
+err=rbind(err, sum(compare %>% filter(id==5030) %>% filter(time==4) %>% select(diff) - tweak))
+err=rbind(err, sum(compare %>% filter(id==5030) %>% filter(time==8) %>% select(diff) - tweak*K0*K1^4))
+err=rbind(err, sum(compare %>% filter(id==5030) %>% filter(time==12) %>% select(diff) - tweak*K0*K1^8))
+
+# monotone pattern OOOX: id=5074, treat=3: imputed data unaffected by tweak since causal model relates to last obs time
+err=rbind(err, sum(compare %>% filter(id==5074) %>% filter(time==4) %>% select(diff) - tweak))
+err=rbind(err, sum(compare %>% filter(id==5074) %>% filter(time!=4) %>% select(diff) - 0))
+
+# non-monotone pattern XOXX: id=5051, treat=3: fully affected by tweak
+err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==2) %>% select(diff) - 0))
+err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==4) %>% select(diff) - tweak))
+err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==8) %>% select(diff) - tweak*K0*K1^4))
+err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==12) %>% select(diff) - tweak*K0*K1^8))
+
+test$causal <- max(abs(err))>1E-12
 
 #####################################################################
-# END OF TESTS
+# END OF TESTS: NOW PRINT SUMMARY
 #####################################################################
+
+t(test)

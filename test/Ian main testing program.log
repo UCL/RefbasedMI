@@ -1,0 +1,754 @@
+
+> sink(sinkfile, append=TRUE, type = "message")
+
+> source("Ian main testing program.R")
+`summarise()` has grouped output by 'treat'. You can override using the `.groups` argument.
+nWARNING !! reference value NULL, required for "J2R","CIR","CR","Causal"    
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under MAR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under J2R:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under J2R:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 100
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 2
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CAUSAL:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     3       28          0          0          0           0
+2        7     3        1          1          1          1           0
+3        8     3       11          0          0          0           1
+4       12     3       16          0          0          1           1
+5       14     3       12          0          1          1           1
+6        0     2       51          0          0          0           0
+7        8     2        6          0          0          0           1
+8       12     2        6          0          0          1           1
+9       14     2        2          0          1          1           1
+10       0     1       29          0          0          0           0
+11       4     1        1          0          0          1           0
+12       8     1        6          0          0          0           1
+13      12     1        8          0          0          1           1
+14      13     1        1          1          0          1           1
+15      14     1        5          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+treat = 3
+performing mcmcNorm for m = 1 to 1
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  3 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CAUSAL:
+
+treat  =  3 pattern =  0 number patients =  29 
+treat  =  3 pattern =  8 number patients =  11 
+treat  =  3 pattern =  12 number patients =  16 
+treat  =  3 pattern =  14 number patients =  12 
+treat  =  2 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
+treat  =  2 pattern =  12 number patients =  6 
+treat  =  2 pattern =  14 number patients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0
+> sink()
+  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0
+> sink()
+ients =  2 
+treat  =  1 pattern =  0 number patients =  30 
+treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  12 number patients =  9 
+treat  =  1 pattern =  14 number patients =  5 
+
+
+Number of final missing values = 0
+> sink()
