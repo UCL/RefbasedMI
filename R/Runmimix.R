@@ -141,8 +141,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   #   if (typeof(get("data")[,treatvar])=="character") { stop("reference and treatment not both character types") }
   # }
 
-  if (!is.null(method)) {
-     if (is.null(reference)) {stop("\nWARNING !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
+  if (!is.null(method) & (method != "MAR")  ) {
+     if (is.null(reference)) {stop("\nStopped !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
 
@@ -251,7 +251,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # check i1st if meth exists! if statement needed otherwise meth change form Null to character(0)
   if (!is.null(method) | !length(method)==0 ) {
   method <- toupper(method)
-  stopifnot( (method == "MAR" | method=="MR"|
+  stopifnot( (method == "MAR" |
               method=="J2R" | method=="J2" | method=="JR"|
               method=="CIR" | method=="CLIR" |
               method=="CR" |
