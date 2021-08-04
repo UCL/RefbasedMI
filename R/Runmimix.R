@@ -50,12 +50,12 @@
 #' #    treating output data frame as.mids() object
 #' fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
 #' summary(pool(fit))
-#' RefBasedMI(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
+#' (data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
 #'  timevar=time,method="CIR",reference=2,M=5,seed=54321,
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.18
+# v0.0.19
 # @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
@@ -142,7 +142,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # }
 
   if (!is.null(method)) {
-     if (is.null(reference)) {cat("nWARNING !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
+     if (is.null(reference)) {stop("\nWARNING !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
 
@@ -2185,7 +2185,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           # change back name from SNO
           names(mata_new)[[ncol(mata_new)]] <-idvar
 
-
+  #browser(text="delta")
           #assume delta to be used if specified in input argument
           if (length(delta != 0) ) {
             # browser()
@@ -2196,7 +2196,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             if (is.null(dlag)) {
               dlag <- rep(1,length(delta))
             }
-            mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag)
+            mata_new <-  AddDelta(tst2, covar,mata_new,delta,dlag)
            # mata_new <-  AddDelta(tst2,  ncovar_i,mata_new,delta,dlag,Imp_Interims_0)
           }
 
@@ -2308,6 +2308,8 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   impdatamergeord<- within(impdatamergeord,rm(patt))
 
   #return(list(impdataset,impdatamergeord))
+  #browser(text="sortout") #sort into time as stata output - ie by imp,id and time
+  impdatamergeord<-impdatamergeord[order(impdatamergeord[,".imp"],impdatamergeord[,idvar]),]
   return(impdatamergeord)
 }
 
