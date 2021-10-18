@@ -16,7 +16,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   ##2311 make sure .id is id !
   #browser()
   #change order put covar last
-  #  browser(text="2703")
+    #browser(text="2605")
     fevdata<- get("data")[c(idvar,depvar,timevar,treatvar,covar)]
   # extract covar cols 1 row per id to merge onto the wide data
     uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
