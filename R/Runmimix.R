@@ -2245,7 +2245,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   }
   # moved from getimpdatasets fun
  # browser(text="1403")
-  cat(paste0("\n\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
+  cat(paste0("\n\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0))), "\nThe end\n"))
   #cat(paste("\ntest pass2 in runmimx"))
   # try putting recoded treat levels back here !
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
