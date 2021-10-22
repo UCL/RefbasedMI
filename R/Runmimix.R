@@ -1,15 +1,15 @@
 #' @title Main function for performing reference-based multiple imputation of longitudinal data
 #' @description main wrapper for running RefBasedMI (previously mimix)
 #' @details The program works through the following steps
-#'  \itemize{
-#'  \item {1.} {set up a summary table based on treatment arm and missing data pattern
-#'       (i.e. which timepoints are unobserved) }
-#'  \item {2.} {Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2}
-#'  \item {3.} {Impute all interim missing values  under a MAR assumption, looping over treatments and patterns}
-#'  \item {4.} {Impute post-discontinuation missing values under the user-specified assumption,
-#'        looping over treatments and patterns (and over methodvar and referncevar if specified)}
-#'  \item {5.} {Perform delta-adjustment if specified}
-#'  \item {6.} {Repeat steps 2-5 M times and form into a single data frame}
+#'  \enumerate{
+#'  \item set up a summary table based on treatment arm and missing data pattern
+#'       (i.e. which timepoints are unobserved) 
+#'  \item Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2
+#'  \item Impute all interim missing values  under a MAR assumption, looping over treatments and patterns
+#'  \item Impute post-discontinuation missing values under the user-specified assumption,
+#'        looping over treatments and patterns (and over methodvar and referencevar if specified)
+#'  \item Perform delta-adjustment if specified
+#'  \item Repeat steps 2-5 M times and form into a single data frame
 #' }
 #' @details The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline
 #' @details We instead  recommend handling it as a covariate
