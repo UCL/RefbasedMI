@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 22/10/2021: corrected sortorder test
 # Revised 16jul2021
 # Revised 25may2021
 # Revised 8feb2021
@@ -200,7 +201,7 @@ test$nomiss <- sum(is.na(c(MAR1,MAR2, J2R1,J2R2,CR1,CR2,CIR1,CIR2)))==0
 # TEST: same sort order
 head(asthma)
 head(impCIR2 %>% filter(.imp==1))
-test$sortorder=sum((asthma %>% select(id,time))==(impCIR2 %>% filter(.imp==1) %>% select(id,time)))==0
+test$sortorder=sum((asthma %>% select(id,time))!=(impCIR2 %>% filter(.imp==1) %>% select(id,time)))==0
 
 
 #####################################################################
