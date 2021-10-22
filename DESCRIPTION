@@ -1,6 +1,6 @@
 Package: RefBasedMI
 Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
-Version: 0.0.20
+Version: 0.0.21
 Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
 Maintainer: Ian White Ian.White <Ian.White@ucl.ac.uk>
 Description: This package imputes missing numerical outcomes for a longitudinal trial 
