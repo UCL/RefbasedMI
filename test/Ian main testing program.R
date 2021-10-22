@@ -51,7 +51,7 @@ test=as.data.frame(start)
 
 # MAR
 impMAR <- RefBasedMI(data=asthma,
-                      covar=c("base","base2"),
+                      covar=c(base,base2),
                       depvar=fev,
                       treatvar=treat,
                       idvar=id,
@@ -69,7 +69,7 @@ MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
-                      covar=c("base","base2"),
+                      covar=c(base,base2),
                       depvar=fev,
                       treatvar=treat,
                       idvar=id,
@@ -90,7 +90,7 @@ test$J2R1eqMAR <- max(abs(J2R1-MAR1))==0
 
 # CR
 impCR1 <- RefBasedMI(data=asthma,
-               covar=c("base","base2"),
+               covar=c(base,base2),
                depvar=fev,
                treatvar=treat,
                idvar=id,
@@ -110,7 +110,7 @@ test$CR1eqMAR <- max(abs(CR1-MAR1))==0
 
 # CIR
 impCIR1 <- RefBasedMI(data=asthma,
-                     covar=c("base","base2"),
+                     covar=c(base,base2),
                      depvar=fev,
                      treatvar=treat,
                      idvar=id,
@@ -135,7 +135,7 @@ test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-12
 
 # J2R
 impJ2R2 <- RefBasedMI(data=asthma,
-                      covar=c("base","base2"),
+                      covar=c(base,base2),
                       depvar=fev,
                       treatvar=treat,
                       idvar=id,
@@ -155,7 +155,7 @@ test$J2R2eqMAR <- max(abs(J2R2-MAR2))==0
 
 # CR
 impCR2 <- RefBasedMI(data=asthma,
-                     covar=c("base","base2"),
+                     covar=c(base,base2),
                      depvar=fev,
                      treatvar=treat,
                      idvar=id,
@@ -175,7 +175,7 @@ test$CR2eqMAR <- max(abs(CR2-MAR2))==0
 
 # CIR
 impCIR2 <- RefBasedMI(data=asthma,
-                      covar=c("base","base2"),
+                      covar=c(base,base2),
                       depvar=fev,
                       treatvar=treat,
                       idvar=id,
@@ -211,7 +211,7 @@ test$sortorder=sum((asthma %>% select(id,time))!=(impCIR2 %>% filter(.imp==1) %>
 
 # CIR
 impCIR2A <- RefBasedMI(data=asthma,
-                       covar=c("base","base2"),
+                       covar=c(base,base2),
                        depvar=fev,
                        treatvar=treat,
                        idvar=id,
@@ -228,7 +228,7 @@ impCIR2A <- RefBasedMI(data=asthma,
 
 # CIR
 impCIR2B <- RefBasedMI(data=asthma,
-                       covar=c("base","base2"),
+                       covar=c(base,base2),
                        depvar=fev,
                        treatvar=treat,
                        idvar=id,
@@ -290,7 +290,7 @@ test
 # DELTA
 # CIR
 impCIRDELTA <- RefBasedMI(data=asthma,
-                 covar=c("base","base2"),
+                 covar=c(base,base2),
                  depvar=fev,
                  treatvar=treat,
                  idvar=id,
