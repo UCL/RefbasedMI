@@ -60,7 +60,7 @@
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
 RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
-                 K0=0,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
+                 K0=NULL,K1=NULL,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
   {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR

@@ -1,5 +1,5 @@
 #####################################################################
-# Ian's main testing program for Rmimix
+# Ian's main testing program for RefBasedMI
 # Revised 16jul2021
 # Revised 25may2021
 # Revised 8feb2021
@@ -7,22 +7,24 @@
 
 
 # Install mimix if required
-if(!require(mimix)) {
+if(!require(RefBasedMI)) {
   if(!require(devtools)) install.packages('devtools') 
   library(devtools) 
-  install_github("UCL/mimix")
+  install_github("UCL/RefBasedMI")
 }
 
+if(!require(tidyverse)) install.packages('tidyverse') 
+  
 # Load mimix
 library(RefBasedMI)
 packageVersion("RefBasedMI")
 library(mice)
 packageVersion("mice")
 
-setwd("C:/ado/ian/Rmimix/test")
+setwd("C:/ado/ian/RefBasedMI/test")
 
 # Open and modify data
-load("C:/ado/ian/Rmimix/data/asthma.RData")
+load("C:/ado/ian/RefBasedMI/data/asthma.RData")
 asthma$treat[1:200]<-3 # creates a 3rd arm
 asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
