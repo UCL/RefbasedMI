@@ -29,15 +29,15 @@
 #' @param methodvar column in data-set specifying individual method
 #' @param referencevar column in data-set specifying reference group as for individual method,
 #' @param K0 Causal constant for use with Causal method
-#' @param K1 exponential decaying Causal constant for use with Causal method
-#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide),length as number of time points
-#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros use guide),length as number of time points
+#' @param K1 Exponential decaying causal constant for use with Causal method
+#' @param delta Vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length as number of time points
+#' @param dlag Vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length as number of time points
 #' @param M Number of imputations to be created
 #' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
-#' @param prior  prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge"
+#' @param prior  Prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge"
 #' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
 #' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
-#' @param mle logical option - not recommended !
+#' @param mle Do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.
 #' @return The M imputed data sets are output concatenated as one large dataframe in long format
 #' @return appended to the original unimputed data-set
 #' @examples
