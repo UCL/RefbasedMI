@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 25/10/2021: added check that data imputed with no outcomes or baselines
 # 22/10/2021: corrected sortorder test
 # Revised 16jul2021
 # Revised 25may2021
@@ -408,7 +409,36 @@ err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==12) %>% select(
 test$causal <- max(abs(err))>1E-12
 
 #####################################################################
+# DOES THE PROGRAM IMPUTE IF WE HAVE NO OBSERVED DATA?
+# Added 25oct2021
+#####################################################################
+
+asthma2 <- asthma
+asthma2[asthma$id==5001,"fev"] <- NA
+
+impnooutcomes <- RefBasedMI(data=asthma2,
+                   depvar=fev,
+                   treatvar=treat,
+                   idvar=id,
+                   timevar=time,
+                   M=2,
+                   method="J2R",
+                   reference=1,
+                   seed=101,
+                   prior="jeffreys",
+                   burnin=1000,
+                   bbetween=NULL,
+                   methodvar=NULL,
+                   delta=c(1,2,3,4), dlag=c(.1,.1,.1,.05)
+)
+
+test$nooutcomes <- 
+  (impnooutcomes %>% filter(id==5001) %>% filter(.imp==0) %>% summarise(nmiss=sum(is.na(fev)))) > 
+  (impnooutcomes %>% filter(id==5001) %>% filter(.imp>0) %>% summarise(nmiss=sum(is.na(fev)))) 
+
+
+#####################################################################
 # END OF TESTS: NOW PRINT SUMMARY
 #####################################################################
 
-t(test)
+print(t(test))
