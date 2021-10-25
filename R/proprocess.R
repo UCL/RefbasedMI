@@ -196,7 +196,11 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
  # browser(text="2203")
   # gives wrng ordering
   # ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
-  ex1s[,treatvar] <- ordered(ex1s[,treatvar], labels=as.character(unique(tmptreat)))
+  #browser(text="summary chk 2510")
+  #tmptreat is factor which could  lead to wrong order so convert to numeric
+  ex1s[,treatvar]<-sort(as.numeric(as.character(ex1s[,treatvar])))
+  #above replaces below
+  #ex1s[,treatvar] <- ordered(ex1s[,treatvar], labels=as.character(unique(tmptreat)))
 
   print(ex1s)
 

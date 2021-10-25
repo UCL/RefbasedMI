@@ -1,42 +1,45 @@
-#' @title Reference-based multiple imputation of longitudinal data
-#' @description Performs reference-based multiple imputation of longitudinal data where data are missing after treatment discontinuation. Methods available are missing at random, jump to reference, copy reference, copy increments in reference, last mean carried forward, the causal model, and delta-adjustment.
-#' @details The program works through the following steps:
-#'  \enumerate{
-#'  \item Set up a summary table based on treatment arm and missing data pattern
-#'       (i.e. which timepoints are unobserved) 
-#'  \item Fit a multivariate normal distribution to each treatment arm using MCMC methods in package norm2
-#'  \item Impute all interim missing values under a MAR assumption, looping over treatments and patterns
-#'  \item Impute all post-discontinuation missing values under the user-specified assumption,
-#'        looping over treatments and patterns (and over methodvar and referencevar if specified)
-#'  \item Perform delta-adjustment if specified
-#'  \item Repeat steps 2-5 M times and form into a single data frame
+#' @title Main function for performing reference-based multiple imputation of longitudinal data
+#' @description main wrapper for running RefBasedMI (previously mimix)
+#' @details The program works through the following steps
+#'  \itemize{
+#'  \item {1.} {set up a summary table based on treatment arm and missing data pattern
+#'       (i.e. which timepoints are unobserved) }
+#'  \item {2.} {Fit a multivariate normal distribution to each treatment sarm using MCMC methods in package norm2}
+#'  \item {3.} {Impute all interim missing values  under a MAR assumption, looping over treatments and patterns}
+#'  \item {4.} {Impute post-discontinuation missing values under the user-specified assumption,
+#'        looping over treatments and patterns (and over methodvar and referncevar if specified)}
+#'  \item {5.} {Perform delta-adjustment if specified}
+#'  \item {6.} {Repeat steps 2-5 M times and form into a single data frame}
 #' }
-#' @details The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline. We instead recommend handling it as a covariate.
+#' @details The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline
+#' @details We instead  recommend handling it as a covariate
 #' @details The program is based on Suzie Cro's Stata program mimix
-#' @details The user can use the as.mids() function in the mice package to convert the output data to mids data type and then perform analysis using Rubin's rules.
+#' @details The user can use the as.mids() function in the mice package to convert the output data to mids data type and hence
+#' @details to perform analysis using Rubin's rules.
 #' @export RefBasedMI
 #' @import mice
 #' @param data Dataset in long format
-#' @param covar Baseline covariates: must be complete (no missing values)
+#' @param covar Covariates - baseline.  Must be complete (no missing values), enclose in quotes.
 #' @param depvar Outcome variable
-#' @param treatvar Treatment group: can be numeric or character
-#' @param idvar Participant identifier
-#' @param timevar Time point for repeated measures
-#' @param method Reference-based imputation method: must be "J2R", "CR", "CIR", "MAR", "Causal" or "LMCF"
-#' @param reference  Reference group for "J2R", "CIR", "CR" methods: can be numeric or string
-#' @param methodvar Column in dataset specifying individual method
-#' @param referencevar Column in dataset specifying reference group for individual method
+#' @param treatvar Treatment group, can be numeric or character
+#' @param idvar Participant identifier.
+#' @param timevar Time point for repeated measure
+#' @param method Reference-based imputation method: must be "J2R", "CR", "CIR","MAR", "Causal" or "LMCF"
+#' @param reference  Reference group for "J2R", "CIR", "CR" methods , can be numeric or string
+#' @param methodvar column in data-set specifying individual method
+#' @param referencevar column in data-set specifying reference group as for individual method,
 #' @param K0 Causal constant for use with Causal method
-#' @param K1 Exponential decaying causal constant for use with Causal method
-#' @param delta Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length as number of time points
-#' @param dlag Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length as number of time points
+#' @param K1 exponential decaying Causal constant for use with Causal method
+#' @param delta vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide),length as number of time points
+#' @param dlag vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros use guide),length as number of time points
 #' @param M Number of imputations to be created
-#' @param seed  Seed value: specify this so that a new run of the command will give the same imputed values
-#' @param prior  Prior when fitting multivariate normal distributions: can be one of "jeffreys" (default), "uniform" or "ridge"
-#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions
-#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions
-#' @param mle Use with extreme caution: do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.
-#' @return The M imputed data sets are output concatenated as one large data frame in long format appended to the original unimputed dataset.
+#' @param seed  Seed value. Specify this so that a new run of the command will give the same imputed values.
+#' @param prior  prior when fitting multivariate normal distributions. It can be one of "jeffreys" (default), "uniform" or "ridge"
+#' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions.
+#' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions.
+#' @param mle logical option - not recommended !
+#' @return The M imputed data sets are output concatenated as one large dataframe in long format
+#' @return appended to the original unimputed data-set
 #' @examples
 #' \dontrun{
 #' #performing jump to reference with treatment reference arm 1 on asthma trial data
@@ -52,12 +55,12 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.21
-# @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
+# v0.0.20
+# @param mle logical optionlibrary(mice) to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
 RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
-                 K0=NULL,K1=NULL,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
+                 K0=1,K1=1,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
   {
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
@@ -1087,7 +1090,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 #  }
   # reset testinterim to run other methods, eg J2R
 
-  # save te MAR dataset and need the .imp=0's to replace in the final data output after pass2
+  # save te MAR data-set and need the .imp=0's to replace in the final data output after pass2
  # browser(text="0912 check mata_Obs id col")
 #  browser(text="0503")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method,idvar))
@@ -1613,10 +1616,11 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
     #cat("\ntrtgp = ", trtgp)
 
 
-    #browser(text="1403")
+    #browser(text="2510")
     if  (!is.null(method) ) {
       #cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ",cnt,"\n") }
-      #try this
+      #try this converting factor to numeric to ensure correct ordering
+      mg[,treatvar]<-sort(as.numeric(as.character(mg[,treatvar])))
       cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) }
     else if(!is.null(methodvar) ) {
       cat(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n\n")
@@ -2242,7 +2246,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   }
   # moved from getimpdatasets fun
  # browser(text="1403")
-  cat(paste0("\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0))), "\nEnd of RefBasedMI\n"))
+  cat(paste0("\n\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
   #cat(paste("\ntest pass2 in runmimx"))
   # try putting recoded treat levels back here !
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
