@@ -28,6 +28,7 @@ setwd("C:/ado/ian/RefBasedMI/test")
 # Open and modify data
 load("C:/ado/ian/RefBasedMI/data/asthma.RData")
 asthma$treat[1:200]<-3 # creates a 3rd arm
+asthma$treat <- asthma$treat + 10
 asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
 head(asthma)
@@ -71,8 +72,8 @@ impMAR <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-MAR1<-impMAR %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
-MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+MAR1<-impMAR %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
+MAR2<-impMAR %>% filter(treat==12) %>% filter(.imp>0) %>% select(-treat)
 
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
@@ -82,7 +83,7 @@ impJ2R1 <- RefBasedMI(data=asthma,
                       idvar=id,
                       timevar=time,
                       M=2,
-                      reference=1,
+                      reference=11,
                       method="J2R",
                       seed=101,
                       prior="jeffreys",
@@ -90,7 +91,7 @@ impJ2R1 <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+J2R1<-impJ2R1 %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
 
 # TEST: J2R1 should = MAR in reference group
 test$J2R1eqMAR <- max(abs(J2R1-MAR1))==0
@@ -103,7 +104,7 @@ impCR1 <- RefBasedMI(data=asthma,
                idvar=id,
                timevar=time,
                M=2,
-               reference=1,
+               reference=11,
                method="CR",
                seed=101,
                prior="jeffreys",
@@ -111,7 +112,7 @@ impCR1 <- RefBasedMI(data=asthma,
                bbetween=NULL,
                methodvar=NULL
 )
-CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+CR1<-impCR1 %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CR1 should = MAR in reference group
 test$CR1eqMAR <- max(abs(CR1-MAR1))==0
 
@@ -123,7 +124,7 @@ impCIR1 <- RefBasedMI(data=asthma,
                      idvar=id,
                      timevar=time,
                      M=2,
-                     reference=1,
+                     reference=11,
                      method="CIR",
                      seed=101,
                      prior="jeffreys",
@@ -131,7 +132,7 @@ impCIR1 <- RefBasedMI(data=asthma,
                      bbetween=NULL,
                      methodvar=NULL
 )
-CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
+CIR1<-impCIR1 %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR1 should = MAR in reference group
 test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-12
 
@@ -148,7 +149,7 @@ impJ2R2 <- RefBasedMI(data=asthma,
                       idvar=id,
                       timevar=time,
                       M=2,
-                      reference=2,
+                      reference=12,
                       method="J2R",
                       seed=101,
                       prior="jeffreys",
@@ -156,7 +157,7 @@ impJ2R2 <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-J2R2<-impJ2R2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+J2R2<-impJ2R2 %>% filter(treat==12) %>% filter(.imp>0) %>% select(-treat)
 # TEST: J2R1 should = MAR in reference group
 test$J2R2eqMAR <- max(abs(J2R2-MAR2))==0
 
@@ -168,7 +169,7 @@ impCR2 <- RefBasedMI(data=asthma,
                      idvar=id,
                      timevar=time,
                      M=2,
-                     reference=2,
+                     reference=12,
                      method="CR",
                      seed=101,
                      prior="jeffreys",
@@ -176,7 +177,7 @@ impCR2 <- RefBasedMI(data=asthma,
                      bbetween=NULL,
                      methodvar=NULL
 )
-CR2<-impCR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+CR2<-impCR2 %>% filter(treat==12) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CR2 should = MAR in reference group
 test$CR2eqMAR <- max(abs(CR2-MAR2))==0
 
@@ -188,7 +189,7 @@ impCIR2 <- RefBasedMI(data=asthma,
                       idvar=id,
                       timevar=time,
                       M=2,
-                      reference=2,
+                      reference=12,
                       method="CIR",
                       seed=101,
                       prior="jeffreys",
@@ -196,7 +197,7 @@ impCIR2 <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-CIR2<-impCIR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+CIR2<-impCIR2 %>% filter(treat==12) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR2 should = MAR in reference group
 test$CIR2eqMAR <- max(abs(CIR2-MAR2))<1E-12
 
@@ -224,7 +225,7 @@ impCIR2A <- RefBasedMI(data=asthma,
                        idvar=id,
                        timevar=time,
                        M=100,
-                       reference=1,
+                       reference=11,
                        method="CIR",
                        seed=1037,
                        prior="jeffreys",
@@ -241,7 +242,7 @@ impCIR2B <- RefBasedMI(data=asthma,
                        idvar=id,
                        timevar=time,
                        M=100,
-                       reference=1,
+                       reference=11,
                        method="CIR",
                        seed=4501,
                        prior="jeffreys",
@@ -303,7 +304,7 @@ impCIRDELTA <- RefBasedMI(data=asthma,
                  idvar=id,
                  timevar=time,
                  M=2,
-                 reference=2,
+                 reference=12,
                  method="CIR",
                  seed=101,
                  prior="jeffreys",
@@ -333,7 +334,7 @@ tweak=3
 
 # MODIFY ASTHMA DATA
 asthmamod=asthma
-asthmamod$fev = asthmamod$fev+tweak*(asthmamod$time==4)*(asthmamod$treat==3)
+asthmamod$fev = asthmamod$fev+tweak*(asthmamod$time==4)*(asthmamod$treat==13)
 
 library(tidyverse)
 # ggplot(data=asthma, aes(x=time,y=fev,group=id,colour=treat))+
@@ -347,7 +348,7 @@ causal1 <- RefBasedMI(data=asthma,
                  idvar=id,
                  timevar=time,
                  M=1,
-                 reference=1,
+                 reference=11,
                  method="causal",
                  seed=101,
                  prior="jeffreys",
@@ -365,7 +366,7 @@ causal1mod <- RefBasedMI(data=asthmamod,
                       idvar=id,
                       timevar=time,
                       M=1,
-                      reference=1,
+                      reference=11,
                       method="causal",
                       seed=101,
                       prior="jeffreys",
@@ -429,7 +430,7 @@ impnooutcomes <- RefBasedMI(data=asthma2,
                    timevar=time,
                    M=2,
                    method="J2R",
-                   reference=1,
+                   reference=11,
                    seed=101,
                    prior="jeffreys",
                    burnin=1000,

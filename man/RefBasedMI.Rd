@@ -53,6 +53,7 @@ RefBasedMI(
 \item{K1}{Exponential decaying causal constant for use with Causal method}
 
 \item{delta}{Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length as number of time points}
+
 \item{dlag}{Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length as number of time points}
 
 \item{M}{Number of imputations to be created}
@@ -85,7 +86,9 @@ looping over treatments and patterns (and over methodvar and referencevar if spe
 \item Perform delta-adjustment if specified
 \item Repeat steps 2-5 M times and form into a single data frame
 }
+
 The baseline value of the outcome could be handed as an outcome, but this would allow a treatment effect at baseline. We instead recommend handling it as a covariate.
+
 The program is based on Suzie Cro's Stata program mimix
 
 The user can use the as.mids() function in the mice package to convert the output data to mids data type and then perform analysis using Rubin's rules.
