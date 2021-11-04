@@ -74,6 +74,10 @@ impMAR <- RefBasedMI(data=asthma,
 MAR1<-impMAR %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 
+# Check data are useable by MI
+fit <- with(data = as.mids(impMAR), lm(fev.12 ~ treat + base))
+summary(pool(fit))    
+
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
                       covar=c(base,base2),
