@@ -36,7 +36,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
     fevdata<- get("data")[c(idvar,depvar,timevar,treatvar)]
     uniqcovar<-unique(get("data")[c(idvar,covar)])
 
-     sts4<-stats::reshape(fevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+     sts4<-stats::reshape(as.data.frame(fevdata),v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   #assumes no NA for these vars should add in checking routines !!
   #check how many covars used
@@ -79,7 +79,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   # process no covars
 
   testfevdata<- get("data")[c(idvar,depvar,timevar)]
-  sts4dummy<-stats::reshape(testfevdata,v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  sts4dummy<-stats::reshape(as.data.frame(testfevdata),v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
   STSdummy<- apply(sts4dummy[,grepl(depvar,names(sts4dummy))],MARGIN=2,function(x) ifelse(!is.na(x),0,1))
 
   # append to names  try paste0 as otherwise space before miss

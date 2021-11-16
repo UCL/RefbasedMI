@@ -3,7 +3,7 @@
 #' @details The program works through the following steps:
 #'  \enumerate{
 #'  \item Set up a summary table based on treatment arm and missing data pattern
-#'       (i.e. which timepoints are unobserved) 
+#'       (i.e. which timepoints are unobserved)
 #'  \item Fit a multivariate normal distribution to each treatment arm using MCMC methods in package norm2
 #'  \item Impute all interim missing values under a MAR assumption, looping over treatments and patterns
 #'  \item Impute all post-discontinuation missing values under the user-specified assumption,
@@ -52,7 +52,7 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.21
+# v0.0.22
 # @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
@@ -73,10 +73,13 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # check that reference is category  of treatment var
   # but check refernce is not null ( because method not need or us indiv specicif cols
- # browser(text="2903")
+  #browser(text="2903")
   if (!is.null(reference) ) {
-    if (!(reference %in% get("data")[,(substitute(treatvar))]) )  { stop("reference must be a category of treatment") }
-  }
+    #if (!(reference %in% get("data")[,(substitute(treatvar))]) )  { stop("reference must be a category of treatment") }
+    # simpler is
+    if (!any(get("data")[,(substitute(treatvar))]==reference)) { stop("reference must be a category of treatment") }
+
+    }
 
     #if  (!reference %in% (get("data")[,(substitute(treatvar))]))  { stop("reference must be a category of treatment") }
 
@@ -145,14 +148,20 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # try recoding treat, eg 2,3 into 1,2,...
   # should work whether treatvar numeric or char
- # browser(text="1405")
+  #browser(text="0411")
+
+  # not sure
+  # data[,treatvar]<-as.numeric(as.character(tmptreat))
+
   tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
  # treatvar<-as.numeric(as.character(tmptreat))
-# need to check with char and 2,3
-  data[,treatvar]<-as.numeric(as.character(tmptreat))
 
+  # below causes error on reference try move to above
+  # need to check with char and 2,3
+  #
+  data[,treatvar]<-as.numeric(as.character(tmptreat))
   # ths moved from abovesectn as failing on tmptreat
   # reference may be null eg if referencevar used
   if (!is.null(reference)) {
@@ -167,7 +176,10 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # 29/10 change mor user friendly
   # stopifnot(class(get(data)) == "data.frame")
-   if (class(get("data")) != "data.frame") {stop("data must be type dataframe")}
+  # doesnt work under tidyverse
+  # if (class(get("data")) != "data.frame") {stop("data must be type dataframe")}
+    if  (!any((class(get("data"))) == "data.frame")) {stop("data must be type dataframe")}
+
 
   # insert error checks  HERE
   #check not both meth and methodundiv specified.
@@ -347,7 +359,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
  # covars move to end?
  # browser(text="2603")
 
-  tst<-stats::reshape(get("data")[,c(idvar,depvar,timevar)],v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
+  tst<-stats::reshape(as.data.frame(get("data")[,c(idvar,depvar,timevar)]),v.names = depvar,timevar = timevar,idvar=idvar,direction="wide")
 
   #1612 make readable in pass2
 
@@ -424,7 +436,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   cumiter<-0
   #system.time(
 
-
+ #browser(text="0411")
   cat(paste0("\nFitting multivariate normal model by ",treatvar,":\n ") )
 
   for (val in 1:length(ntreat)) {
@@ -453,12 +465,20 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
       # mle false or 0, true or 1
-      #browser(text="2603")
+      #browser(text="0411")
 
       if (mle==FALSE) {
+        # WARN if not enough data
+        #browser(text="kmvar")
+        #warning("If not sufficient data then norm2 error- Cannot estimate variance; fewer than 2 cases")
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
-     invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
-      #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
+      # if error then want to print otherwise dont show
+         invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
+
+      # now test whether emResult created - if not need to see the error msg
+         if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
+
+         #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
         # try for when using mle!
         # mcmcResultT<- emResultT
@@ -1394,8 +1414,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
        return(impdataset)
     } else {
 
- # Imp_interims  consists of unimputed record followwed by imputed record for each m
-
+ # Imp_interims  consists of unimputed record followed by imputed record for each m
+ #browser(text="0411")
  testpass2impdatset<- pass2Loop(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
                                 mata_all_newlist,paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1,timevar,data)
     }
@@ -1631,6 +1651,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 
     # try ths when lmcf or mar? . ie no or NULL  refernce !! 0702
     # make sure reference not applicable for MAR or LMCF, this seems to take care of the problem!
+    #browser(text="0411")
     if (length(reference) !=0)  {
        referindex<-which(reference==ntreat)
      }
@@ -1807,7 +1828,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           }
           # 'J2R'
           else if (method == 3 ) {
-
+           # browser(text="0411")
             # changed saving the result into  just the param file, list of 2 so can use list index here
             #treatmnets are 1.. M then M+1 ..2M .. etc
             mata_means_trt <- paramBiglist[[M*(trtgpindex-1)+m]][1]
@@ -1844,6 +1865,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             # only after they go missing (trailing missing) need to use the SigmaRef
 
             #9/3/20
+
             SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
             #SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
             #SigmaRefer <- get(paste0("paramBiglist",refer,m))[2]
@@ -2248,7 +2270,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # try putting recoded treat levels back here !
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
 
- # browser(text="2003")
+  #browser(text="2003")
   # in order to output in long format with original data set
   # but in acupuncture this catches head_base as well as head.3 head.12
   #varyingnames<-names((impdataset)[,grepl(depvar,colnames(impdataset))])
@@ -2258,7 +2280,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   #  impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".")
   # the extra arguments necessary when depvar something like Hamd17.total.7..
 
-  # reshape ha reserved word id  so make sure rename if  id
+  # reshape has reserved word id  so make sure rename if  id
   if (idvar=="id") { names(impdataset)[names(impdataset)=="id"]<-"SNOx"  }
   impdatalong<- reshape(impdataset,varying = varyingnames ,direction="long",sep=".",v.names = depvar,timevar=timevar)
     # this would do if we didnt want all original data cols
@@ -2297,9 +2319,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
    # impdatamergeord[,".id"]<- impdatamergeord[,idvar]
   #}
   #just add a .id col for mice
-  impdatamergeord$.id<-impdatamergeord[,idvar]
+  #impdatamergeord$.id<-impdatamergeord[,idvar]
   # and rename  id col
-  #names(impdatamergeord)[names(impdatamergeord)=="id"]<-".id"
+  names(impdatamergeord)[names(impdatamergeord)==idvar]<-".id"
 
   #browser(text="2303")
   # drop patt
@@ -2307,8 +2329,13 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 
   #return(list(impdataset,impdatamergeord))
   #browser(text="sortout") #sort into time as stata output - ie by imp,id and time
-  impdatamergeord<-impdatamergeord[order(impdatamergeord[,".imp"],impdatamergeord[,idvar]),]
-  return(impdatamergeord)
+  # now nee replace idvar by .id
+  #impdatamergeord<-impdatamergeord[order(impdatamergeord[,".imp"],impdatamergeord[,idvar]),]
+  impdatamergeord<-impdatamergeord[order(impdatamergeord[,".imp"],impdatamergeord[,".id"]),]
+  # no need for id ,just a counter for order , so drop id and reset idvar as the identity var
+  impdatamergeord$id<-NULL
+  names(impdatamergeord)[names(impdatamergeord)==".id"]<- idvar
+  return(impdatamergeord)   # pass2loop end
 }
 
 
