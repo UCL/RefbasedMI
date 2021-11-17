@@ -51,8 +51,6 @@ For further details of **Delta adjustment**,
 see James Roger's SAS programs and user-guide under "Reference-based MI via Multivariate Normal RM (the "five macros" and MIWithD)" at  
 https://www.lshtm.ac.uk/research/centres-projects-groups/missing-data#dia-working-group.
 
-For details of the norm2 package which supplies the function mcmcNorm - the MCMC algorithm for incomplete multivariate normal data
-https://rdrr.io/cran/norm2/src/R/norm2.R
 
 # Installation
 
@@ -62,7 +60,7 @@ Within the R environment type
 
     library(devtools) 
 
-Followed by 
+followed by 
 
     devtools::install_github("UCL/RefBasedMI")
 
@@ -134,7 +132,7 @@ fit<-with(as.mids(subset(asthmaJ2R,time==12)), lm(fev~treat+base))
 summary(pool(fit))
 
 
-### Delta method - all values are 1 unit lower than expected under J2R
+### Delta-adjustment - all values are 1 unit lower than expected under J2R
 impJ2Rridge <- RefBasedMI(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, 
 	delta = c(-1, 0, 0, 0), M = 5, seed = 101, prior = "ridge")      
 
