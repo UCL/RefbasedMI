@@ -52,7 +52,7 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.22
+# v0.0.23
 # @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
@@ -336,6 +336,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   #finaldatS <- testlist$finaldatS
   mg<-testlist[[3]]
 
+  #browser(text="mata_Obs")
   # vital to get the mata_obs correctly sorted! so corresponds with mimix_group lookup
   # to be consistent with Stata move the base col after the fevs!
   #mata_Obs <- testlist$finaldatS
@@ -531,7 +532,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   cat(paste0("\n\nNumber of original missing values = ", sum(is.na(mata_Obs)), "\n"))
   # declare iterate for saving data
 
-  # not fpr indiv-specific
+  # not for indiv-specific
   if (flag_indiv==0) {
    cat("\nImputing interim missing values under MAR:\n\n")
   }
@@ -539,11 +540,14 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     cat("\nImputing missing values using individual-specific method:\n\n")
   }
 
-  #browser(text="0103")
+  #browser(text="2611")
   #initialise interim
   interim<-0
-  # construct structure to savde interim ids but this get reinitialised to many times!
-  interim_id<- mata_Obs[c(mg[1,1]),"id"]
+  # construct structure to save interim ids but this get reinitialised too many times!
+  # this may have been causing errorsd after .id replaced by idvar
+  #interim_id<- mata_Obs[c(mg[1,1]),"id"]
+  interim_id<- mata_Obs[c(mg[1,1]),idvar]
+
 
   #interim_pos <- c(0,0,0,0,0)
 
@@ -748,25 +752,34 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
                  # browser(text="0103") # check logic ,eg c_mata_miss 45
 
                 } else
-                # note that if all missing then wont be interims and c_mata_nonmiss is integer(0) ie NUL
+          # is there a missing {?  yes so need  insert another } somewhere below
+                {  #30/11
+          #note that if all missing then wont be interims and c_mata_nonmiss is integer(0) ie NUL
           #if (length(c_mata_nonmiss)!=0) {(c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss)) }   # need to check there is a non-missing to the right, eg 23 5 , 234 all interims!
-                                    #  cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition
-                # browser(text="1203")
-                  # now covar has moved to end need adjust by excluding positons of covars at the end
-                  covar_pos<-length(mata_means) -length(covar)
-                 # c_mata_nonmiss_nocov <-which( c_mata_nonmiss <covar_pos)
-                  c_mata_nonmiss_nocov <-c_mata_nonmiss[c(which( c_mata_nonmiss <=covar_pos))]
+          #cat(paste0("check nonmissing to right")) trying to catch 5333 7/ this s not going to affect when b=miss_count so need add for this condition
+
+          # covar_pos seems t be created only if a cmd inserted
+          # browser(text="1203")
+
+                  # now covar has moved to end need adjust by excluding positions of covars at the end
+           #      covar_pos<-length(mata_means) - length(covar)
+            c_mata_nonmiss_nocov <-c_mata_nonmiss[c(which( c_mata_nonmiss <= (length(mata_means) - length(covar)))) ]
+              #covar_pos error so try above instead 30/11
+          # c_mata_nonmiss_nocov <-c_mata_nonmiss[c(which( c_mata_nonmiss <= covar_pos))]
+                #c_mata_nonmiss_nocov <-c_mata_nonmiss[c(which( c_mata_nonmiss <= covar_pos))]
 
                   # then only if not all missing 2803  but not sure what to d when all missing!
                   # poss just pass them thru into pass2 with a flag?
-                  if (length(c_mata_nonmiss[c(which( c_mata_nonmiss <=covar_pos))]) != 0 )
-                    {
+          #      if (length(c_mata_nonmiss[c(which( c_mata_nonmiss <=covar_pos))]) != 0 )
+          if (length(c_mata_nonmiss[c(which( c_mata_nonmiss <=   (length(mata_means) - length(covar) )     ))]) != 0 )
+                   {
                       if ( (length(c_mata_nonmiss)!=0) & (c_mata_miss[b-1]+1 == c_mata_miss[b]) & ( c_mata_miss[b-1] < max(c_mata_nonmiss_nocov)))   #{print("tf")}
 
                       { interim<-1 } #need to include outside the for loop  when condition b=miss_count
                   }
               } #if
             } #for
+          } # 30/11
             #  else if doesnt work need to process the miss_count element because not processed in for loop
             #else if ( (b==miss_count) & ( c_mata_miss[b] < length(mata_means))
           # now covar has moved to end need adjust by length of covar 2703
@@ -1068,7 +1081,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 # check for interim 11/11
   # browser(text="0201")
   # only check for interims if not indiv specifc 1102
- # browser(text="0103")
+  #browser(text="interims")
     # check catching interims correct;
   if (flag_indiv==0) {
     if ( (interim==1) & (length(c_mata_miss)!=0))
@@ -1083,6 +1096,9 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       }
       #re-set interim flag
       interim<-0
+
+      # try this 0212
+      #testinterim <-0
     }
   }
 
@@ -1130,7 +1146,10 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # only perform following if not individual method  as only 1 pass for that
   # 0501
   if (flag_indiv==0) {
-    if  (testinterim==1){
+    if  (testinterim==1){ # 01/12 try
+    # if  (interim==1){
+    #browser(text="testinterim")
+
 
      #2311 stat from after MAR this not works
      #2811 need to change this as fillointerims works by taking mean of interims over M imputaions so usng same interims over all M data sets
@@ -1146,10 +1165,21 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
      # browser(text="0202")
       # add col name to interim_id
 
-    #  browser(text="id1")
-     colnames(interim_id)<-idvar
-     rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar,covar)
-     #browser(text="afterfillinterims") # check deriving  mata_Obs!!
+    #browser(text="interim_id")
+    # this would imply no id must be 0 !!
+   # if (interim==0 ) { interim_id=0}
+   #coerce to dataframe 0112
+
+      interim_id<-as.data.frame(interim_id)
+      colnames(interim_id)<-idvar
+
+    # no need to call fillinterims if NO interims!
+    #browser(text="afterfillinterims") # check deriving  mata_Obs!!
+    if (nrow(interim_id) !=0) {
+            rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar,covar)
+      #} else
+      #{
+      #rawplusinterim <- list(subset(impdataset, impdataset$.imp==0),colnames(impdataset, impdataset$.imp==0))
 
      #check .id in correrct ccols for mata_Obs
      Imp_Interims<<-rawplusinterim[[2]]
@@ -1169,6 +1199,14 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
     # impMarint0[impMarint0[,'.id'] %in% test1611imp1[,'.id'], ] <- test1611imp1
      impMarint0[impMarint0[,idvar] %in% test1611imp1[,idvar], ] <- test1611imp1
+
+     } # end if  here? 0212
+    #browser(text="interim_id") #  must  have a record for each .imp
+
+    # no interim ids to match with so simply
+    # need an if here?? 0212
+    # impMarint0<- subset(impdataset, impdataset$.imp==0)
+
 
      impMarint1 <-impMarint0
      # need to drop the old patt!!
@@ -1330,10 +1368,17 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
  # ntreat<-sort(unlist(test2211[[2]]))
   # trea pos seems to cause problems so make sure last col
 
+  #browser(text="finaldatS")
   #finaldatS<-test2211[[1]]
-  finaldataS<-finaldatSS
-  ntreat <- unique(finaldataS[c(treatvar)])
-    #finaldatS <- testlist$finaldatS
+  # 0112 finaldatSS only created if interim=1
+  #if (interim==1) {
+  #finaldataS<-finaldatSS
+  #ntreat <- unique(finaldataS[c(treatvar)])
+  #} else  {
+  ntreat <- unique(finaldatSS[c(treatvar)])
+  #}
+
+   #finaldatS <- testlist$finaldatS
   #mg<-test2211[[3]]
   #browser(text="0101")
   mg <- test_ex1
@@ -1343,11 +1388,18 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
  # mata_Obs <- test2211[[1]]
  #browser(text="afterinterims")
 
-  mata_Obs<- finaldatSS
-  #treat pos need to be last?
+  # 0112 finaldatSS only created if interim=1
+  #if (interim==1)
+  #{
+   mata_Obs<- finaldatSS
+  #}
+   #treat pos need to be last?
   colx<-grep(treatvar,colnames(mata_Obs))
-  mata_Obs.reorder<-mata_Obs[,c(1:(colx-1),(colx+1):length(mata_Obs),colx)]
-  mata_Obs<-mata_Obs.reorder
+  # check if not already last
+  if (colx<length(mata_Obs)) {
+    mata_Obs.reorder<-mata_Obs[,c(1:(colx-1),(colx+1):length(mata_Obs),colx)]
+    mata_Obs<-mata_Obs.reorder
+  }
   # 1012 try also putting here the change of position for id also
  # browser(text="1112") # is just .id  works here not idvar!!
   idcol<- grep(paste0(idvar),colnames(mata_Obs))
@@ -1527,7 +1579,7 @@ getimpdatasets <- function(varlist){
 #  browser(text="1002")
 #  cat(paste0("\n\nNumber of post-discontinuation missing values = ", sum(is.na(subset(impdatasets,impdatasets$.imp==1)))))
  # cat(paste0("\nnumber of final na values = ", sum(is.na(subset(impdatasets,impdatasets$.imp>0)))))
-  #browser()
+#  browser(text="unimputed")
   if (sum(is.na(subset(impdatasets,impdatasets$.imp>0))) !=0 ) { cat(paste0("\nWARNING! unimputed data values")) }
   # write which model processed
   # but not when indiv method used
@@ -1555,7 +1607,7 @@ getimpdatasets <- function(varlist){
 pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,reference,trtgp,mata_Obs,
                      mata_all_newlist, paramBiglist,idvar,flag_indiv,M,delta,dlag,K0,K1,timevar,data)
 {
- # browser(text="2802")
+  #browser(text="2802")
   # note mata_all_newlist now reset so check whether previous outputs should hae been saved?
   # WARNING!!  check tail mata_Obs
   # mle option?
@@ -2341,7 +2393,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 
 
 fillinterims<- function(impdata,interims,Mimp=M,idvar,covar ) {
- # browser(text="order")
+  #browser(text="order")
   #0312 browser(text="not means")
   #2711browser(text="find estimate over all imps")
   #convert to data.table
@@ -2388,8 +2440,10 @@ fillinterims<- function(impdata,interims,Mimp=M,idvar,covar ) {
   # exclude last non-response cols
   #test10<-sapply(impMarint_dt[interims_dt],function(x) ifelse(is.na(x) ,1,0) )
   test10<-sapply(impboth,function(x) ifelse(is.na(x) ,1,0) )
-  # subtract end cols patt treat id a wel as covars
-  test10x<-test10[,c(1:(ncol(test10)-3-length(covar)))]
+  # subtract end cols patt treat id a wel as covars  , 3 because patt,treat and idvar cols
+  # needed in this form to account when no interims
+  test10x<-as.data.frame(test10)[,c(1:(ncol(as.data.frame(test10))-3-length(covar)))]
+  #test10x<-test10[,c(1:(ncol(test10)-3-length(covar)))]
   # find max non-missing
   lastvalid<-apply(test10x,1, function(x) max(which(x==0))  )
   #merge back
@@ -2425,7 +2479,8 @@ fillinterims<- function(impdata,interims,Mimp=M,idvar,covar ) {
     test1611impxm <-  subset(test1611impx,test1611impx[,".imp"]==0)
     test1611impxm[,".imp"]<-val
 
-    # build up ovder M imps
+    # build up over M imps
+    # impxm is m'th imputed data set
     test1611impD <- rbind(test1611impD,test1611impxm)
 
   }

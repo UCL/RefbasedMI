@@ -112,6 +112,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
   # In order  to get patt with all missing patts
 
+  #browser(text="2611")
   Overall_patt<-unique(sts4Dpatt[grepl(".miss",colnames(sts4Dpatt))])
   patt<- unique(sts4Dpatt[,"patt"])
 
