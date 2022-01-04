@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 4/1/2022: changed .id to id
 # 25/10/2021: added check that data imputed with no outcomes or baselines
 # 22/10/2021: corrected sortorder test
 # Revised 16jul2021
@@ -79,7 +80,7 @@ micefit <- with(data = as.mids(impMAR),
             lm(fev ~ as.factor(treat) + base, subset=(time==12)))
 summary(pool(micefit))
 
-# Check results are comparable
+# Check results are comparable - REQUIRES VISUAL CHECK
 lmfit <- lm(fev ~ as.factor(treat) + base, data=asthma, subset=(time==12))
 summary(lmfit)
 # and that raw and imputed data have comparable structure
@@ -284,9 +285,9 @@ test$diffseed <- max(abs(MCZ))<3 & max(abs(MCZ))>0.1
 # interim missings should be imputed the same way by different methods
 # but final missings shouldn't
 #####################################################################
-intJ2R1 <- impJ2R1 %>% filter(.id==5051|.id==5115|.id==5333) %>% 
+intJ2R1 <- impJ2R1 %>% filter(id==5051|id==5115|id==5333) %>% 
   filter(.imp==1) %>% arrange(id,time)
-intCIR2 <- impCIR2 %>% filter(.id==5051|.id==5115|.id==5333) %>% 
+intCIR2 <- impCIR2 %>% filter(id==5051|id==5115|id==5333) %>% 
   filter(.imp==1) %>% arrange(id,time)
 intorig <- asthma  %>% filter(id==5051|id==5115|id==5333) %>% arrange(id,time)
 summ <- intJ2R1 %>% select(id,time)
@@ -327,7 +328,7 @@ impCIRDELTA <- RefBasedMI(data=asthma,
 )
 
 compare <- impCIR2 %>% 
-  inner_join(impCIRDELTA,by=c("id","time",".id",".imp","base","base2","treat")) %>% 
+  inner_join(impCIRDELTA,by=c("id","time",".imp","base","base2","treat")) %>% 
   filter(.imp==1)
 compare$diff <- compare$fev.y-compare$fev.x
 compare %>% group_by(time) %>% summarise(meandiff=mean(diff))
