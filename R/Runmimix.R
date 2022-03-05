@@ -141,7 +141,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   #   if (typeof(get("data")[,treatvar])=="character") { stop("reference and treatment not both character types") }
   # }
 
-  if (!is.null(method) & (method != "MAR")  ) {
+  #if (!is.null(method) & (method != "MAR")  ) {  this produces logical(0) result hence error msg so replace by 
+  if (length(which(!is.null(method) & (method != "MAR")==0 ) )) {  
      if (is.null(reference)) {stop("\nStopped !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
