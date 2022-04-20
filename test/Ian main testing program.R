@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 20/4/2022: updated linear model analysis
 # 4/1/2022: changed .id to id
 # 25/10/2021: added check that data imputed with no outcomes or baselines
 # 22/10/2021: corrected sortorder test
@@ -72,16 +73,20 @@ impMAR <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
+# convert treat to unordered factor
+impMAR$treat <- factor(as.numeric(impMAR$treat))
 MAR1<-impMAR %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 
 # Check data are useable by MI
-micefit <- with(data = as.mids(impMAR),
-            lm(fev ~ as.factor(treat) + base, subset=(time==12)))
+# used to work but fails now 20/4/2022
+#  micefit <- with(data = as.mids(impMAR), lm(fev ~ as.factor(treat) + base, subset=(time==12)))
+# works 20/4/2022
+micefit <- with(data = as.mids(impMAR[impMAR$time==12,]), lm(fev ~ treat + base))
 summary(pool(micefit))
 
 # Check results are comparable - REQUIRES VISUAL CHECK
-lmfit <- lm(fev ~ as.factor(treat) + base, data=asthma, subset=(time==12))
+lmfit <- lm(fev ~ factor(treat) + base, data=asthma, subset=(time==12))
 summary(lmfit)
 # and that raw and imputed data have comparable structure
 str(asthma)
