@@ -141,7 +141,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   #dummypatt<-unique(xSTSdummy)
   pattmat<-unique(STSdummy[,1:ncol(STSdummy)])
 
-browser(text="ncol(pattmat)")
+#browser(text="ncol(pattmat)") 210422
   pows2d <- sapply(1:ncol(pattmat),function(i) pattmat[,i]*2^(i-1))
   patt<-rowSums(pows2d)
   #want  join this to ex from mimix_group table

@@ -74,7 +74,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # check that reference is category  of treatment var
   # but check refernce is not null ( because method not need or us indiv specicif cols
   # matrix needed to
-  browser(text="2903")
+  #browser(text="2903") 210422
   if (!is.null(reference) ) {
       if (!any(as.character(as.matrix(get("data")[,(substitute(treatvar))]))==reference)) { stop("reference must be a category of treatment") }
   }
@@ -1143,7 +1143,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # only perform following if not individual method  as only 1 pass for that
   # 0501
-  browser(text="testinterim")
+  #browser(text="testinterim") 210422
   if (flag_indiv==0) {
     if  (testinterim==1){ # 01/12 try
     # if  (interim==1){
@@ -1527,7 +1527,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 getimpdatasets <- function(varlist){
   #12129/5/20
- browser(text="match")
+ #browser(text="match") 210422
   # to obtain M imputed data sets
   # dimension of data set, nrows in pattern times no imputations,
   # note sub data sets wi have different cols if completely missing so
@@ -1758,7 +1758,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
       #  tet_mata_Obs_x<- tet_mata_Obs_x[,-grep(".miss",colnames(tet_mata_Obs_x))]
 
       # have have same cols in interim file
-      browser(text="inpass2interims")
+      #browser(text="inpass2interims") 210422
       ImpInters <-    get(paste0("Imp_Interims_",m))
  #     browser(text="1112") #NOTE depvar = fev in antidep data!!??r
        # set treatname ,may have to do others sometime?
@@ -2314,7 +2314,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # browser(text="passtoloop")
   # browser(text="1801")
   impdataset<-getimpdatasets(list(mata_all_newlist,mg,M,method,idvar))
-   browser(text="finalgetimp")
+   #browser(text="finalgetimp") 210422
   # but need to adjust orig data set to set interims back to missing
   # only needed if there are interims!
 if (nrow(Imp_Interims)!=0) {
@@ -2349,7 +2349,7 @@ if (nrow(Imp_Interims)!=0) {
   # try putting recoded treat levels back here !
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
 
-  browser(text="2003")
+  #browser(text="2003") 210422
   # in order to output in long format with original data set
   # but in acupuncture this catches head_base as well as head.3 head.12
   #varyingnames<-names((impdataset)[,grepl(depvar,colnames(impdataset))])
