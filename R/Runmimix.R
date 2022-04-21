@@ -150,7 +150,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # not sure
   # data[,treatvar]<-as.numeric(as.character(tmptreat))
-
+ #browser(text="treat") 210422
   tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
@@ -162,9 +162,12 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   data[,treatvar]<-as.numeric(as.character(tmptreat))
   # ths moved from abovesectn as failing on tmptreat
   # reference may be null eg if referencevar used
+  #which(initial_levels_treat==reference)
   if (!is.null(reference)) {
-    ref_pos<-grep(reference,unique(get("data")[,treatvar]))
-    reference<-(as.numeric(unique(tmptreat)[ref_pos]))
+    # ref_pos<-grep(reference,unique(get("data")[,treatvar]))
+    # reference<-(as.numeric(unique(tmptreat)[ref_pos]))
+    # if treat 11,12..
+    reference<-which(initial_levels_treat==reference)
   }
 
   testinterim<-1
