@@ -155,10 +155,12 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # not sure
   # data[,treatvar]<-as.numeric(as.character(tmptreat))
- #browser(text="treat") 210422
+  #browser(text="treat") # 210422
   tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
+  # asthma 2,3 try labels?
+
  # treatvar<-as.numeric(as.character(tmptreat))
 
   # below causes error on reference try move to above
@@ -452,7 +454,10 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     prnormobj<-assign(paste0("prnormobj",val), subset(kmvar, select=c(tst2)))
     #create  emptylist for each treat
 
-    cat(paste0("\n",treatvar," = ",val,"\nperforming mcmcNorm for m = 1 to ",M) )
+    # want to use respective  treat level
+   #  browser(text="val")
+   # (initial_levels_treat)[val]
+    cat(paste0("\n",treatvar," = ", (initial_levels_treat)[val],"\nperforming mcmcNorm for m = 1 to ",M) )
     for(m in 1:M) {
 
       # supppress warnings regarding solution  near boundary, see norm2 user guide, also mimix about this problem
@@ -813,8 +818,9 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
                 #for (it_interim in 1:mg[i,"cases"]) {
                   # instead of printing interim ids
                   #  cat(paste0("\ninterim at id= ", mata_Obs[c(mg[i,"cumcases"]-mg[i,"cases"]+it_interim),idvar] ))
-              #  browser(text="2904")
-                cat(treatvar," = ",trtgp,"pattern = ",pattern,"number patients = ", cnt,"\n")
+                #browser(text="2904")
+
+                cat(treatvar," = ",initial_levels_treat[trtgp],"pattern = ",pattern,"number patients = ", cnt,"\n")
                 #}
               }
 
