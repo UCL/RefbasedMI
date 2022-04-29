@@ -59,6 +59,11 @@
 RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,reference=NULL,methodvar=NULL,referencevar=NULL,
                  K0=NULL,K1=NULL,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
   {
+
+   #reset warnings not recommended
+  #assign("last.warning", NULL, envir = baseenv())
+  # reset warnings
+  #warning(immediate. = FALSE)
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
   # this forces interims to be estimated as MAR by default
@@ -345,7 +350,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # move treatvar to end by deleting and merging back in
 
-  #browser()
+  #browser(text="230422")
   # extract treatvar and methodindiv vars
   # fix 12/06
   # Obs_treat<-subset(mata_Obs,select=c(treatvar,methodvar))
@@ -479,7 +484,10 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
       # now test whether emResult created - if not need to see the error msg
          if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
-
+        #browser(text="converge")
+   if (length(grep("negative definite",emResultT$msg ))>0) {
+     print(emResultT$msg)
+     stop("STOPPED !!! PROBLEM IN emNorm")}
          #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
         # try for when using mle!
@@ -487,15 +495,15 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         # if using jomo
      #setnburn=1000
     #invisible(capture.output(testimp<- jomo::jomo.MCMCchain(prnormobj,nburn=burnin,meth=common, output=0)))
-
-     }
+       }
       else {
       invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
         # for mle
       mcmcResultT<- emResultT
      # mcmcResultT <- norm2::impNorm(emResultT, method="predict")
       }
-
+      # try
+      #if (length(last.warning) >0) {stop("RESOLVE WARNINGS !!!") }
 
 
       # msg from emNorm
@@ -514,6 +522,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       paramBiglist[[ cumiter]] <- mcmcResultT$param
       assign(paste0("paramBiglist",val,"_",m), mcmcResultT$param)
     }
+    #browser(text="Loop finished")
+
     cat(paste0("\nmcmcNorm Loop finished.\n"))
   }
 
@@ -928,7 +938,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         # ie when no covar selected and All missing then no Sigmas have been calculated
        # browser(text="1203")
         # covars always non missing
-      #  browser(text="2903")
+        #browser(text="240422")
         if (length(c_mata_nonmiss)-length(covar)==0)  {
           ## routine copied from mimix line 1229
 

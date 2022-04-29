@@ -16,7 +16,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   ##2311 make sure .id is id !
   #browser()
   #change order put covar last
-    #browser(text="2605")
+    #browser(text="230422")
     fevdata<- get("data")[c(idvar,depvar,timevar,treatvar,covar)]
   # extract covar cols 1 row per id to merge onto the wide data
     uniqdat<-unique(get("data")[c(idvar,covar,treatvar)])
@@ -30,7 +30,7 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
 
  # reshape from long to wide longitudinal data with as many depvars as time points
 
-#   investigatte moving covar to end
+#   investigate moving covar to end
  #   browser(text="2603")
     # no covar
     fevdata<- get("data")[c(idvar,depvar,timevar,treatvar)]
@@ -473,7 +473,7 @@ ifmethodindiv <- function(methodvar,referencevar,mg,m,M,paramBiglist,i,treatvar,
     # changed saving the result into  just the param file, list of 2 so can use list index here
     #treatmnets are 1.. M then M+1 ..2M .. etc
 
-    #6/3/20 need editing after chnaging suffixes in paramBiglist
+    #6/3/20 need editing after changing suffixes in paramBiglist
     mata_means_trt <- paramBiglist[[M*(trtgp-1)+m]][1]
     mata_means_ref <- paramBiglist[[M*(refergp-1)+m]][1]
     #mata_means_ref <- paramBiglist[[M*(refergp-1)+m]][1]
