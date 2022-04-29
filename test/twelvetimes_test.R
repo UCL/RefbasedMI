@@ -1,7 +1,7 @@
 # Test RefBasedMI with artificial data with 12 times, 4 groups and no covariate
 # IW 22nov2021
-# twelvetimes20.csv  has  20 indiviuals / group
-# twelvetimes200.csv has 200 indiviuals / group
+# twelvetimes20.csv  has  20 individuals / group
+# twelvetimes200.csv has 200 individuals / group
 
 # Problem 1: if you use the data set with 20 / group,
 #   you get "MCMC procedure aborted" in each imputation, 
@@ -15,7 +15,7 @@
 #   attempt to set 'colnames' on an object with less than two dimensions 
 
 library(tidyverse)
-t12 <- read_csv("twelvetimes200.csv")
+t12 <- read_csv("twelvetimes20.csv")
 summary(t12)
 
 

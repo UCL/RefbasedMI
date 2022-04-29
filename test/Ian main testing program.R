@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 29/4/2022: added test of treat=11/12/13 and 2/4/6
 # 20/4/2022: updated linear model analysis
 # 4/1/2022: changed .id to id
 # 25/10/2021: added check that data imputed with no outcomes or baselines
@@ -10,12 +11,10 @@
 #####################################################################
 
 
-# Install mimix if required
-if(!require(RefBasedMI)) {
-  if(!require(devtools)) install.packages('devtools') 
-  library(devtools) 
-  install_github("UCL/RefBasedMI")
-}
+# Install RefBasedMI - do this each time to run latest version
+if(!require(devtools)) install.packages('devtools') 
+library(devtools) 
+install_github("UCL/RefBasedMI")
 
 if(!require(tidyverse)) install.packages('tidyverse') 
   
@@ -460,6 +459,57 @@ test$nooutcomes <-
   (impnooutcomes %>% filter(id==5001) %>% filter(.imp==0) %>% summarise(nmiss=sum(is.na(fev)))) > 
   (impnooutcomes %>% filter(id==5001) %>% filter(.imp>0) %>% summarise(nmiss=sum(is.na(fev)))) 
 
+
+
+#####################################################################
+# DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 11/12/13?
+#####################################################################
+
+# J2R
+asthmaten<-asthma
+asthmaten$treat=asthma$treat+10
+impJ2R1ten <- RefBasedMI(data=asthmaten,
+                         covar=c(base,base2),
+                         depvar=fev,
+                         treatvar=treat,
+                         idvar=id,
+                         timevar=time,
+                         M=2,
+                         reference=11,
+                         method="J2R",
+                         seed=101,
+                         prior="jeffreys",
+                         burnin=1000,
+                         bbetween=NULL,
+                         methodvar=NULL
+)
+J2R1ten<-impJ2R1ten %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
+test$treat111213 <- sum(J2R1ten!=J2R1)==0 & impJ2R1ten[1,"treat"]==13
+
+#####################################################################
+# DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 2/4/6?
+#####################################################################
+
+# J2R
+asthmatwo<-asthma
+asthmatwo$treat=asthma$treat*2
+impJ2R1two <- RefBasedMI(data=asthmatwo,
+                         covar=c(base,base2),
+                         depvar=fev,
+                         treatvar=treat,
+                         idvar=id,
+                         timevar=time,
+                         M=2,
+                         reference=2,
+                         method="J2R",
+                         seed=101,
+                         prior="jeffreys",
+                         burnin=1000,
+                         bbetween=NULL,
+                         methodvar=NULL
+)
+J2R1two<-impJ2R1two %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
+test$treat246 <- sum(J2R1two!=J2R1)==0 & impJ2R1two[1,"treat"]==6
 
 #####################################################################
 # END OF TESTS: NOW PRINT SUMMARY
