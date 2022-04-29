@@ -1197,6 +1197,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       # so no need for if here  070422
    # browser(text="pre fillinterims")
    # if (nrow(interim_id) !=0) {
+     # browser(text="fillinterims")
             rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar,covar)
     #  } else  # 070422 {
 
@@ -1653,8 +1654,14 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   else if (method==6)   {model<-"CAUSAL" }
 
   # like to insert no. of missing after interims imputed
- #  browser(text="1002")
-  cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
+   #browser(text="1002")
+  # NOTE check output interims correctly?
+   # interims imputed
+   No_ints_Impd <- 0
+   if (length(nrow(Imp_Interims)>0)) {
+    No_ints_Impd <- sum(is.na(subset(Imp_Interims,.imp==0)))-sum(is.na(subset(Imp_Interims,.imp==1)))
+   }
+  cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs))-No_ints_Impd,"\n"))
   cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
 
   # 2411 mata_all_newlist <- vector('list',M*nrow(mg))
