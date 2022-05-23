@@ -1407,7 +1407,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   #} else  {
   # 040722
   # 040722 finaldatSS only created if interim
-  if (interim!=0) {
+  # and ensure mg is not the original but rather the version after interims treated                    
+  if (nrow(interim_id) !=0) {
   ntreat <- unique(finaldatSS[c(treatvar)])
     mg <- test_ex1
     mata_Obs<- finaldatSS
