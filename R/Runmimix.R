@@ -2415,7 +2415,8 @@ if (nrow(Imp_Interims)!=0) {
   # and remove all .y suffixes
   names(impdatamerge)<-gsub("\\.y","",names(impdatamerge))
   # sort
-  impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,timevar]),])
+  #browser(text="sort") for sorted output ( as in input data)
+  impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,idvar],impdatamerge[,timevar]),])
 
   #browser(text="2403")
   # overwrite values inid col
@@ -2449,6 +2450,9 @@ if (nrow(Imp_Interims)!=0) {
   # no need for id ,just a counter for order , so drop id and reset idvar as the identity var
  #impdatamergeord$id<-NULL
   #names(impdatamergeord)[names(impdatamergeord)==".id"]<- idvar
+  #try 23522
+ #browser(text="outputorder")
+ # impdatamergeord<-dplyr::arrange(impdatamergeord,.imp,idvar,timevar)
   return(impdatamergeord)   # pass2loop end
 }
 
