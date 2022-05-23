@@ -155,10 +155,12 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # not sure
   # data[,treatvar]<-as.numeric(as.character(tmptreat))
-  #browser(text="treat") # 210422
+  #browser(text="treat") # 210422  this bit to label treat grps in final output
   tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
+  # convert back to original class
+ # tmptreat<-(unlist(get("data")[,treatvar]))
   # asthma 2,3 try labels?
 
  # treatvar<-as.numeric(as.character(tmptreat))
@@ -491,8 +493,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
          if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
         #browser(text="converge")
    if (length(grep("negative definite",emResultT$msg ))>0) {
-     print(emResultT$msg)
-     stop("STOPPED !!! PROBLEM IN emNorm")}
+     #print(emResultT$msg)
+     stop("STOPPED  PROBLEM IN emNorm")}
          #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
         # try for when using mle!
@@ -1162,7 +1164,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # only perform following if not individual method  as only 1 pass for that
   # 0501
-  #browser(text="testinterim") 210422
+  #browser(text="testinterim") #22022
   if (flag_indiv==0) {
     if  (testinterim==1){ # 01/12 try
     # if  (interim==1){
@@ -1197,7 +1199,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       # so no need for if here  070422
    # browser(text="pre fillinterims")
    # if (nrow(interim_id) !=0) {
-     # browser(text="fillinterims")
+     # browser(text="fillinterims") #220522
             rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar,covar)
     #  } else  # 070422 {
 
@@ -1407,7 +1409,6 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   #} else  {
   # 040722
   # 040722 finaldatSS only created if interim
-  # and ensure mg is not the original but rather the version after interims treated                    
   if (nrow(interim_id) !=0) {
   ntreat <- unique(finaldatSS[c(treatvar)])
     mg <- test_ex1
@@ -1662,8 +1663,10 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
    if (length(nrow(Imp_Interims)>0)) {
     No_ints_Impd <- sum(is.na(subset(Imp_Interims,.imp==0)))-sum(is.na(subset(Imp_Interims,.imp==1)))
    }
-  cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs))-No_ints_Impd,"\n"))
-  cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
+   #browser(text="sumpost")
+  #cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs))-No_ints_Impd,"\n"))
+   cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
+   cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
 
   # 2411 mata_all_newlist <- vector('list',M*nrow(mg))
   # browser(text="0312")
@@ -2374,7 +2377,9 @@ if (nrow(Imp_Interims)!=0) {
   cat(paste0("\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0))), "\nEnd of RefBasedMI\n"))
   #cat(paste("\ntest pass2 in runmimx"))
   # try putting recoded treat levels back here !
-  impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
+  # browser(text="ordered factor") does it have tp be ordered!? yes purpose to put on labels
+   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))
+
 
   #browser(text="2003") 210422
   # in order to output in long format with original data set
