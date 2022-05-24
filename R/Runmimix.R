@@ -2415,8 +2415,13 @@ if (nrow(Imp_Interims)!=0) {
   # and remove all .y suffixes
   names(impdatamerge)<-gsub("\\.y","",names(impdatamerge))
   # sort
-  #browser(text="sort") for sorted output ( as in input data)
+  browser(text="sort") # for sorted output ( as in input data)
   impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,idvar],impdatamerge[,timevar]),])
+
+  # copy  class of treatvar same as in input data
+  classtreatvar<- class(data[,treatvar])
+  class(impdatamergeord[,treatvar])<-classtreatvar
+
 
   #browser(text="2403")
   # overwrite values inid col
