@@ -459,7 +459,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     # want to use respective  treat level
    #  browser(text="val")
    # (initial_levels_treat)[val]
-    cat(paste0("\n",treatvar," = ", (initial_levels_treat)[val],"\nperforming mcmcNorm for m = 1 to ",M) )
+    cat(paste0("\n",treatvar," = ", (initial_levels_treat)[val],"\nperforming mcmcNorm for m = 1 to ",M,"\n") )
     for(m in 1:M) {
 
       # supppress warnings regarding solution  near boundary, see norm2 user guide, also mimix about this problem
@@ -487,14 +487,17 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         #warning("If not sufficient data then norm2 error- Cannot estimate variance; fewer than 2 cases")
       # doesnt suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
       # if error then want to print otherwise dont show
+
          invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
 
       # now test whether emResult created - if not need to see the error msg
          if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
         #browser(text="converge")
    if (length(grep("negative definite",emResultT$msg ))>0) {
-     #print(emResultT$msg)
-     stop("STOPPED  PROBLEM IN emNorm")}
+ #     print((emResultT$msg))
+     stop("Stopped  IN emNorm")
+     print((emResultT$msg))
+     }
          #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
         # try for when using mle!
@@ -1656,11 +1659,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   else if (method==6)   {model<-"CAUSAL" }
 
   # like to insert no. of missing after interims imputed
-   #browser(text="1002")
+  # browser(text="1002")
   # NOTE check output interims correctly?
    # interims imputed
    No_ints_Impd <- 0
-   if (length(nrow(Imp_Interims)>0)) {
+   # need nrow(nrow in case of data frame 0 obs. of  1 variable:
+   if (length(nrow(nrow(Imp_Interims))>0)) {
     No_ints_Impd <- sum(is.na(subset(Imp_Interims,.imp==0)))-sum(is.na(subset(Imp_Interims,.imp==1)))
    }
    #browser(text="sumpost")
@@ -2415,7 +2419,7 @@ if (nrow(Imp_Interims)!=0) {
   # and remove all .y suffixes
   names(impdatamerge)<-gsub("\\.y","",names(impdatamerge))
   # sort
-  browser(text="sort") # for sorted output ( as in input data)
+  #browser(text="sort") # for sorted output ( as in input data)
   impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,idvar],impdatamerge[,timevar]),])
 
   # copy  class of treatvar same as in input data
