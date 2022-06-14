@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 14/6/2022: improved check of comparable results; improved tests of 11/12/13 and 2/4/6; added overall check of any tests being missed
 # 29/4/2022: added test of treat=11/12/13 and 2/4/6
 # 20/4/2022: updated linear model analysis
 # 4/1/2022: changed .id to id
@@ -72,16 +73,11 @@ impMAR <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-# convert treat to unordered factor
-impMAR$treat <- factor(as.numeric(impMAR$treat))
 MAR1<-impMAR %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 MAR2<-impMAR %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 
 # Check data are useable by MI
-# used to work but fails now 20/4/2022
-#  micefit <- with(data = as.mids(impMAR), lm(fev ~ as.factor(treat) + base, subset=(time==12)))
-# works 20/4/2022
-micefit <- with(data = as.mids(impMAR[impMAR$time==12,]), lm(fev ~ treat + base))
+micefit <- with(data = as.mids(impMAR), lm(fev ~ factor(treat) + base, subset=(time==12)))
 summary(pool(micefit))
 
 # Check results are comparable - REQUIRES VISUAL CHECK
@@ -484,7 +480,9 @@ impJ2R1ten <- RefBasedMI(data=asthmaten,
                          methodvar=NULL
 )
 J2R1ten<-impJ2R1ten %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
-test$treat111213 <- sum(J2R1ten!=J2R1)==0 & impJ2R1ten[1,"treat"]==13
+# test correct #rows and if so correct results
+test$treat111213 <- nrow(J2R1ten)==nrow(asthmaten)
+if(test$treat111213) test$treat111213 <- sum(J2R1ten!=J2R1)==0 & impJ2R1ten[1,"treat"]==13
 
 #####################################################################
 # DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 2/4/6?
@@ -509,10 +507,13 @@ impJ2R1two <- RefBasedMI(data=asthmatwo,
                          methodvar=NULL
 )
 J2R1two<-impJ2R1two %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
-test$treat246 <- sum(J2R1two!=J2R1)==0 & impJ2R1two[1,"treat"]==6
+# test correct #rows and if so correct results
+test$treat246 <- nrow(J2R1two)==nrow(asthmatwo)
+if(test$treat246) test$treat246 <- sum(J2R1two!=J2R1)==0 & impJ2R1two[1,"treat"]==6
 
 #####################################################################
 # END OF TESTS: NOW PRINT SUMMARY
 #####################################################################
 
+test$COMPLETE <- ncol(test)==16
 print(t(test))

@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 inst/doc
-test/~$Mimix testing summary.xlsx
+~$*.xlsx
 test/Ian main testing program.Rout
