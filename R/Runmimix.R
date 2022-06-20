@@ -2423,9 +2423,14 @@ if (nrow(Imp_Interims)!=0) {
   impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,idvar],impdatamerge[,timevar]),])
 
   # copy  class of treatvar same as in input data
+  # browser(text="output")
   classtreatvar<- class(data[,treatvar])
   class(impdatamergeord[,treatvar])<-classtreatvar
-
+  # recode levels back to values using tmptreat (is a factor)
+  # so output treatvar consistent with input
+  if ( class(impdatamergeord[,treatvar]) %in% c("integer","numeric") ) {
+    impdatamergeord[,treatvar]<- as.numeric(levels(impdatamergeord[,treatvar]))[tmptreat]
+  }
 
   #browser(text="2403")
   # overwrite values inid col
