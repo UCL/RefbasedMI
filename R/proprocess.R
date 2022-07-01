@@ -196,7 +196,8 @@ preprodata<- function(data,covar,depvar,treatvar,idvar,timevar,M,reference,metho
   # put labels to put back original treat  levels (when not orig 1,2..)
  # browser(text="2203")
   # gives wrng ordering
-  # ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
+  # but correct labels
+   ex1s[,treatvar] <-ordered(ex1s[,treatvar],  labels=levels(tmptreat))
   #browser(text="summary chk 2510")
   #tmptreat is factor which could  lead to wrong order so convert to numeric
   ex1s[,treatvar]<-sort(as.numeric(as.character(ex1s[,treatvar])))

@@ -52,7 +52,7 @@
 #'   prior=jeffreys,burnin=1000)
 #' }
 
-# v0.0.23
+# v0.0.24
 # @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
@@ -67,7 +67,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # 6/11 try account for interims J2R MAR
   # if testinterims then want method to 1stly be MAR
   # this forces interims to be estimated as MAR by default
- # browser(text="0503")
+  #browser(text="0503")
   #covar <- deparse(substitute(covar))
   #  deparse puts argument in quotes
   depvar <- deparse(substitute(depvar))
@@ -153,10 +153,14 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # should work whether treatvar numeric or char
   #browser(text="0411")
 
+  # first save class of original treatvar - for use at end
+  classtreatvar <<- class(unlist(get("data")[,treatvar]))
   # not sure
   # data[,treatvar]<-as.numeric(as.character(tmptreat))
   #browser(text="treat") # 210422  this bit to label treat grps in final output
-  tmptreat<<-factor(unlist(get("data")[,treatvar]))
+  # ensure not a tibble  - a when using  readr to read csv data
+  tmptreat <<- factor(unlist(as.data.frame(get("data"))[,treatvar]))
+  #tmptreat<<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
   # convert back to original class
@@ -495,8 +499,11 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         #browser(text="converge")
    if (length(grep("negative definite",emResultT$msg ))>0) {
  #     print((emResultT$msg))
-     stop("Stopped  IN emNorm")
+     #stop("Stopped  IN emNorm")
      print((emResultT$msg))
+     print("please disregard UNDECLARED() message - not the error!")
+     UNDECLARED()
+
      }
          #mcmcResultT<- (mcmcNorm(emResultT,iter=1000,multicycle = NULL,prior = priorvar[1],prior.df = priorvar[2]))
      mcmcResultT<- (norm2::mcmcNorm(emResultT,iter=burnin,multicycle = bbetween,prior = prior[1],prior.df = prior[2]))
@@ -2423,14 +2430,25 @@ if (nrow(Imp_Interims)!=0) {
   impdatamergeord<-(impdatamerge[order(impdatamerge[,".imp"],impdatamerge[,idvar],impdatamerge[,timevar]),])
 
   # copy  class of treatvar same as in input data
-  # browser(text="output")
-  classtreatvar<- class(data[,treatvar])
+  # 240622 no on row 155
+  #browser(text="output")
+  #classtreatvar<- class(data[,treatvar])
   class(impdatamergeord[,treatvar])<-classtreatvar
   # recode levels back to values using tmptreat (is a factor)
   # so output treatvar consistent with input
-  if ( class(impdatamergeord[,treatvar]) %in% c("integer","numeric") ) {
-    impdatamergeord[,treatvar]<- as.numeric(levels(impdatamergeord[,treatvar]))[tmptreat]
-  }
+  # now no  need for if ?
+  #if ( class(impdatamergeord[,treatvar]) %in% c("integer","numeric") ) {
+  #impdatamergeord[,treatvar]<- as.numeric(levels(impdatamergeord[,treatvar]))[tmptreat]
+  #}
+  # try this need to convert factor 2,3 to character thn numericv to avoid 1,2
+  # this wont work when data input not balanced 250622
+  # impdatamergeord[,treatvar] <- as.numeric(as.character(tmptreat))
+  # so instead just recode values somehow!
+  # try use levls to convert to values  250622
+  impdatamergeord[,treatvar] <- levels(impdatamergeord[,treatvar])[(impdatamergeord[,treatvar])]
+  # need to repeat this in case has changed to character
+  class(impdatamergeord[,treatvar])<-classtreatvar
+
 
   #browser(text="2403")
   # overwrite values inid col
