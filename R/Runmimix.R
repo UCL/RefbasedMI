@@ -148,6 +148,10 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
      if (is.null(reference)) {stop("\nStopped !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
+  # check treatvar in sorted order
+  if (is.unsorted(do.call("order",data.frame(get("data")[,treatvar]))) ) {
+    stop("\nStopped - warning !! ", treatvar,"\n in input data requires to be in sorted order ")
+  }
 
   # try recoding treat, eg 2,3 into 1,2,...
   # should work whether treatvar numeric or char
