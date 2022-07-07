@@ -1,3 +1,6 @@
+
+> source("Ian main testing program.R")
+[1] "Main methods - MAR"
    
 
 Summary of missing data pattern by treat:
@@ -23,14 +26,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -46,8 +52,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under MAR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -55,11 +60,9 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
@@ -72,13 +75,14 @@ End of RefBasedMI
  $ fev  : num  2870 2660 2690 2580 2610 ...
  $ base2: num  8.56 8.56 8.56 8.56 6.08 ...
 'data.frame':	2196 obs. of  7 variables:
- $ id   : int  5001 5003 5007 5009 5012 5015 5017 5025 5028 5030 ...
- $ time : int  2 2 2 2 2 2 2 2 2 2 ...
+ $ id   : int  5001 5001 5001 5001 5003 5003 5003 5003 5007 5007 ...
+ $ time : int  2 4 8 12 2 4 8 12 2 4 ...
  $ .imp : num  0 0 0 0 0 0 0 0 0 0 ...
- $ base : num  2.92 2.46 2.6 3.37 2.83 ...
- $ base2: num  8.56 6.08 6.76 11.36 8.01 ...
- $ treat: Factor w/ 3 levels "1","2","3": 3 3 3 3 3 3 3 3 3 3 ...
- $ fev  : num  2870 2610 2740 3010 2630 ...
+ $ base : num  2.92 2.92 2.92 2.92 2.46 ...
+ $ base2: num  8.56 8.56 8.56 8.56 6.08 ...
+ $ treat: num  3 3 3 3 3 3 3 3 3 3 ...
+ $ fev  : num  2870 2660 2690 2580 2610 ...
+[1] "Main methods - J2R"
    
 
 Summary of missing data pattern by treat:
@@ -104,14 +108,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -127,8 +134,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under J2R:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -136,15 +142,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "Main methods - CR"
    
 
 Summary of missing data pattern by treat:
@@ -170,14 +175,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -193,8 +201,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -202,15 +209,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "Main methods - CIR"
    
 
 Summary of missing data pattern by treat:
@@ -236,14 +242,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -259,8 +268,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CIR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -268,15 +276,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "J2R with reference = active"
    
 
 Summary of missing data pattern by treat:
@@ -302,14 +309,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -325,8 +335,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under J2R:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -334,15 +343,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "CR with reference = active"
    
 
 Summary of missing data pattern by treat:
@@ -368,14 +376,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -391,8 +402,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -400,15 +410,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "CIR with reference = active"
    
 
 Summary of missing data pattern by treat:
@@ -434,14 +443,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -457,8 +469,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CIR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -466,15 +477,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "CIR with M=100, run 1"
    
 
 Summary of missing data pattern by treat:
@@ -500,14 +510,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 
@@ -523,8 +536,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CIR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -532,15 +544,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "CIR with M=100, run 2"
    
 
 Summary of missing data pattern by treat:
@@ -566,14 +577,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 100
+
 mcmcNorm Loop finished.
 
 
@@ -589,8 +603,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CIR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -598,15 +611,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "Delta-adjustment"
    
 
 Summary of missing data pattern by treat:
@@ -632,14 +644,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -655,8 +670,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CIR:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -664,15 +678,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "Causal, original data"
    
 
 Summary of missing data pattern by treat:
@@ -698,14 +711,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 
@@ -721,8 +737,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CAUSAL:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -730,15 +745,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "Causal, modified data"
    
 
 Summary of missing data pattern by treat:
@@ -764,14 +778,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 1
+
 mcmcNorm Loop finished.
 
 
@@ -787,8 +804,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under CAUSAL:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
@@ -796,15 +812,14 @@ treat  =  2 pattern =  0 number patients =  51
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  29 
-treat  =  3 pattern =  4 number patients =  1 
+treat  =  3 pattern =  0 number patients =  30 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "DOES THE PROGRAM IMPUTE IF WE HAVE NO OBSERVED DATA?"
    
 
 Summary of missing data pattern by treat:
@@ -831,14 +846,17 @@ Fitting multivariate normal model by treat:
  
 treat = 1
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 3
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -854,58 +872,59 @@ Number of post-discontinuation missing values = 146
 
 Imputing post-discontinuation missing values under J2R:
 
-treat  =  1 pattern =  0 number patients =  28 
-treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  0 number patients =  29 
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
-treat  =  2 pattern =  0 number patients =  51 
-treat  =  1 pattern =  8 number patients =  6 
+treat  =  1 pattern =  0 number patients =  51 
+treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  3 pattern =  0 number patients =  28 
-treat  =  2 pattern =  4 number patients =  1 
+treat  =  2 pattern =  0 number patients =  29 
 treat  =  3 pattern =  8 number patients =  6 
-treat  =  3 pattern =  12 number patients =  8 
-treat  =  3 pattern =  13 number patients =  1 
+treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 
 treat  =  3 pattern =  15 number patients =  1 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 11/12/13?"
    
 
 Summary of missing data pattern by treat:
 
    pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
-1        0     1       28          0          0          0           0
-2        7     1        1          1          1          1           0
-3        8     1       11          0          0          0           1
-4       12     1       16          0          0          1           1
-5       14     1       12          0          1          1           1
-6        0     2       51          0          0          0           0
-7        8     2        6          0          0          0           1
-8       12     2        6          0          0          1           1
-9       14     2        2          0          1          1           1
-10       0     3       29          0          0          0           0
-11       4     3        1          0          0          1           0
-12       8     3        6          0          0          0           1
-13      12     3        8          0          0          1           1
-14      13     3        1          1          0          1           1
-15      14     3        5          0          1          1           1
+1        0    11       28          0          0          0           0
+2        7    11        1          1          1          1           0
+3        8    11       11          0          0          0           1
+4       12    11       16          0          0          1           1
+5       14    11       12          0          1          1           1
+6        0    12       51          0          0          0           0
+7        8    12        6          0          0          0           1
+8       12    12        6          0          0          1           1
+9       14    12        2          0          1          1           1
+10       0    13       29          0          0          0           0
+11       4    13        1          0          0          1           0
+12       8    13        6          0          0          0           1
+13      12    13        8          0          0          1           1
+14      13    13        1          1          0          1           1
+15      14    13        5          0          1          1           1
 
 Fitting multivariate normal model by treat:
  
 treat = 11
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 12
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 13
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -921,8 +940,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under J2R:
 
-treat  =  11 pattern =  0 number patients =  28 
-treat  =  11 pattern =  7 number patients =  1 
+treat  =  11 pattern =  0 number patients =  29 
 treat  =  11 pattern =  8 number patients =  11 
 treat  =  11 pattern =  12 number patients =  16 
 treat  =  11 pattern =  14 number patients =  12 
@@ -930,48 +948,50 @@ treat  =  12 pattern =  0 number patients =  51
 treat  =  12 pattern =  8 number patients =  6 
 treat  =  12 pattern =  12 number patients =  6 
 treat  =  12 pattern =  14 number patients =  2 
-treat  =  13 pattern =  0 number patients =  29 
-treat  =  13 pattern =  4 number patients =  1 
+treat  =  13 pattern =  0 number patients =  30 
 treat  =  13 pattern =  8 number patients =  6 
-treat  =  13 pattern =  12 number patients =  8 
-treat  =  13 pattern =  13 number patients =  1 
+treat  =  13 pattern =  12 number patients =  9 
 treat  =  13 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
+[1] "DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 2/4/6?"
    
 
 Summary of missing data pattern by treat:
 
    pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
-1        0     1       28          0          0          0           0
-2        7     1        1          1          1          1           0
-3        8     1       11          0          0          0           1
-4       12     1       16          0          0          1           1
-5       14     1       12          0          1          1           1
-6        0     2       51          0          0          0           0
-7        8     2        6          0          0          0           1
-8       12     2        6          0          0          1           1
-9       14     2        2          0          1          1           1
-10       0     3       29          0          0          0           0
-11       4     3        1          0          0          1           0
-12       8     3        6          0          0          0           1
-13      12     3        8          0          0          1           1
-14      13     3        1          1          0          1           1
-15      14     3        5          0          1          1           1
+1        0     2       28          0          0          0           0
+2        7     2        1          1          1          1           0
+3        8     2       11          0          0          0           1
+4       12     2       16          0          0          1           1
+5       14     2       12          0          1          1           1
+6        0     4       51          0          0          0           0
+7        8     4        6          0          0          0           1
+8       12     4        6          0          0          1           1
+9       14     4        2          0          1          1           1
+10       0     6       29          0          0          0           0
+11       4     6        1          0          0          1           0
+12       8     6        6          0          0          0           1
+13      12     6        8          0          0          1           1
+14      13     6        1          1          0          1           1
+15      14     6        5          0          1          1           1
 
 Fitting multivariate normal model by treat:
  
 treat = 2
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 4
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 treat = 6
 performing mcmcNorm for m = 1 to 2
+
 mcmcNorm Loop finished.
 
 
@@ -987,8 +1007,7 @@ Number of post-discontinuation missing values = 142
 
 Imputing post-discontinuation missing values under J2R:
 
-treat  =  2 pattern =  0 number patients =  28 
-treat  =  2 pattern =  7 number patients =  1 
+treat  =  2 pattern =  0 number patients =  29 
 treat  =  2 pattern =  8 number patients =  11 
 treat  =  2 pattern =  12 number patients =  16 
 treat  =  2 pattern =  14 number patients =  12 
@@ -996,29 +1015,30 @@ treat  =  4 pattern =  0 number patients =  51
 treat  =  4 pattern =  8 number patients =  6 
 treat  =  4 pattern =  12 number patients =  6 
 treat  =  4 pattern =  14 number patients =  2 
-treat  =  6 pattern =  0 number patients =  29 
-treat  =  6 pattern =  4 number patients =  1 
+treat  =  6 pattern =  0 number patients =  30 
 treat  =  6 pattern =  8 number patients =  6 
-treat  =  6 pattern =  12 number patients =  8 
-treat  =  6 pattern =  13 number patients =  1 
+treat  =  6 pattern =  12 number patients =  9 
 treat  =  6 pattern =  14 number patients =  5 
 
 Number of final missing values = 0
 End of RefBasedMI
-             [,1]
-start        TRUE
-J2R1eqMAR    TRUE
-CR1eqMAR     TRUE
-CIR1eqMAR    TRUE
-J2R2eqMAR    TRUE
-CR2eqMAR     TRUE
-CIR2eqMAR    TRUE
-nomiss       TRUE
-sortorder   FALSE
-diffseed     TRUE
-interim     FALSE
-deltaworks   TRUE
-causal       TRUE
-nooutcomes   TRUE
-treat111213  TRUE
-treat246     TRUE
+            [,1]
+start       TRUE
+J2R1eqMAR   TRUE
+CR1eqMAR    TRUE
+CIR1eqMAR   TRUE
+J2R2eqMAR   TRUE
+CR2eqMAR    TRUE
+CIR2eqMAR   TRUE
+nomiss      TRUE
+sortorder   TRUE
+diffseed    TRUE
+interim     TRUE
+deltaworks  TRUE
+causal      TRUE
+nooutcomes  TRUE
+treat111213 TRUE
+treat246    TRUE
+COMPLETE    TRUE
+
+> sink()

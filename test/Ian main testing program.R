@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 7/7/2022: corrected the 11/12/13 and 2/4/6 tests
 # 14/6/2022: improved check of comparable results; improved tests of 11/12/13 and 2/4/6; added overall check of any tests being missed
 # 29/4/2022: added test of treat=11/12/13 and 2/4/6
 # 20/4/2022: updated linear model analysis
@@ -59,6 +60,7 @@ test=as.data.frame(start)
 #####################################################################
 
 # MAR
+print("Main methods - MAR")
 impMAR <- RefBasedMI(data=asthma,
                       covar=c(base,base2),
                       depvar=fev,
@@ -88,6 +90,7 @@ str(asthma)
 str(impMAR)
 
 # J2R
+print("Main methods - J2R")
 impJ2R1 <- RefBasedMI(data=asthma,
                       covar=c(base,base2),
                       depvar=fev,
@@ -109,6 +112,7 @@ J2R1<-impJ2R1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 test$J2R1eqMAR <- max(abs(J2R1-MAR1))==0
 
 # CR
+print("Main methods - CR")
 impCR1 <- RefBasedMI(data=asthma,
                covar=c(base,base2),
                depvar=fev,
@@ -129,6 +133,7 @@ CR1<-impCR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 test$CR1eqMAR <- max(abs(CR1-MAR1))==0
 
 # CIR
+print("Main methods - CIR")
 impCIR1 <- RefBasedMI(data=asthma,
                      covar=c(base,base2),
                      depvar=fev,
@@ -154,6 +159,7 @@ test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-12
 #####################################################################
 
 # J2R
+print("J2R with reference = active")
 impJ2R2 <- RefBasedMI(data=asthma,
                       covar=c(base,base2),
                       depvar=fev,
@@ -174,6 +180,7 @@ J2R2<-impJ2R2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 test$J2R2eqMAR <- max(abs(J2R2-MAR2))==0
 
 # CR
+print("CR with reference = active")
 impCR2 <- RefBasedMI(data=asthma,
                      covar=c(base,base2),
                      depvar=fev,
@@ -194,6 +201,7 @@ CR2<-impCR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 test$CR2eqMAR <- max(abs(CR2-MAR2))==0
 
 # CIR
+print("CIR with reference = active")
 impCIR2 <- RefBasedMI(data=asthma,
                       covar=c(base,base2),
                       depvar=fev,
@@ -230,6 +238,7 @@ test$sortorder=sum((asthma %>% select(id,time))!=(impCIR2 %>% filter(.imp==1) %>
 #####################################################################
 
 # CIR
+print("CIR with M=100, run 1")
 impCIR2A <- RefBasedMI(data=asthma,
                        covar=c(base,base2),
                        depvar=fev,
@@ -247,6 +256,7 @@ impCIR2A <- RefBasedMI(data=asthma,
 )
 
 # CIR
+print("CIR with M=100, run 2")
 impCIR2B <- RefBasedMI(data=asthma,
                        covar=c(base,base2),
                        depvar=fev,
@@ -309,6 +319,7 @@ test
 
 # DELTA
 # CIR
+print("Delta-adjustment")
 impCIRDELTA <- RefBasedMI(data=asthma,
                  covar=c(base,base2),
                  depvar=fev,
@@ -353,6 +364,7 @@ library(tidyverse)
 #   geom_line()
 
 # causal, original data
+print("Causal, original data")
 causal1 <- RefBasedMI(data=asthma,
                  covar=c("base"),
                  depvar=fev,
@@ -371,6 +383,7 @@ causal1 <- RefBasedMI(data=asthma,
 ) %>% filter(.imp==1) 
 
 # causal, same K, modified data
+print("Causal, modified data")
 causal1mod <- RefBasedMI(data=asthmamod,
                       covar=c("base"),
                       depvar=fev,
@@ -432,6 +445,8 @@ test$causal <- max(abs(err))>1E-12
 # Added 25oct2021
 #####################################################################
 
+print("DOES THE PROGRAM IMPUTE IF WE HAVE NO OBSERVED DATA?")
+
 asthma2 <- asthma
 asthma2[asthma$id==5001,"fev"] <- NA
 
@@ -464,6 +479,7 @@ test$nooutcomes <-
 # J2R
 asthmaten<-asthma
 asthmaten$treat=asthma$treat+10
+print("DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 11/12/13?")
 impJ2R1ten <- RefBasedMI(data=asthmaten,
                          covar=c(base,base2),
                          depvar=fev,
@@ -479,10 +495,13 @@ impJ2R1ten <- RefBasedMI(data=asthmaten,
                          bbetween=NULL,
                          methodvar=NULL
 )
-J2R1ten<-impJ2R1ten %>% filter(treat==11) %>% filter(.imp>0) %>% select(-treat)
-# test correct #rows and if so correct results
-test$treat111213 <- nrow(J2R1ten)==nrow(asthmaten)
-if(test$treat111213) test$treat111213 <- sum(J2R1ten!=J2R1)==0 & impJ2R1ten[1,"treat"]==13
+# test correct #rows 
+test$treat111213 <- nrow(impJ2R1ten) == nrow(impJ2R1)
+# ... and if so test correct results
+if(test$treat111213) 
+  test$treat111213 <- 
+  sum(impJ2R1$treat!=impJ2R1ten$treat-10)==0 & 
+  sum(impJ2R1$fev[impJ2R1$.imp>0] != impJ2R1ten$fev[impJ2R1ten$.imp>0])==0
 
 #####################################################################
 # DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 2/4/6?
@@ -491,6 +510,7 @@ if(test$treat111213) test$treat111213 <- sum(J2R1ten!=J2R1)==0 & impJ2R1ten[1,"t
 # J2R
 asthmatwo<-asthma
 asthmatwo$treat=asthma$treat*2
+print("DOES PROGRAM WORK AND REPORT SAME RESULTS IF TREATMENT IS 2/4/6?")
 impJ2R1two <- RefBasedMI(data=asthmatwo,
                          covar=c(base,base2),
                          depvar=fev,
@@ -506,10 +526,14 @@ impJ2R1two <- RefBasedMI(data=asthmatwo,
                          bbetween=NULL,
                          methodvar=NULL
 )
-J2R1two<-impJ2R1two %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
-# test correct #rows and if so correct results
-test$treat246 <- nrow(J2R1two)==nrow(asthmatwo)
-if(test$treat246) test$treat246 <- sum(J2R1two!=J2R1)==0 & impJ2R1two[1,"treat"]==6
+# test correct #rows 
+test$treat246 <- nrow(impJ2R1two) == nrow(impJ2R1)
+# ... and if so test correct results
+if(test$treat246) 
+  test$treat246 <- 
+  sum(impJ2R1$treat!=impJ2R1two$treat/2)==0 & 
+  sum(impJ2R1$fev[impJ2R1$.imp>0] != impJ2R1two$fev[impJ2R1two$.imp>0])==0
+
 
 #####################################################################
 # END OF TESTS: NOW PRINT SUMMARY
