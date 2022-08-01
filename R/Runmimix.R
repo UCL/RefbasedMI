@@ -60,37 +60,35 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
                  K0=NULL,K1=NULL,delta=NULL,dlag=NULL,M=1,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,mle=FALSE)
   {
 
-   #reset warnings not recommended
-  #assign("last.warning", NULL, envir = baseenv())
-  # reset warnings
-  #warning(immediate. = FALSE)
-  # 6/11 try account for interims J2R MAR
-  # if testinterims then want method to 1stly be MAR
-  # this forces interims to be estimated as MAR by default
-  #browser(text="0503")
-  #covar <- deparse(substitute(covar))
-  #  deparse puts argument in quotes
+
+  # test if "data set does not exist!!"
+  assertthat::assert_that( length(get("data"))>0 )
+
+  if  (!any((class(get("data"))) == "data.frame")) {stop("data must be type dataframe")}
+
+  # if testinterims then want method to 1stly be MAR this forces interims to be estimated as MAR by default
+  # deparse needed as argument in quotes
   depvar <- deparse(substitute(depvar))
+  if (length(grep(paste0("^",depvar,"$"),names(get("data")))) == 0 )
+     {stop(paste(depvar," depvar not in data")) }
   treatvar <- deparse(substitute(treatvar))
-
+  if (length(grep(paste0("^",treatvar,"$"),names(get("data")))) == 0 )
+     {stop(paste(treatvar," treatvar not in data")) }
   idvar<-deparse(substitute(idvar))
+  if (length(grep(paste0("^",idvar,"$"),names(get("data")))) == 0 )
+     {stop(paste(idvar," idvar not in data")) }
   timevar<-deparse(substitute(timevar))
-
+  if (length(grep(paste0("^",timevar,"$"),names(get("data")))) == 0 )
+     {stop(paste(timevar," timevar not in data")) }
   # check that reference is category  of treatment var
-  # but check refernce is not null ( because method not need or us indiv specicif cols
-  # matrix needed to
-  #browser(text="2903") 210422
+  # and is not null ( because method not needed if indiv specific cols reqested)
+
   if (!is.null(reference) ) {
       if (!any(as.character(as.matrix(get("data")[,(substitute(treatvar))]))==reference)) { stop("reference must be a category of treatment") }
   }
 
-    #if  (!reference %in% (get("data")[,(substitute(treatvar))]))  { stop("reference must be a category of treatment") }
-
- # if (!exists(deparse(substitute(methodvar))) || is.null(methodvar) ) {}
-
-# maybe not best [lace to put them??
-  # methodvar<- deparse(substitute(methodvar))
- #  referencevar <- deparse(substitute(referencevar))
+   #if  (!reference %in% (get("data")[,(substitute(treatvar))]))  { stop("reference must be a category of treatment") }
+   #if (!exists(deparse(substitute(methodvar))) || is.null(methodvar) ) {}
 
   # must be null when using methodvar
   #if (!is.null(method)) {method<-deparse(substitute(method))}
@@ -106,14 +104,15 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     # term on rhs copied & pasted!  "‘c’"
     # this  unicode ("\U2018","c","\U2019") for Left & right single quotation mark
     # package wont accept non-ascii char so replace
-  #  if (sQuote(scovar)[[1]]== "‘c’")
-    # by
-   # browser(text="2605")
-    if (sQuote(scovar)[[1]]== paste0("\U2018","c","\U2019") )
+    # if (sQuote(scovar)[[1]]== "‘c’")
+     if (sQuote(scovar)[[1]]== paste0("\U2018","c","\U2019") )
    {
     covarname<-vector(mode="list",length=(length(scovar)-1))
     for ( i in 2:length(scovar))
        {
+         # check if covar exists !
+        if (length(grep(paste0("^",scovar[[i]],"$"),names(get("data")))) == 0 )
+        {stop(paste(scovar[[i]]," not in data"))}
          covarname[[i-1]] <-names(get("data"))[[grep(paste0("^",scovar[[i]],"$"),names(get("data")))]]
        }
          covarvector<-as.vector(unlist(covarname))
@@ -126,7 +125,6 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # print a warning if reference = NULL
 
- # browser(text="2203")
 
 
   reference<-substitute(reference)
@@ -150,7 +148,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   # check treatvar in sorted order
   if (is.unsorted(do.call("order",data.frame(get("data")[,idvar]))) ) {
-    stop("\nStopped - warning !! ", idvar,"\n  input data requires to be in sorted order on id variable ")
+    stop("\nStopped - warning !! ", idvar,"\n in input data requires to be in sorted order ")
   }
 
   # try recoding treat, eg 2,3 into 1,2,...
