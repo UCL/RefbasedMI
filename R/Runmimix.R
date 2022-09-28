@@ -142,7 +142,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # check refernce consistent with treatvar
 
 
-  if (!is.null(method) & (method != "MAR")  ) {
+  if (!is.null(method) & (method != "MAR") & (method != "LMCF")  ) {
      if (is.null(reference)) {stop("\nStopped !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
@@ -327,11 +327,11 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
                                               ifelse( ( method=="CAUSAL" | method=="CASUAL" | method=="CUASAL"),6,9))))))
 
 
-  }
+  
   # for user specified
 
 
-  else if (!is.null(methodvar) ) {
+  } else if (!is.null(methodvar) ) {
 
 
     testlist =  preproIndivdata(data,covar,depvar,treatvar,idvar,timevar,M,reference,method,methodvar,referencevar)
@@ -494,8 +494,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         # if using jomo
         #setnburn=1000
         #invisible(capture.output(testimp<- jomo::jomo.MCMCchain(prnormobj,nburn=burnin,meth=common, output=0)))
-      }
-      else {
+      
+      } else {
         invisible(capture.output(emResultT <-
                                    (
                                      norm2::emNorm(prnormobj, prior = prior[1], prior.df = prior[2])
@@ -543,8 +543,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # not for indiv-specific
   if (flag_indiv==0) {
    cat("\nImputing interim missing values under MAR:\n\n")
-  }
-  else {
+  
+  } else {
     cat("\nImputing missing values using individual-specific method:\n\n")
   }
 
@@ -597,8 +597,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     if  (!is.null(method) ) {
       # only print imputed case, ie interims
       #cat("\n",treatvar ," = ", trtgp,"patt = ",pattern,"number cases = ", cnt)
-      }
-        else if(!is.null(methodvar) ) {
+      
+    } else if(!is.null(methodvar) ) {
       #cat(treatvar ," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),"   ",referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n")
       cat(treatvar ," = ",trtgp,methodvar," = ",sprintf("%-10s",as.character(mg[i,methodvar])))
       cat(referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n")
@@ -766,7 +766,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
           # so just need to do in  pass2 ie delete line 1612
         }
         #else if(!is.null(methodindiv[1]))
-        else if (flag_indiv==1) {
+    } else if (flag_indiv==1) {
 
           # call function for  indiv
 
@@ -1340,12 +1340,12 @@ getimpdatasets <- function(varlist){
   # write which model processed
   # but not when indiv method used
   if (length(method) !=0 ) {
-  if  (method==3) {model<-"J2R"}
-  else if ( method==2 ) {model<-"CR"}
-  else if  ( method==1 ) {model <-"MAR"}
-  else if  ( method==4) {model<-"CIR"}
-  else if  ( method==5) {model<-"LMCF"}
-  else if (method==6)   {model<-"CAUSAL" }
+  if  (method==3) {model<-"J2R"
+  } else if ( method==2 ) {model<-"CR"
+  } else if  ( method==1 ) {model <-"MAR"
+  } else if  ( method==4) {model<-"CIR"
+  } else if  ( method==5) {model<-"LMCF"
+  } else if (method==6)   {model<-"CAUSAL" }
  # cat(paste0("\n\nImputed data based on model ", model))
 
   } # length
@@ -1369,12 +1369,12 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
   # mle option?
   # this doesnt call proprocess as data already in wide format
   # for reporting purposes try here rather than runmimix
-  if  (method==3) {model<-"J2R"}
-  else if ( method==2 ) {model<-"CR"}
-  else if  ( method==1 ) {model <-"MAR"}
-  else if  ( method==4) {model<-"CIR"}
-  else if  ( method==5) {model<-"LMCF"}
-  else if (method==6)   {model<-"CAUSAL" }
+  if  (method==3) {model<-"J2R"
+  } else if ( method==2 ) {model<-"CR"
+  } else if  ( method==1 ) {model <-"MAR"
+  } else if  ( method==4) {model<-"CIR"
+  } else if  ( method==5) {model<-"LMCF"
+  } else if (method==6)   {model<-"CAUSAL" }
 
   # like to insert no. of missing after interims imputed
   # browser(text="1002")
@@ -1443,8 +1443,8 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 
       #try this converting factor to numeric to ensure correct ordering
       mg[,treatvar]<-sort(as.numeric(as.character(mg[,treatvar])))
-      cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) }
-    else if(!is.null(methodvar) ) {
+      cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) 
+  } else if(!is.null(methodvar) ) {
       cat(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n\n")
     }
 
@@ -1581,9 +1581,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
 
 
-          }
+          
           # 'J2R'
-          else if (method == 3 ) {
+          } else if (method == 3 ) {
            # browser(text="0411")
             # changed saving the result into  just the param file, list of 2 so can use list index here
             #treatmnets are 1.. M then M+1 ..2M .. etc
@@ -1631,9 +1631,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
 
-          } #method
+           #method
           # 'CR'
-          else if (method==2) {
+          } else if (method==2) {
             # no need to use Sigmatrt here
             mata_means <- paramBiglist[[M*(referindex-1)+m]][1]
             #mata_means <- get(paste0("param",refer,m))[1]
@@ -1646,9 +1646,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
             #Sigma<-SigmaRefer
-          }
+          
           # 'CIR'
-          else if (method==4)
+          } else if (method==4)
 
           {
             # need to use Sigmatrt as in j2r
@@ -1681,9 +1681,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             S22 <-SigmaRefer[[1]][c_mata_miss,c_mata_miss]
 
             # Sigma<- SigmaRefer
-          }
+          
           # 'LMCF'
-          else if (method==5) {
+          } else if (method==5) {
             #   browser(text="2003")
             #mata_Means <-  get(paste0("param",trtgp,m))[1]
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
@@ -1702,9 +1702,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
             S22 <-Sigmatrt[[1]][c_mata_miss,c_mata_miss]
 
             #   Sigma<- Sigmatrt
-          }  #if meth=5
+            #if meth=5
           # causal method uses same matrices as CIR with K parameter
-          else if (method==6)  {
+          } else if (method==6)  {
             mata_Means <- paramBiglist[[M*(trtgpindex-1)+m]][1]
             # convert from list to matrix
             mata_Means <- mata_Means[[1]]
@@ -1730,9 +1730,9 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
 
           }
           ############# individual analysis #########################
-        }
+        
         #else if(!is.null(methodindiv[1]))
-        else if (flag_indiv==1) {
+        } else if (flag_indiv==1) {
 
           # call function for  indiv
 
@@ -1881,8 +1881,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,referen
           # so if no missing then just copy full values into mata_new columns
           #if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- mata_Obs[,c(2:length(tst2))]
           if(length(c_mata_miss)==0 ) { mata_new[,c(1:length(tst2))] <- preraw[,c(1:length(tst2))]
-          }else
-          {
+          } else {
             mata_new[,c_mata_miss] <- mata_y1
           }
 
