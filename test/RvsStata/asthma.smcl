@@ -1,0 +1,586 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\ado\ian\RefBasedMI\test\RvsStata\asthma.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}23 Nov 2022, 13:21:37
+{txt}
+{com}. /* 
+> Ian to compare with R.do
+> mimix results for comparison with R 
+> Ian 8jul2020
+> updated 23nov2022: read R results in; add CC and MAR
+> */
+. 
+. cd C:\ado\ian\RefBasedMI
+{res}C:\ado\ian\RefBasedMI
+{txt}
+{com}. 
+. use "data\asthma.dta", clear
+{txt}
+{com}. replace treat=treat-1
+{txt}(732 real changes made)
+
+{com}. replace treat=3 in 1/200
+{txt}(200 real changes made)
+
+{com}. label val treat
+{txt}
+{com}. tab treat
+
+ {txt}Randomised {c |}
+  treatment {c |}
+ assignment {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}        272       37.16       37.16
+{txt}          2 {c |}{res}        260       35.52       72.68
+{txt}          3 {c |}{res}        200       27.32      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}        732      100.00
+{txt}
+{com}. gen base2=base^2
+{txt}
+{com}. replace fev=fev*1000
+{txt}(585 real changes made)
+
+{com}. save c:\temp\asthmatemp, replace
+{txt}{p 0 4 2}
+file {bf}
+c:\temp\asthmatemp.dta{rm}
+saved
+{p_end}
+
+{com}. reg fev i.treat base* if time==12
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       110
+{txt}{hline 13}{c +}{hline 34}   F(4, 105)       = {res}    30.69
+{txt}       Model {c |} {res} 31319349.9         4  7829837.48   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 26791888.3       105  255160.841   {txt}R-squared       ={res}    0.5390
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.5214
+{txt}       Total {c |} {res} 58111238.2       109  533130.626   {txt}Root MSE        =   {res} 505.13
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 96.10403{col 26}{space 2} 119.5271{col 37}{space 1}    0.80{col 46}{space 3}0.423{col 54}{space 4}-140.8962{col 67}{space 3} 333.1042
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} 166.7554{col 26}{space 2} 136.8336{col 37}{space 1}    1.22{col 46}{space 3}0.226{col 54}{space 4}-104.5603{col 67}{space 3} 438.0711
+{txt}{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 997.1639{col 26}{space 2} 466.4104{col 37}{space 1}    2.14{col 46}{space 3}0.035{col 54}{space 4} 72.35819{col 67}{space 3}  1921.97
+{txt}{space 7}base2 {c |}{col 14}{res}{space 2}-41.02765{col 26}{space 2} 109.5768{col 37}{space 1}   -0.37{col 46}{space 3}0.709{col 54}{space 4}-258.2982{col 67}{space 3} 176.2429
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 216.6018{col 26}{space 2} 489.9179{col 37}{space 1}    0.44{col 46}{space 3}0.659{col 54}{space 4}-754.8149{col 67}{space 3} 1188.019
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. * compare with R
+. local bStata=_b[base2]
+{txt}
+{com}. local seStata=_se[base2]
+{txt}
+{com}. use test/RvsStata/R_CC, clear
+{txt}(Written by R.              )
+
+{com}. di "Method CC (point est): Stata = " %9.4f `bStata' ", R = " %9.4f Estimate[5] 
+{res}Method CC (point est): Stata =  -41.0277, R =  -41.0277
+{txt}
+{com}. di "Method CC (std error): Stata = " %9.4f `seStata' ", R = " %9.4f StdError[5] 
+{res}Method CC (std error): Stata =  109.5768, R =  109.5768
+{txt}
+{com}. assert reldif(`=Estimate[5]',`bStata') < 1E-6
+{txt}
+{com}. assert reldif(`=StdError[5]',`seStata')< 1E-6 
+{txt}
+{com}. 
+. forvalues ref=1/2 {c -(}
+{txt}  2{com}.         foreach method in MAR J2R CR CIR {c -(}
+{txt}  3{com}.                 di as input _new(3) "Method `method', ref `ref'"
+{txt}  4{com}.                 set seed 101
+{txt}  5{com}.                 use c:\temp\asthmatemp, clear
+{txt}  6{com}.                 mimix fev treat, id(id) time(time) method(`method') refgroup(`ref') covariates(base base2) ///
+>                         clear m(100) seed(101)
+{txt}  7{com}.                 mi estimate, mcerror: reg fev i.treat base base2 if time==12
+{txt}  8{com}.                 mat b = e(b_mi)
+{txt}  9{com}.                 local bStata = b[1,"base2"]
+{txt} 10{com}.                 mat V = e(V_mi)
+{txt} 11{com}.                 local seStata = sqrt(V["base2","base2"])
+{txt} 12{com}.                 mat B = e(B_mi)
+{txt} 13{com}.                 local bStata_mcse = sqrt(B["base2","base2"]/e(M_mi))
+{txt} 14{com}. 
+.                 di as input "Compare with R"
+{txt} 15{com}.                 use test/RvsStata/R_`method'_ref`ref', clear
+{txt} 16{com}.                 l
+{txt} 17{com}.                 decode term, gen(termchar)
+{txt} 18{com}.                 assert termchar[5]=="base2"
+{txt} 19{com}.                 local bR = estimate[5]
+{txt} 20{com}.                 local diffz = (`bR' - `bStata') / `bStata_mcse' / sqrt(2) 
+{txt} 21{com}.                         // sqrt(2) assumes MC errors same in R and Stata
+.                 di "Method `method', ref `ref': Stata = " %9.4f `bStata' ", R = " %9.4f `bR' _c
+{txt} 22{com}.                 di ", each MCSE = " %9.4f `bStata_mcse' ", z = " %9.2f `diffz'
+{txt} 23{com}.         {c )-}
+{txt} 24{com}. {c )-}
+
+
+
+Method MAR, ref 1
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} MAR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3424
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3375
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    103.92
+{txt}{col 49}        avg{col 67}= {res}    115.77
+{txt}{col 49}        max{col 67}= {res}    128.66
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  169.4{txt}){col 67}= {res}     19.76
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 258.4843{col 26}{space 2} 126.1244{col 37}{space 1}    2.05{col 46}{space 3}0.043{col 54}{space 4} 8.573181{col 67}{space 3} 508.3954
+{txt}{col 14}{c |}{col 14}{res}{space 2} 6.836523{col 26}{space 2} 2.447557{col 37}{space 1}    0.07{col 46}{space 3}0.007{col 54}{space 4} 9.038771{col 67}{space 3} 7.847829
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} 299.2057{col 26}{space 2} 141.1399{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} 19.31743{col 67}{space 3} 579.0941
+{txt}{col 14}{c |}{col 14}{res}{space 2} 8.095562{col 26}{space 2} 3.824629{col 37}{space 1}    0.07{col 46}{space 3}0.006{col 54}{space 4} 9.022381{col 67}{space 3} 13.10194
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 1023.756{col 26}{space 2} 507.1562{col 37}{space 1}    2.02{col 46}{space 3}0.046{col 54}{space 4} 19.97447{col 67}{space 3} 2027.538
+{txt}{col 14}{c |}{col 14}{res}{space 2}  24.6857{col 26}{space 2} 8.979237{col 37}{space 1}    0.06{col 46}{space 3}0.007{col 54}{space 4} 31.43259{col 67}{space 3} 29.88064
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-78.31823{col 26}{space 2} 117.9601{col 37}{space 1}   -0.66{col 46}{space 3}0.508{col 54}{space 4}-311.7112{col 67}{space 3} 155.0747
+{txt}{col 14}{c |}{col 14}{res}{space 2} 5.505992{col 26}{space 2} 1.940076{col 37}{space 1}    0.05{col 46}{space 3}0.031{col 54}{space 4} 6.655318{col 67}{space 3} 6.867114
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2}  142.845{col 26}{space 2}  538.704{col 37}{space 1}    0.27{col 46}{space 3}0.791{col 54}{space 4}-924.6876{col 67}{space 3} 1210.378
+{txt}{col 14}{c |}{col 14}{res}{space 2} 29.43263{col 26}{space 2} 11.40376{col 37}{space 1}    0.05{col 46}{space 3}0.042{col 54}{space 4} 36.65562{col 67}{space 3} 38.30822
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term    estimate   std_er~r   statistic         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep    135.9508   246.2229    .5521453    261.951   .5813196 {txt}{c |}
+  2. {c |} {res}as.factor    237.2806   53.54124    4.431735   358.0718   .0000124 {txt}{c |}
+  3. {c |} {res}as.factor    229.9147   60.06368    3.827849   317.3117   .0001557 {txt}{c |}
+  4. {c |} {res}     base    903.7296   231.1625    3.909499   312.8301   .0001134 {txt}{c |}
+  5. {c |} {res}    base2   -15.17969   53.84575   -.2819107   327.4773     .77819 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method MAR, ref 1: Stata =  -78.3182, R =  -15.1797, each MCSE =    5.5060, z =      8.11
+
+
+
+{com}Method J2R, ref 1
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} J2R
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.5310
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3514
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    101.06
+{txt}{col 49}        avg{col 67}= {res}    111.27
+{txt}{col 49}        max{col 67}= {res}    128.52
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  166.9{txt}){col 67}= {res}     13.04
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 147.9937{col 26}{space 2} 131.5408{col 37}{space 1}    1.13{col 46}{space 3}0.263{col 54}{space 4}-112.2722{col 67}{space 3} 408.2596
+{txt}{col 14}{c |}{col 14}{res}{space 2} 6.148396{col 26}{space 2} 2.284388{col 37}{space 1}    0.05{col 46}{space 3}0.020{col 54}{space 4} 7.202568{col 67}{space 3} 8.143502
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} 78.93645{col 26}{space 2} 156.0917{col 37}{space 1}    0.51{col 46}{space 3}0.614{col 54}{space 4}-230.6744{col 67}{space 3} 388.5473
+{txt}{col 14}{c |}{col 14}{res}{space 2} 9.082186{col 26}{space 2} 4.134768{col 37}{space 1}    0.06{col 46}{space 3}0.044{col 54}{space 4} 13.73374{col 67}{space 3}   10.874
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2}  635.942{col 26}{space 2} 579.2463{col 37}{space 1}    1.10{col 46}{space 3}0.275{col 54}{space 4}-511.8225{col 67}{space 3} 1783.706
+{txt}{col 14}{c |}{col 14}{res}{space 2} 31.41431{col 26}{space 2} 12.58146{col 37}{space 1}    0.06{col 46}{space 3}0.028{col 54}{space 4} 44.74909{col 67}{space 3} 35.82982
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2} 12.34555{col 26}{space 2} 135.5599{col 37}{space 1}    0.09{col 46}{space 3}0.928{col 54}{space 4}-256.2128{col 67}{space 3} 280.9039
+{txt}{col 14}{c |}{col 14}{res}{space 2} 7.240124{col 26}{space 2} 2.880935{col 37}{space 1}    0.05{col 46}{space 3}0.042{col 54}{space 4} 8.089982{col 67}{space 3}   10.401
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 523.9174{col 26}{space 2} 611.2311{col 37}{space 1}    0.86{col 46}{space 3}0.393{col 54}{space 4}-688.5915{col 67}{space 3} 1736.426
+{txt}{col 14}{c |}{col 14}{res}{space 2} 35.77348{col 26}{space 2}  14.9314{col 37}{space 1}    0.06{col 46}{space 3}0.032{col 54}{space 4} 42.85492{col 67}{space 3} 50.83071
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term   estimate   std_er~r   statis~c         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep   276.2418   268.4998   1.028834   222.9806   .3046723 {txt}{c |}
+  2. {c |} {res}as.factor   197.0397   54.65742   3.604995   391.7045   .0003525 {txt}{c |}
+  3. {c |} {res}as.factor    128.359   62.46973   2.054738   319.3643   .0407175 {txt}{c |}
+  4. {c |} {res}     base   761.4781   253.7947    3.00037   255.1502   .0029635 {txt}{c |}
+  5. {c |} {res}    base2   17.95579   59.61893    .301176   257.5618   .7635233 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method J2R, ref 1: Stata =   12.3456, R =   17.9558, each MCSE =    7.2401, z =      0.55
+
+
+
+{com}Method CR, ref 1
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} CR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.4044
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3866
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}     94.03
+{txt}{col 49}        avg{col 67}= {res}    114.28
+{txt}{col 49}        max{col 67}= {res}    140.19
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  168.9{txt}){col 67}= {res}     16.59
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 207.1955{col 26}{space 2} 124.8145{col 37}{space 1}    1.66{col 46}{space 3}0.099{col 54}{space 4}-39.80287{col 67}{space 3} 454.1939
+{txt}{col 14}{c |}{col 14}{res}{space 2} 5.960796{col 26}{space 2} 2.210746{col 37}{space 1}    0.05{col 46}{space 3}0.011{col 54}{space 4} 7.195839{col 67}{space 3} 7.702045
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} 245.3374{col 26}{space 2} 131.0375{col 37}{space 1}    1.87{col 46}{space 3}0.063{col 54}{space 4}-13.72781{col 67}{space 3} 504.4025
+{txt}{col 14}{c |}{col 14}{res}{space 2} 5.371999{col 26}{space 2} 2.059956{col 37}{space 1}    0.04{col 46}{space 3}0.006{col 54}{space 4} 5.460452{col 67}{space 3} 7.887866
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 797.1904{col 26}{space 2} 559.4676{col 37}{space 1}    1.42{col 46}{space 3}0.157{col 54}{space 4}-312.2054{col 67}{space 3} 1906.586
+{txt}{col 14}{c |}{col 14}{res}{space 2} 31.98018{col 26}{space 2} 13.18841{col 37}{space 1}    0.07{col 46}{space 3}0.021{col 54}{space 4} 45.73967{col 67}{space 3} 37.46263
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-28.51842{col 26}{space 2} 130.7998{col 37}{space 1}   -0.22{col 46}{space 3}0.828{col 54}{space 4}-287.8279{col 67}{space 3} 230.7911
+{txt}{col 14}{c |}{col 14}{res}{space 2} 7.363726{col 26}{space 2} 3.039062{col 37}{space 1}    0.06{col 46}{space 3}0.045{col 54}{space 4} 8.454972{col 67}{space 3} 10.67344
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 378.9589{col 26}{space 2} 592.2589{col 37}{space 1}    0.64{col 46}{space 3}0.524{col 54}{space 4}  -796.98{col 67}{space 3} 1554.898
+{txt}{col 14}{c |}{col 14}{res}{space 2} 36.35747{col 26}{space 2} 15.39737{col 37}{space 1}    0.06{col 46}{space 3}0.040{col 54}{space 4} 44.40523{col 67}{space 3} 51.59859
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term   estimate   std_er~r   statis~c         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep   236.7399   265.1191   .8929566   204.1592   .3729318 {txt}{c |}
+  2. {c |} {res}as.factor   218.1299    52.8402   4.128105   381.0044    .000045 {txt}{c |}
+  3. {c |} {res}as.factor   207.4593   55.46705   3.740227    453.462   .0002074 {txt}{c |}
+  4. {c |} {res}     base     808.74   250.2792   3.231351   232.6918   .0014103 {txt}{c |}
+  5. {c |} {res}    base2     5.2775   58.79469   .0897615   234.7387   .9285533 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method CR, ref 1: Stata =  -28.5184, R =    5.2775, each MCSE =    7.3637, z =      3.25
+
+
+
+{com}Method CIR, ref 1
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} CIR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.4943
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3816
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}     95.02
+{txt}{col 49}        avg{col 67}= {res}    112.57
+{txt}{col 49}        max{col 67}= {res}    129.14
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  167.9{txt}){col 67}= {res}     16.10
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 201.0321{col 26}{space 2} 123.9053{col 37}{space 1}    1.62{col 46}{space 3}0.107{col 54}{space 4}-44.11499{col 67}{space 3} 446.1792
+{txt}{col 14}{c |}{col 14}{res}{space 2} 5.755667{col 26}{space 2}  2.17192{col 37}{space 1}    0.05{col 46}{space 3}0.012{col 54}{space 4} 7.290054{col 67}{space 3} 7.180065
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2}  264.611{col 26}{space 2}  136.407{col 37}{space 1}    1.94{col 46}{space 3}0.055{col 54}{space 4}-5.339279{col 67}{space 3} 534.5613
+{txt}{col 14}{c |}{col 14}{res}{space 2}  6.54837{col 26}{space 2} 2.940795{col 37}{space 1}    0.05{col 46}{space 3}0.006{col 54}{space 4} 7.016285{col 67}{space 3} 10.35459
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2}  803.181{col 26}{space 2} 557.8864{col 37}{space 1}    1.44{col 46}{space 3}0.153{col 54}{space 4}-302.9564{col 67}{space 3} 1909.318
+{txt}{col 14}{c |}{col 14}{res}{space 2} 31.66017{col 26}{space 2} 12.90126{col 37}{space 1}    0.07{col 46}{space 3}0.021{col 54}{space 4} 46.34098{col 67}{space 3} 35.25935
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-31.28898{col 26}{space 2} 130.4248{col 37}{space 1}   -0.24{col 46}{space 3}0.811{col 54}{space 4}-289.8264{col 67}{space 3} 227.2485
+{txt}{col 14}{c |}{col 14}{res}{space 2} 7.286647{col 26}{space 2} 2.995263{col 37}{space 1}    0.06{col 46}{space 3}0.045{col 54}{space 4} 7.999742{col 67}{space 3} 10.81071
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 378.9068{col 26}{space 2} 590.3121{col 37}{space 1}    0.64{col 46}{space 3}0.522{col 54}{space 4} -793.008{col 67}{space 3} 1550.821
+{txt}{col 14}{c |}{col 14}{res}{space 2} 36.00131{col 26}{space 2} 15.05028{col 37}{space 1}    0.06{col 46}{space 3}0.039{col 54}{space 4} 42.08014{col 67}{space 3}  52.1572
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term   estimate   std_er~r   statis~c         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep   232.7964    267.684   .8696688   197.8111   .3855355 {txt}{c |}
+  2. {c |} {res}as.factor   219.3756   53.56697   4.095352   357.7399   .0000522 {txt}{c |}
+  3. {c |} {res}as.factor   218.3643   56.58689    3.85892   412.3499   .0001321 {txt}{c |}
+  4. {c |} {res}     base   813.2851   252.5896   3.219788    225.097   .0014723 {txt}{c |}
+  5. {c |} {res}    base2   4.092191   59.32517    .068979   227.1907    .945067 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method CIR, ref 1: Stata =  -31.2890, R =    4.0922, each MCSE =    7.2866, z =      3.43
+
+
+
+{com}Method MAR, ref 2
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} MAR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3424
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3375
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    103.92
+{txt}{col 49}        avg{col 67}= {res}    115.77
+{txt}{col 49}        max{col 67}= {res}    128.66
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  169.4{txt}){col 67}= {res}     19.76
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 258.4843{col 26}{space 2} 126.1244{col 37}{space 1}    2.05{col 46}{space 3}0.043{col 54}{space 4} 8.573181{col 67}{space 3} 508.3954
+{txt}{col 14}{c |}{col 14}{res}{space 2} 6.836523{col 26}{space 2} 2.447557{col 37}{space 1}    0.07{col 46}{space 3}0.007{col 54}{space 4} 9.038771{col 67}{space 3} 7.847829
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} 299.2057{col 26}{space 2} 141.1399{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} 19.31743{col 67}{space 3} 579.0941
+{txt}{col 14}{c |}{col 14}{res}{space 2} 8.095562{col 26}{space 2} 3.824629{col 37}{space 1}    0.07{col 46}{space 3}0.006{col 54}{space 4} 9.022381{col 67}{space 3} 13.10194
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 1023.756{col 26}{space 2} 507.1562{col 37}{space 1}    2.02{col 46}{space 3}0.046{col 54}{space 4} 19.97447{col 67}{space 3} 2027.538
+{txt}{col 14}{c |}{col 14}{res}{space 2}  24.6857{col 26}{space 2} 8.979237{col 37}{space 1}    0.06{col 46}{space 3}0.007{col 54}{space 4} 31.43259{col 67}{space 3} 29.88064
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-78.31823{col 26}{space 2} 117.9601{col 37}{space 1}   -0.66{col 46}{space 3}0.508{col 54}{space 4}-311.7112{col 67}{space 3} 155.0747
+{txt}{col 14}{c |}{col 14}{res}{space 2} 5.505992{col 26}{space 2} 1.940076{col 37}{space 1}    0.05{col 46}{space 3}0.031{col 54}{space 4} 6.655318{col 67}{space 3} 6.867114
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2}  142.845{col 26}{space 2}  538.704{col 37}{space 1}    0.27{col 46}{space 3}0.791{col 54}{space 4}-924.6876{col 67}{space 3} 1210.378
+{txt}{col 14}{c |}{col 14}{res}{space 2} 29.43263{col 26}{space 2} 11.40376{col 37}{space 1}    0.05{col 46}{space 3}0.042{col 54}{space 4} 36.65562{col 67}{space 3} 38.30822
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term    estimate   std_er~r   statistic         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep    135.9508   246.2229    .5521453    261.951   .5813196 {txt}{c |}
+  2. {c |} {res}as.factor    237.2806   53.54124    4.431735   358.0718   .0000124 {txt}{c |}
+  3. {c |} {res}as.factor    229.9147   60.06368    3.827849   317.3117   .0001557 {txt}{c |}
+  4. {c |} {res}     base    903.7296   231.1625    3.909499   312.8301   .0001134 {txt}{c |}
+  5. {c |} {res}    base2   -15.17969   53.84575   -.2819107   327.4773     .77819 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method MAR, ref 2: Stata =  -78.3182, R =  -15.1797, each MCSE =    5.5060, z =      8.11
+
+
+
+{com}Method J2R, ref 2
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} J2R
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.5439
+{txt}{col 49}Largest FMI{col 67}= {res}    0.4100
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}     89.52
+{txt}{col 49}        avg{col 67}= {res}    122.66
+{txt}{col 49}        max{col 67}= {res}    145.63
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  167.3{txt}){col 67}= {res}     32.02
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 91.16896{col 26}{space 2} 112.1471{col 37}{space 1}    0.81{col 46}{space 3}0.418{col 54}{space 4}-131.5174{col 67}{space 3} 313.8553
+{txt}{col 14}{c |}{col 14}{res}{space 2} 6.908611{col 26}{space 2} 3.125592{col 37}{space 1}    0.06{col 46}{space 3}0.035{col 54}{space 4} 8.631535{col 67}{space 3}  10.1535
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} -11.0825{col 26}{space 2} 124.3545{col 37}{space 1}   -0.09{col 46}{space 3}0.929{col 54}{space 4}-258.1525{col 67}{space 3} 235.9875
+{txt}{col 14}{c |}{col 14}{res}{space 2} 7.861247{col 26}{space 2} 4.065641{col 37}{space 1}    0.06{col 46}{space 3}0.050{col 54}{space 4}  12.1198{col 67}{space 3} 10.77848
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 1019.222{col 26}{space 2} 398.5523{col 37}{space 1}    2.56{col 46}{space 3}0.012{col 54}{space 4} 231.5283{col 67}{space 3} 1806.916
+{txt}{col 14}{c |}{col 14}{res}{space 2} 15.15056{col 26}{space 2} 5.268965{col 37}{space 1}    0.05{col 46}{space 3}0.002{col 54}{space 4} 18.96766{col 67}{space 3} 18.01249
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-45.82346{col 26}{space 2} 94.44682{col 37}{space 1}   -0.49{col 46}{space 3}0.628{col 54}{space 4}-232.5131{col 67}{space 3} 140.8662
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.717105{col 26}{space 2} 1.375137{col 37}{space 1}    0.04{col 46}{space 3}0.028{col 54}{space 4} 4.597984{col 67}{space 3} 4.676425
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 179.8539{col 26}{space 2} 410.0975{col 37}{space 1}    0.44{col 46}{space 3}0.662{col 54}{space 4}-630.8592{col 67}{space 3} 990.5669
+{txt}{col 14}{c |}{col 14}{res}{space 2} 16.54062{col 26}{space 2} 5.358858{col 37}{space 1}    0.04{col 46}{space 3}0.030{col 54}{space 4}  21.2332{col 67}{space 3} 18.14641
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term   estimate   std_er~r   statistic         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep   157.6882   209.4058    .7530267   345.2328   .4519471 {txt}{c |}
+  2. {c |} {res}as.factor   164.9337   55.62286    2.965215   217.0226   .0033629 {txt}{c |}
+  3. {c |} {res}as.factor   96.99842   58.29416    1.663947   248.6023   .0973829 {txt}{c |}
+  4. {c |} {res}     base   914.2406   195.6207    4.673538   432.7293   3.96e-06 {txt}{c |}
+  5. {c |} {res}    base2    -8.2108   46.05827   -.1782698   433.3057   .8585944 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 10}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method J2R, ref 2: Stata =  -45.8235, R =   -8.2108, each MCSE =    3.7171, z =      7.16
+
+
+
+{com}Method CR, ref 2
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} CR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.2313
+{txt}{col 49}Largest FMI{col 67}= {res}    0.1699
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    140.70
+{txt}{col 49}        avg{col 67}= {res}    143.38
+{txt}{col 49}        max{col 67}= {res}    145.76
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  173.3{txt}){col 67}= {res}     41.59
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 192.2509{col 26}{space 2} 93.37935{col 37}{space 1}    2.06{col 46}{space 3}0.041{col 54}{space 4} 7.691211{col 67}{space 3} 376.8106
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.579286{col 26}{space 2} 1.140086{col 37}{space 1}    0.04{col 46}{space 3}0.004{col 54}{space 4} 4.057007{col 67}{space 3} 4.441595
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2} 189.9135{col 26}{space 2} 101.6416{col 37}{space 1}    1.87{col 46}{space 3}0.064{col 54}{space 4}-10.96807{col 67}{space 3} 390.7951
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.856047{col 26}{space 2} 1.474714{col 37}{space 1}    0.05{col 46}{space 3}0.007{col 54}{space 4} 5.235048{col 67}{space 3} 4.477095
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 1111.396{col 26}{space 2} 392.7337{col 37}{space 1}    2.83{col 46}{space 3}0.005{col 54}{space 4} 335.0778{col 67}{space 3} 1887.715
+{txt}{col 14}{c |}{col 14}{res}{space 2} 15.53074{col 26}{space 2} 5.859686{col 37}{space 1}    0.06{col 46}{space 3}0.001{col 54}{space 4} 20.87407{col 67}{space 3} 18.06276
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-72.11208{col 26}{space 2} 93.02441{col 37}{space 1}   -0.78{col 46}{space 3}0.440{col 54}{space 4}-256.0183{col 67}{space 3} 111.7942
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.788424{col 26}{space 2} 1.483647{col 37}{space 1}    0.04{col 46}{space 3}0.026{col 54}{space 4} 4.597554{col 67}{space 3} 5.052182
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 9.513834{col 26}{space 2}  400.185{col 37}{space 1}    0.02{col 46}{space 3}0.981{col 54}{space 4}-781.5539{col 67}{space 3} 800.5815
+{txt}{col 14}{c |}{col 14}{res}{space 2} 15.91791{col 26}{space 2} 5.411433{col 37}{space 1}    0.04{col 46}{space 3}0.032{col 54}{space 4} 18.59273{col 67}{space 3} 19.98322
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term    estimate   std_er~r   statistic         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep    68.79046   198.3255    .3468564   409.8695   .7288772 {txt}{c |}
+  2. {c |} {res}as.factor     212.212   43.75463    4.850048   547.7998   1.61e-06 {txt}{c |}
+  3. {c |} {res}as.factor    194.5663   47.84823    4.066322   540.7059   .0000549 {txt}{c |}
+  4. {c |} {res}     base    963.1204   192.0751     5.01429    437.813   7.75e-07 {txt}{c |}
+  5. {c |} {res}    base2   -21.01005   45.34371   -.4633508   433.0445   .6433457 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method CR, ref 2: Stata =  -72.1121, R =  -21.0100, each MCSE =    3.7884, z =      9.54
+
+
+
+{com}Method CIR, ref 2
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}3{txt}...
+{res}{txt}Performing imputation procedure for group {res}3{txt} of {res}3{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} CIR
+
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       100
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.2110
+{txt}{col 49}Largest FMI{col 67}= {res}    0.1712
+{txt}{col 49}Complete DF{col 67}= {res}       178
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    140.42
+{txt}{col 49}        avg{col 67}= {res}    144.44
+{txt}{col 49}        max{col 67}= {res}    152.05
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   4{txt},{res}  173.4{txt}){col 67}= {res}     41.93
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}  221.656{col 26}{space 2} 92.30972{col 37}{space 1}    2.40{col 46}{space 3}0.018{col 54}{space 4} 39.28075{col 67}{space 3} 404.0313
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.148872{col 26}{space 2} .8697796{col 37}{space 1}    0.04{col 46}{space 3}0.002{col 54}{space 4} 3.203232{col 67}{space 3}  3.95918
+{col 14}{txt}{c |}
+{space 10}3  {c |}{col 14}{res}{space 2}  211.918{col 26}{space 2} 102.2724{col 37}{space 1}    2.07{col 46}{space 3}0.040{col 54}{space 4} 9.789983{col 67}{space 3}  414.046
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.877859{col 26}{space 2} 1.108847{col 37}{space 1}    0.04{col 46}{space 3}0.004{col 54}{space 4} 4.018085{col 67}{space 3} 4.889371
+{col 14}{txt}{c |}
+{space 12} {c |}
+{space 8}base {c |}{col 14}{res}{space 2} 1134.856{col 26}{space 2} 395.7839{col 37}{space 1}    2.87{col 46}{space 3}0.005{col 54}{space 4} 352.4813{col 67}{space 3}  1917.23
+{txt}{col 14}{c |}{col 14}{res}{space 2}  15.7722{col 26}{space 2} 5.977748{col 37}{space 1}    0.06{col 46}{space 3}0.001{col 54}{space 4} 20.87902{col 67}{space 3} 18.78084
+{col 14}{txt}{c |}
+{space 7}base2 {c |}{col 14}{res}{space 2}-77.25139{col 26}{space 2} 93.68039{col 37}{space 1}   -0.82{col 46}{space 3}0.411{col 54}{space 4}-262.4578{col 67}{space 3}  107.955
+{txt}{col 14}{c |}{col 14}{res}{space 2} 3.829253{col 26}{space 2} 1.502953{col 37}{space 1}    0.04{col 46}{space 3}0.025{col 54}{space 4}   4.7684{col 67}{space 3} 5.002296
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2}-44.16625{col 26}{space 2} 403.5981{col 37}{space 1}   -0.11{col 46}{space 3}0.913{col 54}{space 4}-842.0219{col 67}{space 3} 753.6894
+{txt}{col 14}{c |}{col 14}{res}{space 2} 16.23891{col 26}{space 2} 5.863582{col 37}{space 1}    0.04{col 46}{space 3}0.032{col 54}{space 4}  19.5172{col 67}{space 3} 20.65344
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{com}Compare with R
+{txt}(Written by R.              )
+
+     {c TLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c TRC}
+     {c |} {res}     term    estimate   std_er~r   statistic         df    p_value {txt}{c |}
+     {c LT}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c RT}
+  1. {c |} {res}(Intercep    32.51201   198.6608    .1636559   412.4027   .8700822 {txt}{c |}
+  2. {c |} {res}as.factor    229.6537   43.71861    5.252996   557.3781   2.13e-07 {txt}{c |}
+  3. {c |} {res}as.factor    205.7828   48.78311    4.218322   501.6557   .0000292 {txt}{c |}
+  4. {c |} {res}     base    979.6277   192.5434    5.087827   439.0342   5.38e-07 {txt}{c |}
+  5. {c |} {res}    base2   -24.21676   45.47625   -.5325143   433.2802   .5946428 {txt}{c |}
+     {c BLC}{hline 11}{c -}{hline 11}{c -}{hline 10}{c -}{hline 11}{c -}{hline 10}{c -}{hline 10}{c BRC}
+Method CIR, ref 2: Stata =  -77.2514, R =  -24.2168, each MCSE =    3.8293, z =      9.79
+
+{com}. 
+{txt}end of do-file
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\ado\ian\RefBasedMI\test\RvsStata\asthma.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}23 Nov 2022, 13:25:25
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

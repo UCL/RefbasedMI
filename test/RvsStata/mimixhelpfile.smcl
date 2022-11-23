@@ -1,0 +1,256 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\ado\ian\RefBasedMI\test\RvsStata\mimixhelpfile.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}23 Nov 2022, 13:50:31
+{txt}
+{com}. /* 
+> mimixhelpfile.do
+> Run the mimix help file examples subject to modifications:
+>         removed the saving option
+>         increased M from 50 to 500
+>         added CC analysis
+> IW 23/11/2022
+> */
+. 
+. cd C:\ado\ian\RefBasedMI
+{res}C:\ado\ian\RefBasedMI
+{txt}
+{com}. 
+. * Start with CC to check correct dataset loading
+. use "data\asthma.dta", clear
+{txt}
+{com}. reg fev i.treat base if time==12
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       110
+{txt}{hline 13}{c +}{hline 34}   F(2, 107)       = {res}    67.12
+{txt}       Model {c |} {res}  32.336238         2   16.168119   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res}  25.774999       107  .240887841   {txt}R-squared       ={res}    0.5565
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.5482
+{txt}       Total {c |} {res}  58.111237       109  .533130615   {txt}Root MSE        =   {res}  .4908
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 5}Active  {c |}{col 14}{res}{space 2} .2385408{col 26}{space 2} .0985365{col 37}{space 1}    2.42{col 46}{space 3}0.017{col 54}{space 4} .0432036{col 67}{space 3} .4338779
+{txt}{space 8}base {c |}{col 14}{res}{space 2} .8547938{col 26}{space 2} .0747333{col 37}{space 1}   11.44{col 46}{space 3}0.000{col 54}{space 4} .7066437{col 67}{space 3} 1.002944
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2536194{col 26}{space 2} .1760424{col 37}{space 1}    1.44{col 46}{space 3}0.153{col 54}{space 4}-.0953642{col 67}{space 3}  .602603
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. *    Multiple imputation assuming the response variable fev is MAR
+. use "data\asthma.dta", clear
+{txt}
+{com}. mimix fev treat, id(id) time(time) method(mar) covariates(base) clear m(500) seed(101)
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}2{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}2{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} mar
+{txt}
+{com}. mi estimate, mcerror: reg fev i.treat base if time==12
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3270
+{txt}{col 49}Largest FMI{col 67}= {res}    0.2895
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    124.51
+{txt}{col 49}        avg{col 67}= {res}    130.20
+{txt}{col 49}        max{col 67}= {res}    133.85
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  174.8{txt}){col 67}= {res}     42.01
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 5}Active  {c |}{col 14}{res}{space 2} .3262628{col 26}{space 2} .1038322{col 37}{space 1}    3.14{col 46}{space 3}0.002{col 54}{space 4} .1208759{col 67}{space 3} .5316496
+{txt}{col 14}{c |}{col 14}{res}{space 2}  .002297{col 26}{space 2}  .000947{col 37}{space 1}    0.04{col 46}{space 3}0.000{col 54}{space 4} .0031121{col 67}{space 3} .0028509
+{col 14}{txt}{c |}
+{space 8}base {c |}{col 14}{res}{space 2} .7238637{col 26}{space 2} .0839547{col 37}{space 1}    8.62{col 46}{space 3}0.000{col 54}{space 4} .5578142{col 67}{space 3} .8899133
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0018249{col 26}{space 2} .0007686{col 37}{space 1}    0.09{col 46}{space 3}0.000{col 54}{space 4} .0026242{col 67}{space 3} .0021339
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} .3905621{col 26}{space 2}  .193184{col 37}{space 1}    2.02{col 46}{space 3}0.045{col 54}{space 4} .0082124{col 67}{space 3} .7729117
+{txt}{col 14}{c |}{col 14}{res}{space 2}  .004616{col 26}{space 2} .0021083{col 37}{space 1}    0.03{col 46}{space 3}0.003{col 54}{space 4} .0056539{col 67}{space 3} .0068417
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{txt}
+{com}. 
+. *    Multiple imputation and regression analysis assuming last mean carried forward for the response variable fev
+. use "data\asthma.dta", clear
+{txt}
+{com}. mimix fev treat, id(id) time(time) method(lmcf) covariates(base) clear m(500) regress seed(101)
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}2{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}2{txt}...
+{res}
+{txt}Performing regress procedure ...
+
+i.treat{col 19}_Itreat_2-3{col 39}(naturally coded; _Itreat_2 omitted)
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.2553
+{txt}{col 49}Largest FMI{col 67}= {res}    0.2619
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    129.66
+{txt}{col 49}        avg{col 67}= {res}    136.21
+{txt}{col 49}        max{col 67}= {res}    144.73
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  175.5{txt}){col 67}= {res}     42.72
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 3}_Itreat_3 {c |}{col 14}{res}{space 2} .2957255{col 26}{space 2} .0992393{col 37}{space 1}    2.98{col 46}{space 3}0.003{col 54}{space 4}   .09958{col 67}{space 3}  .491871
+{txt}{space 8}base {c |}{col 14}{res}{space 2} .7192914{col 26}{space 2} .0835505{col 37}{space 1}    8.61{col 46}{space 3}0.000{col 54}{space 4} .5540458{col 67}{space 3}  .884537
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .4321534{col 26}{space 2} .1889446{col 37}{space 1}    2.29{col 46}{space 3}0.024{col 54}{space 4}   .05834{col 67}{space 3} .8059667
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} lmcf
+{txt}
+{com}. mi estimate, mcerror: reg fev i.treat base if time==12
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.2553
+{txt}{col 49}Largest FMI{col 67}= {res}    0.2619
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    129.66
+{txt}{col 49}        avg{col 67}= {res}    136.21
+{txt}{col 49}        max{col 67}= {res}    144.73
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  175.5{txt}){col 67}= {res}     42.72
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 5}Active  {c |}{col 14}{res}{space 2} .2957255{col 26}{space 2} .0992393{col 37}{space 1}    2.98{col 46}{space 3}0.003{col 54}{space 4}   .09958{col 67}{space 3}  .491871
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0018779{col 26}{space 2} .0006407{col 37}{space 1}    0.03{col 46}{space 3}0.000{col 54}{space 4} .0021952{col 67}{space 3} .0023509
+{col 14}{txt}{c |}
+{space 8}base {c |}{col 14}{res}{space 2} .7192914{col 26}{space 2} .0835505{col 37}{space 1}    8.61{col 46}{space 3}0.000{col 54}{space 4} .5540458{col 67}{space 3}  .884537
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0018081{col 26}{space 2} .0007519{col 37}{space 1}    0.08{col 46}{space 3}0.000{col 54}{space 4} .0025731{col 67}{space 3} .0021191
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} .4321534{col 26}{space 2} .1889446{col 37}{space 1}    2.29{col 46}{space 3}0.024{col 54}{space 4}   .05834{col 67}{space 3} .8059667
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0042944{col 26}{space 2} .0016733{col 37}{space 1}    0.03{col 46}{space 3}0.002{col 54}{space 4} .0052527{col 67}{space 3}  .005655
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{txt}
+{com}. 
+. *    Multiple imputation and regression analysis assuming jump to reference for the response variable fev, with placebo=2 as the reference
+. use "data\asthma.dta", clear
+{txt}
+{com}. mimix fev treat, id(id) time(time) method(j2r) refgroup(2) covariates(base) clear m(500) regress seed(101)
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}2{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}2{txt}...
+{res}
+{txt}Performing regress procedure ...
+
+i.treat{col 19}_Itreat_2-3{col 39}(naturally coded; _Itreat_2 omitted)
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3640
+{txt}{col 49}Largest FMI{col 67}= {res}    0.2872
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    124.94
+{txt}{col 49}        avg{col 67}= {res}    134.32
+{txt}{col 49}        max{col 67}= {res}    147.30
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  175.5{txt}){col 67}= {res}     32.37
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 3}_Itreat_3 {c |}{col 14}{res}{space 2} .2244861{col 26}{space 2} .1059225{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} .0151619{col 67}{space 3} .4338102
+{txt}{space 8}base {c |}{col 14}{res}{space 2}  .688555{col 26}{space 2} .0910192{col 37}{space 1}    7.56{col 46}{space 3}0.000{col 54}{space 4} .5084937{col 67}{space 3} .8686162
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .4629278{col 26}{space 2} .2068436{col 37}{space 1}    2.24{col 46}{space 3}0.027{col 54}{space 4} .0535566{col 67}{space 3} .8722989
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} j2r
+{txt}
+{com}. mi estimate, mcerror: reg fev i.treat base if time==12
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3640
+{txt}{col 49}Largest FMI{col 67}= {res}    0.2872
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    124.94
+{txt}{col 49}        avg{col 67}= {res}    134.32
+{txt}{col 49}        max{col 67}= {res}    147.30
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  175.5{txt}){col 67}= {res}     32.37
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 5}Active  {c |}{col 14}{res}{space 2} .2244861{col 26}{space 2} .1059225{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} .0151619{col 67}{space 3} .4338102
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0019273{col 26}{space 2} .0006764{col 37}{space 1}    0.02{col 46}{space 3}0.002{col 54}{space 4} .0023965{col 67}{space 3} .0023115
+{col 14}{txt}{c |}
+{space 8}base {c |}{col 14}{res}{space 2}  .688555{col 26}{space 2} .0910192{col 37}{space 1}    7.56{col 46}{space 3}0.000{col 54}{space 4} .5084937{col 67}{space 3} .8686162
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0020461{col 26}{space 2} .0008862{col 37}{space 1}    0.08{col 46}{space 3}0.000{col 54}{space 4} .0029957{col 67}{space 3} .0023988
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} .4629278{col 26}{space 2} .2068436{col 37}{space 1}    2.24{col 46}{space 3}0.027{col 54}{space 4} .0535566{col 67}{space 3} .8722989
+{txt}{col 14}{c |}{col 14}{res}{space 2}  .004923{col 26}{space 2} .0022414{col 37}{space 1}    0.03{col 46}{space 3}0.002{col 54}{space 4}  .006099{col 67}{space 3} .0072169
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{txt}
+{com}. 
+. *    Saving the imputed dataset with filename mimix_example, assuming copy increments in reference for the response variable fev, with placebo=2 as the reference
+. use "data\asthma.dta", clear
+{txt}
+{com}. mimix fev treat, id(id) time(time) method(cir) refgroup(2) covariates(base) clear m(500) seed(101)
+{res}{txt}Performing imputation procedure for group {res}1{txt} of {res}2{txt}...
+{res}{txt}Performing imputation procedure for group {res}2{txt} of {res}2{txt}...
+{res}
+{txt}Imputed dataset now loaded in memory
+Imputed data created in variable{res} fev{txt} using{res} cir
+{txt}
+{com}. mi estimate, mcerror: reg fev i.treat base if time==12
+{res}
+{txt}Multiple-imputation estimates{col 49}Imputations{col 67}= {res}       500
+{txt}Linear regression{col 49}Number of obs{col 67}= {res}       183
+{txt}{col 49}Average RVI{col 67}= {res}    0.3544
+{txt}{col 49}Largest FMI{col 67}= {res}    0.3000
+{txt}{col 49}Complete DF{col 67}= {res}       180
+{txt}DF adjustment:{ralign 15: {res:Small sample}}{col 49}DF:     min{col 67}= {res}    122.54
+{txt}{col 49}        avg{col 67}= {res}    133.07
+{txt}{col 49}        max{col 67}= {res}    148.33
+{txt}Model F test:{ralign 16: {res:Equal FMI}}{col 49}F({res}   2{txt},{res}  175.4{txt}){col 67}= {res}     35.91
+{txt}Within VCE type: {ralign 12:{res:OLS}}{col 49}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         fev{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treat {c |}
+{space 5}Active  {c |}{col 14}{res}{space 2} .2832702{col 26}{space 2} .1024898{col 37}{space 1}    2.76{col 46}{space 3}0.006{col 54}{space 4} .0807414{col 67}{space 3}  .485799
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0018341{col 26}{space 2} .0006829{col 37}{space 1}    0.03{col 46}{space 3}0.001{col 54}{space 4} .0024219{col 67}{space 3} .0021427
+{col 14}{txt}{c |}
+{space 8}base {c |}{col 14}{res}{space 2} .6931013{col 26}{space 2} .0891111{col 37}{space 1}    7.78{col 46}{space 3}0.000{col 54}{space 4} .5167842{col 67}{space 3} .8694184
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0020525{col 26}{space 2} .0009118{col 37}{space 1}    0.09{col 46}{space 3}0.000{col 54}{space 4} .0030447{col 67}{space 3} .0024276
+{col 14}{txt}{c |}
+{space 7}_cons {c |}{col 14}{res}{space 2}   .45361{col 26}{space 2} .2025928{col 37}{space 1}    2.24{col 46}{space 3}0.027{col 54}{space 4} .0525752{col 67}{space 3} .8546448
+{txt}{col 14}{c |}{col 14}{res}{space 2} .0049284{col 26}{space 2} .0022833{col 37}{space 1}    0.03{col 46}{space 3}0.002{col 54}{space 4} .0061263{col 67}{space 3} .0073113
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 6 0 79}Note: Values displayed beneath
+estimates are Monte Carlo error estimates{txt}.{p_end}
+{res}{txt}
+{com}. 
+{txt}end of do-file
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\ado\ian\RefBasedMI\test\RvsStata\mimixhelpfile.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}23 Nov 2022, 13:59:24
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

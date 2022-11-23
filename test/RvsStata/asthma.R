@@ -31,21 +31,37 @@ asthma %>% filter(!is.na(fev)) %>%
   group_by(treat, time) %>% 
   summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
 
+# MAR
+impMAR1 <- RefBasedMI(data=asthma,
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=100,
+                      method="MAR",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
+)
+
 # J2R
 impJ2R1 <- RefBasedMI(data=asthma,
-  covar=c("base","base2"),
-  depvar=fev,
-  treatvar=treat,
-  idvar=id,
-  timevar=time,
-  M=100,
-  reference=1,
-  method="J2R",
-  seed=101,
-  prior="jeffreys",
-  burnin=1000,
-  bbetween=NULL,
-  methodvar=NULL
+                      covar=c("base","base2"),
+                      depvar=fev,
+                      treatvar=treat,
+                      idvar=id,
+                      timevar=time,
+                      M=100,
+                      reference=1,
+                      method="J2R",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
 )
 
 # CR
@@ -72,7 +88,7 @@ impCIR1 <- RefBasedMI(data=asthma,
                treatvar=treat,
                idvar=id,
                timevar=time,
-               M=2,
+               M=100,
                reference=1,
                method="CIR",
                seed=101,
@@ -125,7 +141,7 @@ impCIR2 <- RefBasedMI(data=asthma,
                 treatvar=treat,
                 idvar=id,
                 timevar=time,
-                M=2,
+                M=100,
                 reference=2,
                 method="CIR",
                 seed=101,
@@ -136,6 +152,13 @@ impCIR2 <- RefBasedMI(data=asthma,
 )
 
 # analyse
+CC <- lm(data=asthma, formula=fev~as.factor(treat)+base+base2, subset=(time==12))
+CC2 <- summary(CC)$coefficients
+colnames(CC2)<-c("Estimate","StdError","t","P")
+
+fit <- with(as.mids(impMAR1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impMAR1res <- summary(pool(fit))
+
 fit <- with(as.mids(impJ2R1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
 impJ2R1res <- summary(pool(fit))
 fit <- with(as.mids(impCR1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
@@ -151,6 +174,9 @@ impCIR2res <- summary(pool(fit))
 
 
 # output
+write.dta(as.data.frame(CC2),file="test/RvsStata/R_CC.dta")
+write.dta(impMAR1res,file="test/RvsStata/R_MAR_ref1.dta")
+write.dta(impMAR1res,file="test/RvsStata/R_MAR_ref2.dta")
 write.dta(impJ2R1res,file="test/RvsStata/R_J2R_ref1.dta")
 write.dta(impCR1res, file="test/RvsStata/R_CR_ref1.dta")
 write.dta(impCIR1res,file="test/RvsStata/R_CIR_ref1.dta")

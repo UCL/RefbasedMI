@@ -1,0 +1,301 @@
+> source("C:/ado/ian/RefbasedMI/test/RvsStata/mimixhelpfile.R", echo=TRUE)
+
+> # mimixhelpfile.R
+> # mimix help file examples
+> # IW 23/11/2022
+> 
+> setwd("C:/ado/ian/RefBasedMI")
+
+> load("data/asthma.RData")
+
+> # Start with CC to check correct dataset loading
+> summary(lm(data=asthma, formula=fev~as.factor(treat)+base, subset=(time==12)))
+
+Call:
+lm(formula = fev ~ as.factor(treat) + base, data = asthma, subset = (time == 
+    12))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.98427 -0.27116 -0.07251  0.14815  1.82086 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)        0.25362    0.17604   1.441   0.1526    
+as.factor(treat)2  0.23854    0.09854   2.421   0.0172 *  
+base               0.85479    0.07473  11.438   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4908 on 107 degrees of freedom
+  (73 observations deleted due to missingness)
+Multiple R-squared:  0.5565,	Adjusted R-squared:  0.5482 
+F-statistic: 67.12 on 2 and 107 DF,  p-value: < 2.2e-16
+
+
+> M=500
+
+> #    Multiple imputation assuming the response variable fev is MAR
+> #use "data\asthma.dta", clear
+> #mimix fev treat, id(id) time(time) method(mar) .... [TRUNCATED] 
+   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     1       37          0          0          0           0
+2        7     1        1          1          1          1           0
+3        8     1       15          0          0          0           1
+4       12     1       22          0          0          1           1
+5       13     1        1          1          0          1           1
+6       14     1       16          0          1          1           1
+7        0     2       71          0          0          0           0
+8        4     2        1          0          0          1           0
+9        8     2        8          0          0          0           1
+10      12     2        8          0          0          1           1
+11      14     2        3          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  13 number patients =  1 
+treat  =  2 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under MAR:
+
+treat  =  1 pattern =  0 number patients =  38 
+treat  =  1 pattern =  8 number patients =  15 
+treat  =  1 pattern =  12 number patients =  23 
+treat  =  1 pattern =  14 number patients =  16 
+treat  =  2 pattern =  0 number patients =  72 
+treat  =  2 pattern =  8 number patients =  8 
+treat  =  2 pattern =  12 number patients =  8 
+treat  =  2 pattern =  14 number patients =  3 
+
+Number of final missing values = 0
+End of RefBasedMI
+
+> fit <- with(as.mids(impMAR), lm(fev~as.factor(treat)+base), subset=(time==12))
+
+> impMARres <- summary(pool(fit))
+
+> impMARres
+               term  estimate  std.error statistic       df      p.value
+1       (Intercept) 0.1649831 0.08318890  1.983235 426.7818 4.798171e-02
+2 as.factor(treat)2 0.2836374 0.04306461  6.586321 506.2311 1.131459e-10
+3              base 0.8542246 0.03545133 24.095702 489.9696 0.000000e+00
+
+> #    Multiple imputation and regression analysis assuming last mean carried forward for the response variable fev
+> #use "data\asthma.dta", clear
+>  .... [TRUNCATED] 
+   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     1       37          0          0          0           0
+2        7     1        1          1          1          1           0
+3        8     1       15          0          0          0           1
+4       12     1       22          0          0          1           1
+5       13     1        1          1          0          1           1
+6       14     1       16          0          1          1           1
+7        0     2       71          0          0          0           0
+8        4     2        1          0          0          1           0
+9        8     2        8          0          0          0           1
+10      12     2        8          0          0          1           1
+11      14     2        3          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  13 number patients =  1 
+treat  =  2 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under LMCF:
+
+treat  =  1 pattern =  0 number patients =  38 
+treat  =  1 pattern =  8 number patients =  15 
+treat  =  1 pattern =  12 number patients =  23 
+treat  =  1 pattern =  14 number patients =  16 
+treat  =  2 pattern =  0 number patients =  72 
+treat  =  2 pattern =  8 number patients =  8 
+treat  =  2 pattern =  12 number patients =  8 
+treat  =  2 pattern =  14 number patients =  3 
+
+Number of final missing values = 0
+End of RefBasedMI
+
+> fit <- with(as.mids(impLMCF), lm(fev~as.factor(treat)+base), subset=(time==12))
+
+> impLMCFres <- summary(pool(fit))
+
+> impLMCFres
+               term  estimate  std.error statistic       df      p.value
+1       (Intercept) 0.1858902 0.08031906  2.314397 465.0459 2.108077e-02
+2 as.factor(treat)2 0.2681749 0.04068340  6.591753 584.6947 9.720647e-11
+3              base 0.8512617 0.03515311 24.215827 498.3584 0.000000e+00
+
+> #    Multiple imputation and regression analysis assuming jump to reference for the response variable fev, with placebo=2 as the reference
+> #use "d ..." ... [TRUNCATED] 
+   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     1       37          0          0          0           0
+2        7     1        1          1          1          1           0
+3        8     1       15          0          0          0           1
+4       12     1       22          0          0          1           1
+5       13     1        1          1          0          1           1
+6       14     1       16          0          1          1           1
+7        0     2       71          0          0          0           0
+8        4     2        1          0          0          1           0
+9        8     2        8          0          0          0           1
+10      12     2        8          0          0          1           1
+11      14     2        3          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  13 number patients =  1 
+treat  =  2 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under J2R:
+
+treat  =  1 pattern =  0 number patients =  38 
+treat  =  1 pattern =  8 number patients =  15 
+treat  =  1 pattern =  12 number patients =  23 
+treat  =  1 pattern =  14 number patients =  16 
+treat  =  2 pattern =  0 number patients =  72 
+treat  =  2 pattern =  8 number patients =  8 
+treat  =  2 pattern =  12 number patients =  8 
+treat  =  2 pattern =  14 number patients =  3 
+
+Number of final missing values = 0
+End of RefBasedMI
+
+> fit <- with(as.mids(impJ2R1), lm(fev~as.factor(treat)+base), subset=(time==12))
+
+> impJ2R1res <- summary(pool(fit))
+
+> impJ2R1res
+               term  estimate  std.error statistic       df      p.value
+1       (Intercept) 0.1975797 0.08640755  2.286603 428.0376 2.270657e-02
+2 as.factor(treat)2 0.2462804 0.04302915  5.723572 562.3670 1.697998e-08
+3              base 0.8383200 0.03715768 22.561149 479.8863 0.000000e+00
+
+> #    Saving the imputed dataset with filename mimix_example, assuming copy increments in reference for the response variable fev, with placebo=2 as  .... [TRUNCATED] 
+   
+
+Summary of missing data pattern by treat:
+
+   pattern treat patients fev.2.miss fev.4.miss fev.8.miss fev.12.miss
+1        0     1       37          0          0          0           0
+2        7     1        1          1          1          1           0
+3        8     1       15          0          0          0           1
+4       12     1       22          0          0          1           1
+5       13     1        1          1          0          1           1
+6       14     1       16          0          1          1           1
+7        0     2       71          0          0          0           0
+8        4     2        1          0          0          1           0
+9        8     2        8          0          0          0           1
+10      12     2        8          0          0          1           1
+11      14     2        3          0          1          1           1
+
+Fitting multivariate normal model by treat:
+ 
+treat = 1
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+treat = 2
+performing mcmcNorm for m = 1 to 500
+
+mcmcNorm Loop finished.
+
+
+Number of original missing values = 147
+
+Imputing interim missing values under MAR:
+
+treat  =  1 pattern =  7 number patients =  1 
+treat  =  1 pattern =  13 number patients =  1 
+treat  =  2 pattern =  4 number patients =  1 
+
+Number of post-discontinuation missing values = 142
+
+Imputing post-discontinuation missing values under CIR:
+
+treat  =  1 pattern =  0 number patients =  38 
+treat  =  1 pattern =  8 number patients =  15 
+treat  =  1 pattern =  12 number patients =  23 
+treat  =  1 pattern =  14 number patients =  16 
+treat  =  2 pattern =  0 number patients =  72 
+treat  =  2 pattern =  8 number patients =  8 
+treat  =  2 pattern =  12 number patients =  8 
+treat  =  2 pattern =  14 number patients =  3 
+
+Number of final missing values = 0
+End of RefBasedMI
+
+> fit <- with(as.mids(impCIR1), lm(fev~as.factor(treat)+base), subset=(time==12))
+
+> impCIR1res <- summary(pool(fit))
+
+> impCIR1res
+               term  estimate  std.error statistic       df      p.value
+1       (Intercept) 0.1896281 0.08519888  2.225711 421.2189 2.656212e-02
+2 as.factor(treat)2 0.2714289 0.04217023  6.436506 562.1000 2.621987e-10
+3              base 0.8421998 0.03658116 23.022776 473.9925 0.000000e+00
