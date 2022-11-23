@@ -1,23 +1,24 @@
-# Ian's testing program for Rmimix: to compare with Stata
+# Ian's testing program for RefBasedMI: to compare with Stata
 # 8jul2020: 3 arms, 2 covariates, added causal vs CIR
+# 23nov2022: update to RefBasedMI syntax
 
-# Install mimix if required
-if(!require(mimix)) {
+# Install RefBasedMI if required
+if(!require(RefBasedMI)) {
   if(!require(devtools)) install.packages('devtools') 
   library(devtools) 
-  install_github("UCL/mimix")
+  install_github("UCL/RefBasedMI")
 }
 
-# Load mimix
-library(mimix)
-packageVersion("mimix")
+# Load RefBasedMI
+library(RefBasedMI)
+packageVersion("RefBasedMI")
 library(mice)
 packageVersion("mice")
 
-setwd("C:/ado/ian/test_Rmimix")
+setwd("C:/ado/ian/RefBasedMI")
 
 # Open data
-load("C:/ado/ian/Rmimix/data/asthma.RData")
+load("data/asthma.RData")
 asthma$treat[1:200]<-3 # creates a 3rd arm
 asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
@@ -31,7 +32,7 @@ asthma %>% filter(!is.na(fev)) %>%
   summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
 
 # J2R
-impJ2R1 <- mimix(data=asthma,
+impJ2R1 <- RefBasedMI(data=asthma,
   covar=c("base","base2"),
   depvar=fev,
   treatvar=treat,
@@ -41,19 +42,19 @@ impJ2R1 <- mimix(data=asthma,
   reference=1,
   method="J2R",
   seed=101,
-  prior=jeffreys,
+  prior="jeffreys",
   burnin=1000,
   bbetween=NULL,
   methodvar=NULL
 )
 
 # CR
-impCR1 <- mimix(data="asthma",
+impCR1 <- RefBasedMI(data=asthma,
                covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
+               depvar=fev,
+               treatvar=treat,
+               idvar=id,
+               timevar=time,
                M=100,
                reference=1,
                method="CR",
@@ -65,12 +66,12 @@ impCR1 <- mimix(data="asthma",
 )
 
 # CIR
-impCIR1 <- mimix(data="asthma",
+impCIR1 <- RefBasedMI(data=asthma,
                covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
+               depvar=fev,
+               treatvar=treat,
+               idvar=id,
+               timevar=time,
                M=2,
                reference=1,
                method="CIR",
@@ -84,12 +85,12 @@ impCIR1 <- mimix(data="asthma",
 # same again with reference = active
 
 # J2R
-impJ2R2 <- mimix(data="asthma",
+impJ2R2 <- RefBasedMI(data=asthma,
                 covar=c("base","base2"),
-                depvar="fev",
-                treatvar="treat",
-                idvar="id",
-                timevar="time",
+                depvar=fev,
+                treatvar=treat,
+                idvar=id,
+                timevar=time,
                 M=100,
                 reference=2,
                 method="J2R",
@@ -101,12 +102,12 @@ impJ2R2 <- mimix(data="asthma",
 )
 
 # CR
-impCR2 <- mimix(data="asthma",
+impCR2 <- RefBasedMI(data=asthma,
                covar=c("base","base2"),
-               depvar="fev",
-               treatvar="treat",
-               idvar="id",
-               timevar="time",
+               depvar=fev,
+               treatvar=treat,
+               idvar=id,
+               timevar=time,
                M=100,
                reference=2,
                method="CR",
@@ -118,12 +119,12 @@ impCR2 <- mimix(data="asthma",
 )
 
 # CIR
-impCIR2 <- mimix(data="asthma",
+impCIR2 <- RefBasedMI(data=asthma,
                 covar=c("base","base2"),
-                depvar="fev",
-                treatvar="treat",
-                idvar="id",
-                timevar="time",
+                depvar=fev,
+                treatvar=treat,
+                idvar=id,
+                timevar=time,
                 M=2,
                 reference=2,
                 method="CIR",
@@ -135,15 +136,24 @@ impCIR2 <- mimix(data="asthma",
 )
 
 # analyse
-fit <- with(as.mids(impJ2R1), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
-fit <- with(as.mids(impCR1), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
-fit <- with(as.mids(impCIR1), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
-fit <- with(as.mids(impJ2R2), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
-fit <- with(as.mids(impCR2), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
-fit <- with(as.mids(impCIR2), lm(fev.12~as.factor(treat)+base+base2))
-summary(pool(fit))
+fit <- with(as.mids(impJ2R1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impJ2R1res <- summary(pool(fit))
+fit <- with(as.mids(impCR1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impCR1res <- summary(pool(fit))
+fit <- with(as.mids(impCIR1), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impCIR1res <- summary(pool(fit))
+fit <- with(as.mids(impJ2R2), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impJ2R2res <- summary(pool(fit))
+fit <- with(as.mids(impCR2), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impCR2res <- summary(pool(fit))
+fit <- with(as.mids(impCIR2), lm(fev~as.factor(treat)+base+base2), subset=(time==12))
+impCIR2res <- summary(pool(fit))
+
+
+# output
+write.dta(impJ2R1res,file="test/RvsStata/R_J2R_ref1.dta")
+write.dta(impCR1res, file="test/RvsStata/R_CR_ref1.dta")
+write.dta(impCIR1res,file="test/RvsStata/R_CIR_ref1.dta")
+write.dta(impJ2R2res,file="test/RvsStata/R_J2R_ref2.dta")
+write.dta(impCR2res, file="test/RvsStata/R_CR_ref2.dta")
+write.dta(impCIR2res,file="test/RvsStata/R_CIR_ref2.dta")
