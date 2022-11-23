@@ -39,17 +39,16 @@
 #' @return The M imputed data sets are output concatenated as one large data frame in long format appended to the original unimputed dataset.
 #' @examples
 #' \dontrun{
-#' #performing jump to reference with treatment reference arm 1 on asthma trial data
-#' mimixout<-RefBasedMI(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-#'  method="J2R", reference=2,M=5,seed=54321)
+#' # Perform jump to reference imputation on asthma trial data, with reference arm 1 
+#' asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
+#'  idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)
+
+#' # Fit regression model to each imputed data set by treating output data frame as mids object
 #' library(mice)
-#' #Fitting regression model to find treatment effects using Rubin's rules by
-#' #    treating output data frame as.mids() object
-#' fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
+#' fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat) + base, subset=(time==12)))
+
+#' # Find pooled treatment effects using Rubin's rules 
 #' summary(pool(fit))
-#' (data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
-#'  timevar=time,method="CIR",reference=2,M=5,seed=54321,
-#'   prior=jeffreys,burnin=1000)
 #' }
 
 # v0.0.24
