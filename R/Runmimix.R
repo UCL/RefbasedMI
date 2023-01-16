@@ -763,9 +763,9 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
           ############# individual analysis #########################
           #  dont need to do MAR on interims because this could be set by useer within the dataset if required
           # so just need to do in  pass2 ie delete line 1612
-        }
+        } else if (flag_indiv==1) {
         #else if(!is.null(methodindiv[1]))
-    } else if (flag_indiv==1) {
+     
 
           # call function for  indiv
 
