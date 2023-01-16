@@ -713,7 +713,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
                   }
                     # construct vector to save interims ids
 
-                } else
+                } else {
 
           #note that if all missing then wont be interims and c_mata_nonmiss is integer(0) ie NUL
           # now covar has moved to end need adjust by excluding positions of covars at the end
