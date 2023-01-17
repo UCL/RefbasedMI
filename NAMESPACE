@@ -2,3 +2,5 @@
 
 export(RefBasedMI)
 import(mice)
+importFrom("stats", "reshape")
+importFrom("utils", "capture.output")

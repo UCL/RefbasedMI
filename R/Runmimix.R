@@ -155,11 +155,11 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
   # first save class of original treatvar - for use at end
-  classtreatvar <<- class(unlist(get("data")[, treatvar]))
+  classtreatvar <- class(unlist(get("data")[, treatvar]))
 
   # ensure not a tibble  - a when using  readr to read csv data
-  tmptreat <<- factor(unlist(as.data.frame(get("data"))[, treatvar]))
-  #tmptreat<<-factor(unlist(get("data")[,treatvar]))
+  tmptreat <- factor(unlist(as.data.frame(get("data"))[, treatvar]))
+  #tmptreat<-factor(unlist(get("data")[,treatvar]))
   initial_levels_treat <- levels(tmptreat)
   levels(tmptreat) <- 1:(nlevels(tmptreat))
   # convert back to original class
@@ -374,7 +374,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # change order to put covar last as in Stata  2603
 
 
-  tst2<<-c(names(tst[,-1]),covar)
+  tst2<-c(names(tst[,-1]),covar)
 
 
 
@@ -1014,7 +1014,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
           rawplusinterim <- fillinterims(impdataset,interim_id,M,idvar,covar)
 
       #check .id in correrct ccols for mata_Obs
-     Imp_Interims<<-rawplusinterim[[2]]
+     Imp_Interims<-rawplusinterim[[2]]
 
      # 1sty obtain rawplusinterim_1
      test1611impD<-rawplusinterim[[2]]

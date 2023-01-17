@@ -1,11 +1,11 @@
 Package: RefBasedMI
-Title: Reference-based imputation for longitudinal clinical trials with protocol deviation 
-Version: 0.0.24
+Title: Reference-Based Imputation for Longitudinal Clinical Trials with Protocol Deviation 
+Version: 0.1.0
 Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
-Maintainer: Ian White Ian.White <Ian.White@ucl.ac.uk>
-Description: This package imputes missing numerical outcomes for a longitudinal trial 
+Maintainer: Matteo Quartagno <m.quartagno@ucl.ac.uk>
+Description: Imputation of missing numerical outcomes for a longitudinal trial 
     with protocol deviations.
-    It uses distinct treatment arm based assumptions for the unobserved data, following 
+    The package uses distinct treatment arm based assumptions for the unobserved data, following 
     the general algorithm of Carpenter, Roger, and Kenward (2013), and the causal model
     model of White, Royes and Best (2019).
     Sensitivity analysis to departures from these assumptions can be done by the 
@@ -28,6 +28,8 @@ Imports:
   Hmisc,
   norm2,
   mice,
-  pastecs
+  pastecs,
+  assertthat
+Depends: R (>= 3.5.0)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2

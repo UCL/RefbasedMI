@@ -1,4 +1,4 @@
-
+utils::globalVariables(c("tst2", "Imp_Interims", "M", ".imp", "tmptreat", "methodvar", "referencevar", "patt", "treat", "classtreatvar"))
 # to install if not already installed
 
 
