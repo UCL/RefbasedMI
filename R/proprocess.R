@@ -6,6 +6,7 @@ preprodata <-
            covar,
            depvar,
            treatvar,
+           tmptreat,
            idvar,
            timevar,
            M,
@@ -127,7 +128,6 @@ preprodata <-
 
 
     # also get the dummy pattern vectors by treatment
-    # dummypatt<-unique(xSTSdummy)
     pattmat <- unique(STSdummy[, 1:ncol(STSdummy)])
 
 
@@ -136,7 +136,6 @@ preprodata <-
         pattmat[, i] * 2 ^ (i - 1))
     patt <- rowSums(pows2d)
     # want  join this to ex from mimix_group table
-    # merge(uniqdat,sts4,by=idvar)
     pattmatd <- cbind(pattmat, patt)
 
 
@@ -162,7 +161,6 @@ preprodata <-
     ex1s <- ex1id[order(ex1id$exid),]
     names(ex1)[names(ex1) == "X1"] <- "cases"
     names(ex1)[names(ex1) == "X1cum"] <- "cumcases"
-    # 8/5/20
     test_ex1 <-
       merge(ex1, all_patt, by = "patt")[order(merge(ex1, all_patt, by = "patt")$exid),]
 
@@ -184,7 +182,6 @@ preprodata <-
 
     rownames(ex1s) <- NULL
     # put labels to put back original treat  levels (when not orig 1,2..)
-    # gives wrng ordering but correct labels
     ex1s[, treatvar] <-
       ordered(ex1s[, treatvar], labels = levels(tmptreat))
 
@@ -192,7 +189,6 @@ preprodata <-
     ex1s[, treatvar] <-
       sort(as.numeric(as.character(ex1s[, treatvar])))
     # above replaces below
-    # ex1s[,treatvar] <- ordered(ex1s[,treatvar], labels=as.character(unique(tmptreat)))
 
     print(ex1s)
 
@@ -287,7 +283,6 @@ preproIndivdata <-
     # need to add up to find patt
     patt <- rowSums(pows2)
     sts4Dpatt <- cbind(sts4D, patt)
-    #  print(utils::head(sts4Dpatt))
 
     # if covars specified...
     if (length(covar) != 0) {
@@ -335,8 +330,6 @@ preproIndivdata <-
     pattmatd <- cbind(pattmat, patt)
 
 
-    # print(pattmatd)
-
     # X1 is a count variable of 1's'
     sts4Dpatt$X1 <- 1
 
@@ -360,7 +353,6 @@ preproIndivdata <-
     ex1id <- merge(ex1, pattmatd, by = "patt")
     ex1s <- ex1id[order(ex1id$exid),]
 
-    # print("summary missing pattern")
     rownames(ex1s) <- NULL
     names(ex1s)[names(ex1s) == "X1"] <- "patients"
     # dont want to display cumcases
@@ -387,7 +379,6 @@ preproIndivdata <-
 
     ntreatcol <- get("data")[c(treatvar)]
     ntreat <- unique(ntreatcol)
-    # ntimecol<-(dplyr::select(get(data),timevar))
     ntimecol <- get("data")[c(timevar)]
     ntime <- unique(ntimecol)
 
@@ -402,7 +393,6 @@ preproIndivdata <-
     # find unique values for referencevar to check against ntreat values
     refencevars <- unique(get("data")[, referencevar])
     stopifnot(refencevars %in% t(ntreat))
-    # print("summary missing pattern")
 
     # main outputs have to be test_ex1 and finaldatS which should correspond
     return(
@@ -500,14 +490,10 @@ ifmethodindiv <-
     # only done methods  3,4 so far, so Mar need correcting
     # MAR
     if (methindiv == 1) {
-      # mata_means <- get(paste0("param",trtgp,m))[1]
       mata_means <- paramBiglist[[M * (trtgp - 1) + m]][1]
-      #  mata_means <- get(paste0("paramBiglist",trtgp,"_",m))[1]
       mata_means <- (mata_means[[1]])
 
-      # Sigmatrt <- get(paste0("param",trtgp,m))[2]
       Sigmatrt <- paramBiglist[[M * (trtgp - 1) + m]][2]
-      # Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
       Sigma <- Sigmatrt
 
       S11 <- Sigmatrt[[1]][c_mata_nonmiss, c_mata_nonmiss]
@@ -525,11 +511,6 @@ ifmethodindiv <-
       # 6/3/20 need editing after changing suffixes in paramBiglist
       mata_means_trt <- paramBiglist[[M * (trtgp - 1) + m]][1]
       mata_means_ref <- paramBiglist[[M * (refergp - 1) + m]][1]
-      # mata_means_ref <- paramBiglist[[M*(refergp-1)+m]][1]
-
-      # need editing after changing suffixes in paramBiglist
-      # mata_means_trt <- get(paste0("paramBiglist",trtgp,"_",m))[1]
-      # mata_means_ref <- get(paste0("paramBiglist",refergp,"_",m))[1]
 
 
       # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
@@ -554,18 +535,12 @@ ifmethodindiv <-
       mata_means <- (as.matrix(t(mata_means)))
       # and preserve names
 
-      # replicate to number of rows defined by X1
-      # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
 
 
       ############# SIGMA is from paramsigma  the reference group ################
 
 
-      # do we ever  use SigmaTrt !!?? in j2r?
-      # answer is yes, need to use SigmaTrt for the predeviation observations, ie up to where they go missing
-      # only after they go missing (trailing missing) need to use the SigmaRef
 
-      # SigmaRefer <- get(paste0("paramBiglist",refergp,"_",m))[2]
       SigmaRefer <- paramBiglist[[M * (refergp - 1) + m]][2]
       Sigma <- SigmaRefer
 
@@ -573,7 +548,6 @@ ifmethodindiv <-
       # note use of [[1]] as is matrix rather than list,
 
       S11 <- SigmaRefer[[1]][c_mata_nonmiss, c_mata_nonmiss]
-      # causes non-def error in conds
 
       # to ensure rows and cols as should reflect their stucture use matrix
       S12 <-
@@ -581,7 +555,6 @@ ifmethodindiv <-
       S22 <- SigmaRefer[[1]][c_mata_miss, c_mata_miss]
 
     }
-    # else if (meth=='CR') {
     else if (methindiv == 2) {
       # no need to use Sigmatrt here
       mata_means <- paramBiglist[[M * (refergp - 1) + m]][1]
@@ -597,7 +570,6 @@ ifmethodindiv <-
         matrix(SigmaRefer[[1]][c_mata_nonmiss, c_mata_miss], nrow = length(c_mata_nonmiss))
       S22 <- SigmaRefer[[1]][c_mata_miss, c_mata_miss]
     }
-    # else if (meth=='CIR')
     else if (methindiv == 4) {
       # need to use Sigmatrt as in j2r
       # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp
@@ -623,25 +595,20 @@ ifmethodindiv <-
         matrix(SigmaRefer[[1]][c_mata_nonmiss, c_mata_miss], nrow = length(c_mata_nonmiss))
       S22 <- SigmaRefer[[1]][c_mata_miss, c_mata_miss]
     }
-    # else if (meth=='LMCF')
     else if (methindiv == 5) {
 
       mata_Means <- paramBiglist[[M * (trtgp - 1) + m]][1]
 
       mata_means <- LMCF_loop(c_mata_miss, mata_Means)
-      # mata_means<-mata_means[rep(seq(nrow(mata_means)),each=mg$X1[i]),]
       mata_means <- (mata_means[[1]])
 
-      # Sigmatrt <- get(paste0("param",trtgp,m))[2]
       Sigmatrt <- paramBiglist[[M * (trtgp - 1) + m]][2]
-      # Sigmatrt <- get(paste0("paramBiglist",trtgp,"_",m))[2]
       Sigma <- Sigmatrt
       S11 <- Sigmatrt[[1]][c_mata_nonmiss, c_mata_nonmiss]
       S12 <-
         matrix(Sigmatrt[[1]][c_mata_nonmiss, c_mata_miss], nrow = length(c_mata_nonmiss))
       S22 <- Sigmatrt[[1]][c_mata_miss, c_mata_miss]
     }
-    # else if (meth=='Causal')
     # need to account for interims though
     else if (methindiv == 6) {
       mata_Means <- paramBiglist[[M * (trtgp - 1) + m]][1]
@@ -650,8 +617,6 @@ ifmethodindiv <-
 
       MeansC <- paramBiglist[[M * (refergp - 1) + m]][1]
 
-      # Kd =0 equiv to J2R
-      # Kd =1 equiv to CIR
 
 
       mata_means <-

@@ -26,10 +26,7 @@ packageVersion("RefBasedMI")
 library(mice)
 packageVersion("mice")
 
-setwd("C:/ado/ian/RefBasedMI/test")
-
 # Open and modify data
-load("C:/ado/ian/RefBasedMI/data/asthma.RData")
 asthma$treat[1:200]<-3 # creates a 3rd arm
 asthma$base2 <- asthma$base^2 # creates a 2nd covariate
 asthma$fev<-asthma$fev*1000
