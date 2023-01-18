@@ -440,7 +440,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
    if (length(grep("negative definite",emResultT$msg ))>0) {
      print((emResultT$msg))
      print("please disregard UNDECLARED() message - not the error!")
-     UNDECLARED()
+    # UNDECLARED()
 
      }
         mcmcResultT <-
