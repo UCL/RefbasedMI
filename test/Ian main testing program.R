@@ -1,5 +1,6 @@
 #####################################################################
 # Ian's main testing program for RefBasedMI
+# 6/3/2023: increased permitted error from 1E-12 to 1E-8; corrected direction of causal test.
 # 7/7/2022: corrected the 11/12/13 and 2/4/6 tests
 # 14/6/2022: improved check of comparable results; improved tests of 11/12/13 and 2/4/6; added overall check of any tests being missed
 # 29/4/2022: added test of treat=11/12/13 and 2/4/6
@@ -148,7 +149,7 @@ impCIR1 <- RefBasedMI(data=asthma,
 )
 CIR1<-impCIR1 %>% filter(treat==1) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR1 should = MAR in reference group
-test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-12
+test$CIR1eqMAR <- max(abs(CIR1-MAR1))<1E-8
 
 
 #####################################################################
@@ -216,7 +217,7 @@ impCIR2 <- RefBasedMI(data=asthma,
 )
 CIR2<-impCIR2 %>% filter(treat==2) %>% filter(.imp>0) %>% select(-treat)
 # TEST: CIR2 should = MAR in reference group
-test$CIR2eqMAR <- max(abs(CIR2-MAR2))<1E-12
+test$CIR2eqMAR <- max(abs(CIR2-MAR2))<1E-8
 
 
 # TEST: no missing values after imputation
@@ -435,7 +436,7 @@ err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==4) %>% select(d
 err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==8) %>% select(diff) - tweak*K0*K1^4))
 err=rbind(err, sum(compare %>% filter(id==5051) %>% filter(time==12) %>% select(diff) - tweak*K0*K1^8))
 
-test$causal <- max(abs(err))>1E-12
+test$causal <- max(abs(err))<1E-8
 
 #####################################################################
 # DOES THE PROGRAM IMPUTE IF WE HAVE NO OBSERVED DATA?
