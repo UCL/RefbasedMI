@@ -1,6 +1,7 @@
 # mimixhelpfile.R
 # mimix help file examples
 # IW 23/11/2022
+# corrected 6/3/2023: subset= was being incorrectly used (so MI analyses weren't restricted to time 12)
 
 setwd("C:/ado/ian/RefBasedMI")
 load("data/asthma.RData")
@@ -16,7 +17,7 @@ M=500
 impMAR <- RefBasedMI(data=asthma, covar=base, depvar=fev, treatvar=treat, 
                       idvar=id, timevar=time, M=M, method="MAR", seed=101, 
                       prior="jeffreys", burnin=1000, bbetween=NULL, methodvar=NULL)
-fit <- with(as.mids(impMAR), lm(fev~as.factor(treat)+base), subset=(time==12))
+fit <- with(as.mids(impMAR), lm(fev~as.factor(treat)+base, subset=(time==12)))
 impMARres <- summary(pool(fit))
 impMARres
 
@@ -27,7 +28,7 @@ impMARres
 impLMCF <- RefBasedMI(data=asthma, covar=base, depvar=fev, treatvar=treat, 
                       idvar=id, timevar=time, M=M, method="LMCF", reference=1, seed=101, 
                       prior="jeffreys", burnin=1000, bbetween=NULL,methodvar=NULL)
-fit <- with(as.mids(impLMCF), lm(fev~as.factor(treat)+base), subset=(time==12))
+fit <- with(as.mids(impLMCF), lm(fev~as.factor(treat)+base, subset=(time==12)))
 impLMCFres <- summary(pool(fit))
 impLMCFres
 
@@ -38,7 +39,7 @@ impLMCFres
 impJ2R1 <- RefBasedMI(data=asthma, covar=base, depvar=fev, treatvar=treat, 
                       idvar=id, timevar=time, M=M, method="J2R", reference=1, seed=101, 
                       prior="jeffreys", burnin=1000, bbetween=NULL, methodvar=NULL)
-fit <- with(as.mids(impJ2R1), lm(fev~as.factor(treat)+base), subset=(time==12))
+fit <- with(as.mids(impJ2R1), lm(fev~as.factor(treat)+base, subset=(time==12)))
 impJ2R1res <- summary(pool(fit))
 impJ2R1res
 
@@ -49,6 +50,6 @@ impJ2R1res
 impCIR1 <- RefBasedMI(data=asthma, covar=base, depvar=fev, treatvar=treat, 
                       idvar=id, timevar=time, M=M, method="CIR", reference=1, seed=101, 
                       prior="jeffreys", burnin=1000, bbetween=NULL, methodvar=NULL)
-fit <- with(as.mids(impCIR1), lm(fev~as.factor(treat)+base), subset=(time==12))
+fit <- with(as.mids(impCIR1), lm(fev~as.factor(treat)+base, subset=(time==12)))
 impCIR1res <- summary(pool(fit))
 impCIR1res
