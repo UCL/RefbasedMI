@@ -3,5 +3,6 @@
 .RData
 .Ruserdata
 inst/doc
+~$*.docx
 ~$*.xlsx
 test/Ian main testing program.Rout
