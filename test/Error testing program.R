@@ -1,6 +1,7 @@
 #####################################################################
 # Error testing program for RefBasedMI
 # IW 4/11/2021
+# updated 7mar2023 - works perfectly
 #####################################################################
 
 # Install mimix if required
@@ -43,9 +44,8 @@ impJ2R1 <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-# Error in names(get("data"))[[grep(paste0("^", scovar[[i]], "$"), names(get("data")))]] : 
-#  attempt to select less than one element in get1index
-# this is runmimix.R line 111
+# Error in RefBasedMI(data = asthma, covar = c(base, base3), depvar = fev,  : 
+#   base3  not in data
 
 
 # non-existent depvar
@@ -64,6 +64,6 @@ impJ2R1 <- RefBasedMI(data=asthma,
                       bbetween=NULL,
                       methodvar=NULL
 )
-# Error in `[.data.frame`(get("data"), c(idvar, depvar, timevar, treatvar,  : 
-# undefined columns selected 
-# similar error for treatvar, idvar, timevar
+# Error in RefBasedMI(data = asthma, covar = c(base, base2), depvar = fev55,  : 
+#   fev55  depvar not in data
+
