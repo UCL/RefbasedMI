@@ -70,22 +70,22 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   depvar <- deparse(substitute(depvar))
   if (length(grep(paste0("^", depvar, "$"), names(get("data")))) == 0)
   {
-    stop(paste(depvar, " depvar not in data"))
+    stop(paste(depvar, "(depvar) not in data"))
   }
   treatvar <- deparse(substitute(treatvar))
   if (length(grep(paste0("^", treatvar, "$"), names(get("data")))) == 0)
   {
-    stop(paste(treatvar, " treatvar not in data"))
+    stop(paste(treatvar, "(treatvar) not in data"))
   }
   idvar <- deparse(substitute(idvar))
   if (length(grep(paste0("^", idvar, "$"), names(get("data")))) == 0)
   {
-    stop(paste(idvar, " idvar not in data"))
+    stop(paste(idvar, "(idvar) not in data"))
   }
   timevar <- deparse(substitute(timevar))
   if (length(grep(paste0("^", timevar, "$"), names(get("data")))) == 0)
   {
-    stop(paste(timevar, " timevar not in data"))
+    stop(paste(timevar, "(timevar) not in data"))
   }
   # check that reference is category  of treatment var
   # and is not null ( because method not needed if indiv specific cols reqested)
@@ -116,7 +116,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
          # check if covar exists !
          if (length(grep(paste0("^", scovar[[i]], "$"), names(get("data")))) == 0)
          {
-           stop(paste(scovar[[i]], " not in data"))
+           stop(paste(scovar[[i]], "(covar) not in data"))
          }
          covarname[[i - 1]] <-
            names(get("data"))[[grep(paste0("^", scovar[[i]], "$"), names(get("data")))]]
@@ -1090,7 +1090,8 @@ getimpdatasets <- function(varlist){
 
   # now combine recreated original with impute data
   impdatasetsmiss<-rbind(imp1st,impdatasets)
-
+  levels(mg[,treatvar]) <- initial_levels_treat
+  
   # no reason to keep the dummies
   # and they cause a warning on setting  as.mids() function
   impdatasets <- impdatasetsmiss[,-grep(".miss",colnames(impdatasetsmiss))]
