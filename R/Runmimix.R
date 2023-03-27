@@ -283,7 +283,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
   if (!is.null(method) ) {
-         testlist<- preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method)
+         testlist<- RefBasedMI:::preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method)
         reference <- testlist[[7]]
 
 
@@ -1190,7 +1190,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptrea
     # but note in case need to change to the character values
 
     mg[,treatvar] <- ordered(mg[,treatvar], labels=as.character(unique(tmptreat)))
-
+    levels(mg[,treatvar]) <- initial_levels_treat
 
 
 
@@ -1397,7 +1397,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptrea
 
             #might be better to copy mimix algol
 
-            mata_means<-CIR_loop(c_mata_miss,mata_Means,MeansC)
+            mata_means<-RefBasedMI:::CIR_loop(c_mata_miss,mata_Means,MeansC)
             #returns mata_means as single row
             # then duplicate over patt rows
 
@@ -1432,7 +1432,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptrea
             mata_Means <- mata_Means[[1]]
             MeansC <-  paramBiglist[[M*(referindex-1)+m]][1]
 
-            mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
+            mata_means<-RefBasedMI:::Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
 
 
             SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
@@ -1599,7 +1599,7 @@ pass2Loop<- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptrea
             if (is.null(dlag)) {
               dlag <- rep(1,length(delta))
             }
-            mata_new <-  AddDelta(tst2, covar,mata_new,delta,dlag)
+            mata_new <-  RefBasedMI:::AddDelta(tst2, covar,mata_new,delta,dlag)
           }
 
           mata_all_newlist[[m_mg_iter]]=mata_new
