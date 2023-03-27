@@ -11,7 +11,7 @@ preprodata <-
            timevar,
            M,
            reference,
-           method = NULL) {
+           method = NULL, initial_levels_treat) {
 
 
     # change order put covar last

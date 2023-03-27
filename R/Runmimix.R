@@ -283,7 +283,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
   if (!is.null(method) ) {
-         testlist<- RefBasedMI:::preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method)
+         testlist<- RefBasedMI:::preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method, initial_levels_treat)
         reference <- testlist[[7]]
 
 
