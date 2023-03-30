@@ -11,7 +11,7 @@ preprodata <-
            timevar,
            M,
            reference,
-           method = NULL) {
+           method = NULL, initial_levels_treat) {
 
 
     # change order put covar last
@@ -183,7 +183,7 @@ preprodata <-
     rownames(ex1s) <- NULL
     # put labels to put back original treat  levels (when not orig 1,2..)
     ex1s[, treatvar] <-
-      ordered(ex1s[, treatvar], labels = levels(tmptreat))
+      ordered(ex1s[, treatvar], labels = initial_levels_treat)
 
     # tmptreat is factor which could  lead to wrong order so convert to numeric
     ex1s[, treatvar] <-
