@@ -51,7 +51,7 @@
 #' summary(pool(fit))
 #' }
 
-# v0.0.24
+# v0.1.0
 # @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters
 # mimix<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,M=1,reference=NULL,method=NULL,seed=101,prior="jeffreys",burnin=1000,bbetween=NULL,methodvar=NULL,referencevar=NULL,delta=NULL,dlag=NULL,K0=1,K1=1,mle=FALSE) {
 
