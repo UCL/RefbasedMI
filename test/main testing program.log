@@ -1,6 +1,6 @@
 
-> source("Ian main testing program.R")
-[1] "Fri Mar 31 15:10:50 2023"
+> source("main testing program.R")
+[1] "Fri Mar 31 16:32:06 2023"
 [1] "Main methods - MAR"
    
 
