@@ -1,4 +1,4 @@
-
+# RefBasedMI: functions to pre-process data
 
 # preprocess data for group method
 preprodata <-
@@ -12,7 +12,6 @@ preprodata <-
            M,
            reference,
            method = NULL, initial_levels_treat) {
-
 
     # change order put covar last
 
@@ -46,9 +45,7 @@ preprodata <-
 
 
     # need find no. ntreat  to loop over
-
     ntreat <- unique(ntreatcol)
-
     ntime <- unique(ntimecol)
 
 
@@ -94,7 +91,8 @@ preprodata <-
       # than combine below the dummies onto the finaldat
       #  move covar to  col following depvar
       sts4Dpatt <- cbind(finaldat, STSdummy, tmp_covpatt, patt)
-    } else {
+    } 
+    else {
       sts4Dpatt <- cbind(finaldat, STSdummy, patt)
     }
 
@@ -293,7 +291,8 @@ preproIndivdata <-
       colnames(tmp_covpatt) <- paste0(c(covar), ".miss")
       #  move covar to  col following depvar
       sts4Dpatt <- cbind(finaldat, STSdummy, tmp_covpatt, patt)
-    } else {
+    } 
+    else {
       sts4Dpatt <- cbind(finaldat, STSdummy, patt)
     }
 
@@ -382,9 +381,6 @@ preproIndivdata <-
     ntimecol <- get("data")[c(timevar)]
     ntime <- unique(ntimecol)
 
-
-
-
     test_ex1 <-
       merge(ex1, all_patt, by = "patt")[order(merge(ex1, all_patt, by = "patt")$exid),]
 
@@ -409,10 +405,7 @@ preproIndivdata <-
         referencevar
       )
     )
-
-  }
-
-
+}
 
 
 
@@ -444,50 +437,22 @@ ifmethodindiv <-
     methindiv <- mg[i, methodvar]
 
     methindiv <-
-      ifelse((
-        methindiv == "j2r" |
-          methindiv == "J2R" | methindiv == "j2R" | methindiv == "J2r"
-      ),
-      3,
-      ifelse((
-        methindiv == "CR" |
-          methindiv == "cr" | methindiv == "Cr" | methindiv == "cR"
-      ),
-      2,
-      ifelse((
-        methindiv == "MAR" |
-          methindiv == "mar" |
-          methindiv == "Mar" |
-          methindiv == "MAr" | methindiv == "Mr" | methindiv == "MR"
-      ),
-      1,
-      ifelse((
-        methindiv == "CIR" |
-          methindiv == "cir" | methindiv == "CIr" | methindiv == "cliR"
-      ),
-      4,
-      ifelse((
-        toupper(methindiv) == "CAUSAL" |
-          toupper(methindiv) == "CASUAL" |
-          toupper(methindiv) == "CUASAL"
-      ),
-      6,
-      ifelse((
-        methindiv == "LMCF" |
-          methindiv == "lmcf" |
-          methindiv == "Last" | methindiv == "last"
-      ),
-      5,
-      9
-      )
-      )
-      )
-      )
-      )
+      ifelse((methindiv == "j2r" | methindiv == "J2R" | methindiv == "j2R" | methindiv == "J2r"), 3,
+        ifelse((methindiv == "CR" | methindiv == "cr" | methindiv == "Cr" | methindiv == "cR"), 2,
+          ifelse((methindiv == "MAR" | methindiv == "mar" | methindiv == "Mar" |
+          methindiv == "MAr" | methindiv == "Mr" | methindiv == "MR"), 1,
+            ifelse((methindiv == "CIR" | methindiv == "cir" | methindiv == "CIr" | methindiv == "cliR"), 4,
+              ifelse((toupper(methindiv) == "CAUSAL" | toupper(methindiv) == "CASUAL" | toupper(methindiv) == "CUASAL"), 6,
+                ifelse((methindiv == "LMCF" | methindiv == "lmcf" | methindiv == "Last" | methindiv == "last"), 5,
+                  9
+                )
+              )
+            )
+          )
+        )
       )
 
-
-    # only done methods  3,4 so far, so Mar need correcting
+    # only done methods 3,4 so far, so Mar need correcting
     # MAR
     if (methindiv == 1) {
       mata_means <- paramBiglist[[M * (trtgp - 1) + m]][1]
@@ -506,22 +471,19 @@ ifmethodindiv <-
     # 'J2R'
     else if (methindiv == 3) {
       # changed saving the result into  just the param file, list of 2 so can use list index here
-      # treatmnets are 1.. M then M+1 ..2M .. etc
+      # treatments are 1.. M then M+1 ..2M .. etc
 
       # 6/3/20 need editing after changing suffixes in paramBiglist
       mata_means_trt <- paramBiglist[[M * (trtgp - 1) + m]][1]
       mata_means_ref <- paramBiglist[[M * (refergp - 1) + m]][1]
 
-
       # below causes error after using >1 covars and mata_nonmiss has covar.1, not proper covar names
-
       mata_means_t <-
         lapply(
           mata_means_trt,
           FUN = function(x)
             x * mata_nonmiss
         )
-
 
       mata_means_r <-
         lapply(
@@ -535,15 +497,10 @@ ifmethodindiv <-
       mata_means <- (as.matrix(t(mata_means)))
       # and preserve names
 
-
-
       ############# SIGMA is from paramsigma  the reference group ################
-
-
 
       SigmaRefer <- paramBiglist[[M * (refergp - 1) + m]][2]
       Sigma <- SigmaRefer
-
 
       # note use of [[1]] as is matrix rather than list,
 
@@ -561,7 +518,6 @@ ifmethodindiv <-
       # convert from list to matrix
       mata_means <- (mata_means[[1]])
 
-
       SigmaRefer <- paramBiglist[[M * (refergp - 1) + m]][2]
 
       Sigma <- SigmaRefer
@@ -574,15 +530,12 @@ ifmethodindiv <-
       # need to use Sigmatrt as in j2r
       # pre-deviating use mean of trt gp up to last obs time bfore deviating, post-deviating use mean from ref grp
 
-
       mata_Means <- unlist(paramBiglist[[M * (trtgp - 1) + m]][1])
 
       # convert from list to matrix
-
       MeansC <- paramBiglist[[M * (refergp - 1) + m]][1]
 
-      # might be better to copy mimix algol
-
+      # might be better to copy mimix algorithm
       mata_means <- CIR_loop(c_mata_miss, mata_Means, MeansC)
 
       SigmaRefer <- paramBiglist[[M * (refergp - 1) + m]][2]
@@ -596,7 +549,6 @@ ifmethodindiv <-
       S22 <- SigmaRefer[[1]][c_mata_miss, c_mata_miss]
     }
     else if (methindiv == 5) {
-
       mata_Means <- paramBiglist[[M * (trtgp - 1) + m]][1]
 
       mata_means <- LMCF_loop(c_mata_miss, mata_Means)
@@ -617,15 +569,10 @@ ifmethodindiv <-
 
       MeansC <- paramBiglist[[M * (refergp - 1) + m]][1]
 
-
-
-      mata_means <-
-        Causal_loop(c_mata_miss, mata_Means, MeansC, K0, K1)
-
+      mata_means <- Causal_loop(c_mata_miss, mata_Means, MeansC, K0, K1)
 
       SigmaRefer <- paramBiglist[[M * (refergp - 1) + m]][2]
       # when reading in Stata sigmas
-
 
       S11 <- SigmaRefer[[1]][c_mata_nonmiss, c_mata_nonmiss]
       S12 <-
