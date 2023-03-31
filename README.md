@@ -107,11 +107,11 @@ followed by
 
 **delta**       vector of delta values to add onto imputed values (a values in Roger's paper) (non-mandatory)
 
-**dlag**        vector of dlag values (b values in Rogers paper)
+**dlag**        vector of dlag values (b values in Roger's paper)
 
-**K0**	         Causal constant for use with Causal method
+**K0**	         causal constant for use with Causal method
 
-**K1**	         exponential decaying Causal constant for use with Causal method
+**K1**	         exponential decaying causal constant for use with Causal method
 
 
 
@@ -119,7 +119,7 @@ followed by
 
 ## Sample data: asthma trial
 
-### J2R analysis with control as reference
+### J2R imputation with control as reference
 	asthmaJ2R <- RefBasedMI(data = asthma, covar = base, depvar = fev, treatvar = treat,	
 		idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
 		prior = "ridge", burnin = 1000)`
@@ -136,7 +136,7 @@ functions from mice package:
 	summary(pool(fit))
 
 
-### Delta-adjustment - all values are 1 unit lower than expected under J2R
+### Delta-adjustment imputation - all values are 1 unit lower than expected under J2R
 
 	impJ2Rridge <- RefBasedMI(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	
 		idvar = id, timevar = time, method = "J2R", reference = 2, 
@@ -150,7 +150,7 @@ functions from mice package:
 
 ## Sample data: antidepressant trial
 
-### Mixed methods
+### Mixed imputation methods 
 
 `methodcol` and `referencecol` are variables in the data set 
 
@@ -170,7 +170,7 @@ NOTE - either `method` or `methodvar` must specified but NOT both
 
 ## Sample data: acupuncture trial 
 
-### Causal model: 
+### Causal model imputation
 
 We assume that the treatment effect halves every 1 time unit after treatment discontinuation, so K0 = 1 and K1 = 0.5.
 Note that K0=1, K1=0 would be equivalent to J2R, and K0=1, K1=1 would be equivalent to CIR.
@@ -181,7 +181,7 @@ Note that K0=1, K1=0 would be equivalent to J2R, and K0=1, K1=1 would be equival
 	 
 ### Analysis
 
-	acufit <- with(as.mids(subset(impCausalref, time == 12)), lm(head ~ treat + head_base ))
+	acufit <- with(as.mids(subset(impCausalref, time == 12)), lm(head ~ treat + head_base))
 	
 	summary(pool(acufit))    
 
