@@ -1,6 +1,6 @@
 #####################################################################
-# Ian's main testing program for RefBasedMI
-# 30/3/2023: assumed to run in "test" directory
+# Main testing program for RefBasedMI
+# 31/3/2023: assumed to run in "test" directory
 # 6/3/2023: increased permitted error from 1E-12 to 1E-8; corrected direction of causal test.
 # 7/7/2022: corrected the 11/12/13 and 2/4/6 tests
 # 14/6/2022: improved check of comparable results; improved tests of 11/12/13 and 2/4/6; added overall check of any tests being missed
@@ -14,11 +14,14 @@
 # Revised 8feb2021
 #####################################################################
 
+# Note date of testing
+print(date())
 
 # Install RefBasedMI - do this each time to run latest version
 if(!require(devtools)) install.packages('devtools') 
 library(devtools) 
-install_github("UCL/RefBasedMI",ref="master")
+if("package:RefBasedMI" %in% search()) detach("package:RefBasedMI", unload=TRUE) 
+install_github("UCL/RefBasedMI",ref="dev",force=TRUE)
 
 if(!require(tidyverse)) install.packages('tidyverse') 
   
