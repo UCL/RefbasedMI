@@ -21,7 +21,7 @@ print(date())
 if(!require(devtools)) install.packages('devtools') 
 library(devtools) 
 if("package:RefBasedMI" %in% search()) detach("package:RefBasedMI", unload=TRUE) 
-install_github("UCL/RefBasedMI",ref="dev")
+install_github("UCL/RefBasedMI",ref="master")
 
 if(!require(tidyverse)) install.packages('tidyverse') 
   
