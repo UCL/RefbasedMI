@@ -1090,8 +1090,7 @@ getimpdatasets <- function(varlist){
 
   # now combine recreated original with impute data
   impdatasetsmiss<-rbind(imp1st,impdatasets)
-  levels(mg[,treatvar]) <- initial_levels_treat
-  
+
   # no reason to keep the dummies
   # and they cause a warning on setting  as.mids() function
   impdatasets <- impdatasetsmiss[,-grep(".miss",colnames(impdatasetsmiss))]
