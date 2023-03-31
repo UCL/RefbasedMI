@@ -121,8 +121,8 @@ followed by
 
 ### J2R analysis with control as reference
 	asthmaJ2R <- RefBasedMI(data = asthma, covar = base, depvar = fev, treatvar = treat,	
-	idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
-	prior = "ridge", burnin = 1000)`
+		idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
+		prior = "ridge", burnin = 1000)`
  
 ### Analysis
 
@@ -152,9 +152,9 @@ functions from mice package:
 
 ### Mixed methods
 
-methodcol and referencecol are variables in the data set 
+`methodcol` and `referencecol` are variables in the data set 
 
-NOTE - either method or methodvar to be specified but NOT both
+NOTE - either `method` or `methodvar` must specified but NOT both
 
 	antidepIndiv <- RefBasedMI(data = antidepressant, covar = c(basval, PATIENT.SEX),
 		depvar = HAMD17.TOTAL, treatvar = TREATMENT.NAME, idvar = PATIENT.NUMBER, 
