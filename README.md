@@ -44,7 +44,7 @@ the vector of delta's starting at the 3rd time point and add their cumulative su
 Specifying dlag modifies this behaviour, so that the vector of delta's starting at the 3rd time point is 
 multipled elementwise by the vector dlag.
 The formula for the increment at time k for an individual who discontinued after time p is 
-    delta[p+1]*dlag[1] + delta[p+2]*dlag[2] + ... + delta[k]*dlag[k-p].
+`delta[p+1]*dlag[1] + delta[p+2]*dlag[2] + ... + delta[k]*dlag[k-p]`.
 A common increment of 3 at all time points after treatment discontinuation is achieved 
 by setting  `delta=c(3,3,3,...)` and `dlag=c(1,0,0,...)`, both vectors having the length of the number of time points.
 
