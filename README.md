@@ -120,7 +120,8 @@ followed by
 ## Sample data: asthma trial
 
 ### J2R analysis with control as reference
-	asthmaJ2R <- RefBasedMI(data = asthma, covar = base, depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
+	asthmaJ2R <- RefBasedMI(data = asthma, covar = base, depvar = fev, treatvar = treat,	
+	idvar = id, timevar = time, method = "J2R", reference = 2, M = 5, seed = 101, 
 	prior = "ridge", burnin = 1000)`
  
 ### Analysis
@@ -137,7 +138,8 @@ functions from mice package:
 
 ### Delta-adjustment - all values are 1 unit lower than expected under J2R
 
-	impJ2Rridge <- RefBasedMI(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	idvar = id, timevar = time, method = "J2R", reference = 2, 
+	impJ2Rridge <- RefBasedMI(data = asthma, covar = c(base), depvar = fev, treatvar = treat,	
+		idvar = id, timevar = time, method = "J2R", reference = 2, 
 		delta = c(-1, 0, 0, 0), M = 5, seed = 101, prior = "ridge")      
 
 	fit<-with(as.mids(subset(impJ2Rridge,time==12)), lm(fev~treat+base))
@@ -154,13 +156,15 @@ methodcol and referencecol are variables in the data set
 
 NOTE - either method or methodvar to be specified but NOT both
 
-	antidepIndiv <- RefBasedMI(data = antidepressant, covar = c(basval, PATIENT.SEX),depvar = HAMD17.TOTAL, treatvar = TREATMENT.NAME, idvar = PATIENT.NUMBER, 
+	antidepIndiv <- RefBasedMI(data = antidepressant, covar = c(basval, PATIENT.SEX),
+		depvar = HAMD17.TOTAL, treatvar = TREATMENT.NAME, idvar = PATIENT.NUMBER, 
 		timevar = VISIT.NUMBER, methodvar = methodcol, referencevar = referencecol, 
-		  M = 5, seed = 54321)        
+		M = 5, seed = 54321)        
 
 ### Analysis
 
-	antidepIndiv <- with(data =  as.mids(subset(antidepIndiv, VISIT.NUMBER == 7)),	lm(HAMD17.TOTAL ~ TREATMENT.NAME + basval + PATIENT.SEX))
+	antidepIndiv <- with(data =  as.mids(subset(antidepIndiv, VISIT.NUMBER == 7)),	
+		lm(HAMD17.TOTAL ~ TREATMENT.NAME + basval + PATIENT.SEX))
 	
 	summary(pool(antidepIndiv))  
 
@@ -171,12 +175,13 @@ NOTE - either method or methodvar to be specified but NOT both
 We assume that the treatment effect halves every 1 time unit after treatment discontinuation, so K0 = 1 and K1 = 0.5.
 Note that K0=1, K1=0 would be equivalent to J2R, and K0=1, K1=1 would be equivalent to CIR.
 
-	acuCausal <- RefBasedMI(data = acupuncture, covar = c(head_base), depvar = head,	treatvar = treat, idvar = id, timevar = time, method = "Causal", 
+	acuCausal <- RefBasedMI(data = acupuncture, covar = c(head_base), depvar = head,	
+		treatvar = treat, idvar = id, timevar = time, method = "Causal", 
 		reference = 1, K0 = 1, K1 = 0.5, M = 5, seed = 54321)
 	 
 ### Analysis
 
-	acufit <- with(as.mids(subset(impCausalref, time == 12)),	lm(head ~ treat + head_base ))
+	acufit <- with(as.mids(subset(impCausalref, time == 12)), lm(head ~ treat + head_base ))
 	
 	summary(pool(acufit))    
 
