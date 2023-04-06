@@ -17,26 +17,26 @@
 #' @export RefBasedMI
 #' @import mice
 #' @param data Dataset in long format
-#' @param covar Baseline covariates: must be complete (no missing values)
+#' @param covar Baseline covariate(s): must be complete (no missing values)
 #' @param depvar Outcome variable
-#' @param treatvar Treatment group: can be numeric or character
-#' @param idvar Participant identifier
-#' @param timevar Time point for repeated measures
+#' @param treatvar Treatment group variable: can be numeric or character
+#' @param idvar Participant identifiervariable
+#' @param timevar  Variable indicating time point for repeated measures
 #' @param method Reference-based imputation method: must be "J2R", "CR", "CIR", "MAR", "Causal" or "LMCF"
-#' @param reference  Reference group for "J2R", "CIR", "CR" methods: can be numeric or string
-#' @param methodvar Column in dataset specifying individual method
-#' @param referencevar Column in dataset specifying reference group for individual method
+#' @param reference  Reference group for "J2R", "CIR", "CR" methods, or control group for causal method: can be numeric or string
+#' @param methodvar Variable in dataset specifying individual method
+#' @param referencevar Variable in dataset specifying reference group for individual method
 #' @param K0 Causal constant for use with Causal method
 #' @param K1 Exponential decaying causal constant for use with Causal method
-#' @param delta Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length as number of time points
-#' @param dlag Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length as number of time points
+#' @param delta Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length equal to number of time points
+#' @param dlag Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length equal to number of time points
 #' @param M Number of imputations to be created
 #' @param seed  Seed value: specify this so that a new run of the command will give the same imputed values
 #' @param prior  Prior when fitting multivariate normal distributions: can be one of "jeffreys" (default), "uniform" or "ridge"
 #' @param burnin  Number of burn-in iterations when fitting multivariate normal distributions
 #' @param bbetween  Number of iterations between imputed data sets when fitting multivariate normal distributions
 #' @param mle Use with extreme caution: do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.
-#' @return The M imputed data sets are output concatenated as one large data frame in long format appended to the original unimputed dataset.
+#' @return A data frame containing the original data stacked above the M imputed data sets. The original ID variable (idvar) is renamed as .id. A new variable .imp indicates the original data (.imp=0) or the imputed data sets (.imp=1,...,M).
 #' @examples
 #' \dontrun{
 #' # Perform jump to reference imputation on asthma trial data, with reference arm 1 
@@ -131,7 +131,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   # check reference consistent with treatvar
 
 
-  if (!is.null(method) & (method != "MAR") & (method != "LMCF")  ) {
+  if (!is.null(method) & (toupper(method) != "MAR") & (toupper(method) != "LMCF")  ) {
      if (is.null(reference)) {stop("\nStopped !! reference value NULL, required for \"J2R\",\"CIR\",\"CR\",\"Causal\" ")}
   }
 
