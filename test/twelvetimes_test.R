@@ -1,26 +1,45 @@
 # Test RefBasedMI with artificial data with 12 times, 4 groups and no covariate
-# IW 22nov2021
+# IW 22nov2021, updated 6apr2023
 # twelvetimes20.csv  has  20 individuals / group
 # twelvetimes200.csv has 200 individuals / group
 
-# Problem 1: if you use the data set with 20 / group,
-#   you get "MCMC procedure aborted" in each imputation, 
-#   yet a final "mcmcNorm Loop finished" and it soldiers on
-# I want it to abort!
+# Problem: with 20 / group, norm2 reports "MCMC procedure aborted" in each imputation, 
+#   yet RefBasedMI reports a final "mcmcNorm Loop finished" and it soldiers on
+#   Can we make it abort more nicely?
 
-# Problem 2: with 200 / group the mcmcloop appears to succeed but then get the error:
-# Imputing interim missing values under MAR:
-#   
-#   Error in `colnames<-`(`*tmp*`, value = idvar) : 
-#   attempt to set 'colnames' on an object with less than two dimensions 
+# With 200 / group, norm2 succeeds
 
 library(tidyverse)
-t12 <- read_csv("twelvetimes20.csv")
-summary(t12)
+
+# n = 200 / group
+
+t12n200 <- read_csv("twelvetimes200.csv")
+summary(t12n200)
+table(t12n200$group,t12n200$time)
+
+impJ2R1 <- RefBasedMI(data=t12n200,
+                      depvar=yvar,
+                      treatvar=group,
+                      idvar=myid,
+                      timevar=time,
+                      M=2,
+                      reference=1,
+                      method="J2R",
+                      seed=101,
+                      prior="jeffreys",
+                      burnin=1000,
+                      bbetween=NULL,
+                      methodvar=NULL
+)
 
 
-# J2R
-impJ2R1 <- RefBasedMI(data=t12,
+# n = 20 / group
+
+t12n20 <- read_csv("twelvetimes20.csv")
+summary(t12n20)
+table(t12n20$group,t12n20$time)
+
+impJ2R1 <- RefBasedMI(data=t12n20,
                       depvar=yvar,
                       treatvar=group,
                       idvar=myid,
