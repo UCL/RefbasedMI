@@ -1,5 +1,6 @@
 
-> source("Ian main testing program.R")
+> source("main testing program.R")
+[1] "Fri Mar 31 16:32:06 2023"
 [1] "Main methods - MAR"
    
 
@@ -876,11 +877,11 @@ treat  =  1 pattern =  0 number patients =  29
 treat  =  1 pattern =  8 number patients =  11 
 treat  =  1 pattern =  12 number patients =  16 
 treat  =  1 pattern =  14 number patients =  12 
-treat  =  1 pattern =  0 number patients =  51 
+treat  =  2 pattern =  0 number patients =  51 
 treat  =  2 pattern =  8 number patients =  6 
 treat  =  2 pattern =  12 number patients =  6 
 treat  =  2 pattern =  14 number patients =  2 
-treat  =  2 pattern =  0 number patients =  29 
+treat  =  3 pattern =  0 number patients =  29 
 treat  =  3 pattern =  8 number patients =  6 
 treat  =  3 pattern =  12 number patients =  9 
 treat  =  3 pattern =  14 number patients =  5 

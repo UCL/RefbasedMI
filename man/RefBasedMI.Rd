@@ -30,31 +30,31 @@ RefBasedMI(
 \arguments{
 \item{data}{Dataset in long format}
 
-\item{covar}{Baseline covariates: must be complete (no missing values)}
+\item{covar}{Baseline covariate(s): must be complete (no missing values)}
 
 \item{depvar}{Outcome variable}
 
-\item{treatvar}{Treatment group: can be numeric or character}
+\item{treatvar}{Treatment group variable: can be numeric or character}
 
-\item{idvar}{Participant identifier}
+\item{idvar}{Participant identifiervariable}
 
-\item{timevar}{Time point for repeated measures}
+\item{timevar}{Variable indicating time point for repeated measures}
 
 \item{method}{Reference-based imputation method: must be "J2R", "CR", "CIR", "MAR", "Causal" or "LMCF"}
 
-\item{reference}{Reference group for "J2R", "CIR", "CR" methods: can be numeric or string}
+\item{reference}{Reference group for "J2R", "CIR", "CR" methods, or control group for causal method: can be numeric or string}
 
-\item{methodvar}{Column in dataset specifying individual method}
+\item{methodvar}{Variable in dataset specifying individual method}
 
-\item{referencevar}{Column in dataset specifying reference group for individual method}
+\item{referencevar}{Variable in dataset specifying reference group for individual method}
 
 \item{K0}{Causal constant for use with Causal method}
 
 \item{K1}{Exponential decaying causal constant for use with Causal method}
 
-\item{delta}{Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length as number of time points}
+\item{delta}{Optional vector of delta values to add onto imputed values (non-mandatory) (a's in Five_Macros user guide), length equal to number of time points}
 
-\item{dlag}{Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length as number of time points}
+\item{dlag}{Optional vector of delta values to add onto imputed values (non-mandatory) (b's in Five_Macros user guide), length equal to number of time points}
 
 \item{M}{Number of imputations to be created}
 
@@ -69,7 +69,7 @@ RefBasedMI(
 \item{mle}{Use with extreme caution: do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.}
 }
 \value{
-The M imputed data sets are output concatenated as one large data frame in long format appended to the original unimputed dataset.
+A data frame containing the original data stacked above the M imputed data sets. The original ID variable (idvar) is renamed as .id. A new variable .imp indicates the original data (.imp=0) or the imputed data sets (.imp=1,...,M).
 }
 \description{
 Performs reference-based multiple imputation of longitudinal data where data are missing after treatment discontinuation. Methods available are missing at random, jump to reference, copy reference, copy increments in reference, last mean carried forward, the causal model, and delta-adjustment.
@@ -95,16 +95,13 @@ The user can use the as.mids() function in the mice package to convert the outpu
 }
 \examples{
 \dontrun{
-#performing jump to reference with treatment reference arm 1 on asthma trial data
-mimixout<-RefBasedMI(data=asthma,covar=c("base"),depvar=fev,treatvar=treat,idvar=id,timevar=time,
- method="J2R", reference=2,M=5,seed=54321)
+# Perform jump to reference imputation on asthma trial data, with reference arm 1 
+asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
+ idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)
+# Fit regression model to each imputed data set by treating output data frame as mids object
 library(mice)
-#Fitting regression model to find treatment effects using Rubin's rules by
-#    treating output data frame as.mids() object
-fit<-with(data= as.mids(subset(mimixout[[2]],time==12)), lm(fev~treat+base))
+fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat) + base, subset=(time==12)))
+# Find pooled treatment effects using Rubin's rules 
 summary(pool(fit))
-(data=acupuncture,covar= c("head_base"),depvar=head,treatvar=treat,idvar=id,
- timevar=time,method="CIR",reference=2,M=5,seed=54321,
-  prior=jeffreys,burnin=1000)
 }
 }

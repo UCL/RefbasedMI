@@ -1,10 +1,12 @@
 # check_nothing_observed.R
-# IW 4/1/2022
+# IW 4/1/2022, updated 6/4/2023
 #
 # explore how individuals with no outcomes are handled
 # do this by adding a large number to all in treat=2, 
 #   making one individual in treat=2 wholly missing, 
-#   and viewing their imputed values
+#   and viewing their imputed values with ref=1
+#
+# Finding: only MAR and LMCF impute 10000 larger, consistent with only these using the own-arm mean
 
 
 # select the individual
@@ -16,10 +18,27 @@ asthma2 <- asthma
 asthma2[asthma2$treat==2,"fev"] <- asthma2[asthma2$treat==2,"fev"] + 10000
 asthma2[asthma2$treat==2 & asthma2$id==idc,"fev"] <- NA
 
-asthma  %>% filter(id==idc)
 asthma2 %>% filter(id==idc)
 
+asthma2 %>% filter(!is.na(fev)) %>% 
+  group_by(treat, time) %>% 
+  summarise(n=n(), fevmean=mean(fev), fevsd=sd(fev))
+
 # impute various ways
+impnooutcomes2mar <- RefBasedMI(data=asthma2,
+                                depvar=fev,
+                                treatvar=treat,
+                                idvar=id,
+                                timevar=time,
+                                M=2,
+                                method="mar",
+                                seed=101,
+                                prior="jeffreys",
+                                burnin=1000,
+                                bbetween=NULL,
+                                methodvar=NULL
+)
+
 impnooutcomes2j2r <- RefBasedMI(data=asthma2,
                                 depvar=fev,
                                 treatvar=treat,
@@ -85,10 +104,9 @@ impnooutcomes2causal <- RefBasedMI(data=asthma2,
 )
 
 # view imputed values
-impnooutcomes %>% filter(id==idc) 
+impnooutcomes2mar %>% filter(id==idc) 
 impnooutcomes2j2r %>% filter(id==idc) 
 impnooutcomes2cir %>% filter(id==idc) 
 impnooutcomes2lmcf %>% filter(id==idc) 
 impnooutcomes2causal %>% filter(id==idc) 
 
-# note only lmcf imputes 10000 larger, consistent with only lmcf using the own-arm mean
