@@ -654,8 +654,9 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         if (length(c_mata_nonmiss)-length(covar)==0)  {
           # change  because error list obj cannot be coerced to double
           # replaced this with S22 because S11 S12 have 0 values when so try
-          U <- chol(S22)
-
+          U <- try(chol(S22), silent=T)
+          if (inherits(U,"try-error")) stop("Error: the covariance matrix for drawing the imputations is not positive definite.")
+          
           # generate inverse normal, same as used below
           miss_count<-sum(mata_miss)
           Z <- stats::qnorm(matrix(stats::runif( mg[i,"cases"]* miss_count,0,1),mg[i,"cases"],miss_count))
@@ -698,7 +699,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
             meanval = as.matrix(m2) + (as.matrix(raw1 - m1)%*%as.matrix(t_mimix))
           }
   
-          U <- chol(conds)
+          U <- try(chol(conds), silent=T)
+          if (inherits(U,"try-error")) stop("Error: the covariance matrix for drawing the imputations is not positive definite.")
           miss_count=rowSums(mata_miss)
   
           # generate inverse normal
@@ -1334,8 +1336,9 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
         if (length(c_mata_nonmiss)-length(covar)==0)  {
           ## routine copied from mimix line 1229
 
-          U <- chol(S22)
-
+          U <- try(chol(S22), silent=T)
+          if (inherits(U,"try-error")) stop("Error: the covariance matrix for drawing the imputations is not positive definite.")
+          
           # generate inverse normal, same as used below
           miss_count<-sum(mata_miss)
           Z <- stats::qnorm(matrix(stats::runif( mg[i,"cases"]* miss_count,0,1),mg[i,"cases"],miss_count))
@@ -1374,7 +1377,8 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
             meanval = as.matrix(m2) + (as.matrix(raw1 - m1)%*%as.matrix(t_mimix))
           }
 
-          U <- chol(conds)
+          U <- try(chol(conds), silent=T)
+          if (inherits(U,"try-error")) stop("Error: the covariance matrix for drawing the imputations is not positive definite.")
           miss_count=rowSums(mata_miss)
 
           # generate inverse normal
