@@ -12,6 +12,8 @@
 # Revised 16jul2021
 # Revised 25may2021
 # Revised 8feb2021
+
+# NB NEED TO CHANGE TO TEST DIRECTORY BEFORE RUNNING THIS
 #####################################################################
 
 # Note date of testing
