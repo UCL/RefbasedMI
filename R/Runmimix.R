@@ -161,8 +161,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   }
 
   testinterim<-1
-  if (class(mle) !="logical" & mle !=0 & mle !=1 ) { stop("mle must be logical value") }
-
+  if (!inherits(mle, "logical") & mle !=0 & mle !=1 ) { stop("mle must be logical value") }
+  
   if  (!any((class(get("data"))) == "data.frame")) {stop("data must be type dataframe")}
 
   # to put quotes in method
