@@ -20,7 +20,7 @@
 #' @param covar Baseline covariate(s): must be complete (no missing values)
 #' @param depvar Outcome variable
 #' @param treatvar Treatment group variable: can be numeric or character
-#' @param idvar Participant identifiervariable
+#' @param idvar Participant identifier variable
 #' @param timevar  Variable indicating time point for repeated measures
 #' @param method Reference-based imputation method: must be "J2R", "CR", "CIR", "MAR", "Causal" or "LMCF"
 #' @param reference  Reference group for "J2R", "CIR", "CR" methods, or control group for causal method: can be numeric or string
