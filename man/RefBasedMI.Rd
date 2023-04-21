@@ -94,7 +94,7 @@ The program is based on Suzie Cro's Stata program mimix
 The user can use the as.mids() function in the mice package to convert the output data to mids data type and then perform analysis using Rubin's rules.
 }
 \examples{
-\dontrun{
+\donttest{
 # Perform jump to reference imputation on asthma trial data, with reference arm 1 
 asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
  idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)

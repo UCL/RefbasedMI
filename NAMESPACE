@@ -1,4 +1,4 @@
 export(RefBasedMI)
 import(mice)
 importFrom("stats", "reshape")
-mportFrom("utils", "capture.output")
+importFrom("utils", "capture.output")

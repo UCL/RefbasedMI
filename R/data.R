@@ -13,14 +13,14 @@
 #'   \item{fev}{outcome variable}
 #'   }
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'  impJ2R<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
 #'     method="J2R",reference=3,M=5,seed=101,burnin=1000)
 #'  library(mice)    
 #'  fitJ2R<-with(data=as.mids(subset(impJ2R,time==12)),lm(fev~treat+base))
 #'  summary(pool(fitJ2R))
 #'  # recode treatment from numeric 2,3 to character 
-#'  # asthma$treat<- ifelse(asthma$treat==2,"placebo","active")
+#'  asthma$treat<- ifelse(asthma$treat==2,"placebo","active")
 #'  # reference arm placebo
 #'  impJ2Rridge<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
 #'      method="J2R",reference="placebo",delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior="ridge")      
@@ -55,7 +55,7 @@
 #'  \item{referencecol}{individual-specific reference arm}
 #'  }
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'  # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
 #'  # method and reference indivdually specified columns 
 #'  impIndiv <- RefBasedMI(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
@@ -97,7 +97,7 @@
 #'  \item{withdrawal_reason}{}
 #'  }
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #'  impCausalref1 <- RefBasedMI(data=acupuncture,covar=c(head_base),depvar=head,treatvar=treat,
 #'        idvar=id,timevar=time,
 #'        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)

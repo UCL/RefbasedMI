@@ -5,10 +5,10 @@ Author: Kevin McGrath <kkevinmcgrath@yahoo.co.uk>
 Maintainer: Matteo Quartagno <m.quartagno@ucl.ac.uk>
 Description: Imputation of missing numerical outcomes for a longitudinal trial 
     with protocol deviations.
-    The package uses distinct treatment arm based assumptions for the unobserved data, following 
-    the general algorithm of Carpenter, Roger, and Kenward (2013)<doi:10.1080/10543406.2013.834911>, and the causal model
-    model of White, Royes and Best (2020)<doi:10.1080/10543406.2019.1684308>.
-    Sensitivity analysis to departures from these assumptions can be done by the 
+    The package uses distinct treatment arm-based assumptions for the unobserved data, following 
+    the general algorithm of Carpenter, Roger, and Kenward (2013) <doi:10.1080/10543406.2013.834911>, and the causal model
+    of White, Royes and Best (2020) <doi:10.1080/10543406.2019.1684308>.
+    Sensitivity analyses to departures from these assumptions can be done by the 
     Delta method of Roger.
     The program is derived from the 'mimix' 'Stata' package written by Suzie Cro, 
     with additional coding for the causal model and delta method.

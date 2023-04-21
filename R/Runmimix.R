@@ -38,7 +38,7 @@
 #' @param mle Use with extreme caution: do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.
 #' @return A data frame containing the original data stacked above the M imputed data sets. The original ID variable (idvar) is renamed as .id. A new variable .imp indicates the original data (.imp=0) or the imputed data sets (.imp=1,...,M).
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Perform jump to reference imputation on asthma trial data, with reference arm 1 
 #' asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
 #'  idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)
@@ -384,8 +384,8 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
         if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
 
         if (length(grep("negative definite",emResultT$msg ))>0) {
-          print((emResultT$msg))
-          print("please disregard UNDECLARED() message - not the error!")
+          message((emResultT$msg))
+          message("please disregard UNDECLARED() message - not the error!")
           # UNDECLARED()
         }
         mcmcResultT <- (

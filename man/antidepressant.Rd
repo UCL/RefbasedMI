@@ -32,7 +32,7 @@ by White,Royes,Best (2019)
 The primary outcome is HAMD17.TOTAL measured at visit number 4,5,6,7.
 }
 \examples{
-\dontrun{
+\donttest{
  # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
  # method and reference indivdually specified columns 
  impIndiv <- RefBasedMI(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
