@@ -94,14 +94,12 @@ The program is based on Suzie Cro's Stata program mimix
 The user can use the as.mids() function in the mice package to convert the output data to mids data type and then perform analysis using Rubin's rules.
 }
 \examples{
-\donttest{
 # Perform jump to reference imputation on asthma trial data, with reference arm 1 
-asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
+asthmaJ2R <- RefBasedMI(data=asthma, depvar=fev, treatvar=treat, 
  idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)
 # Fit regression model to each imputed data set by treating output data frame as mids object
 library(mice)
-fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat) + base, subset=(time==12)))
+fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat), subset=(time==12)))
 # Find pooled treatment effects using Rubin's rules 
 summary(pool(fit))
-}
 }

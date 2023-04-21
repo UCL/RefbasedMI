@@ -12,21 +12,6 @@
 #'   \item{base}{covariate}
 #'   \item{fev}{outcome variable}
 #'   }
-#' @examples
-#' \donttest{
-#'  impJ2R<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-#'     method="J2R",reference=3,M=5,seed=101,burnin=1000)
-#'  library(mice)    
-#'  fitJ2R<-with(data=as.mids(subset(impJ2R,time==12)),lm(fev~treat+base))
-#'  summary(pool(fitJ2R))
-#'  # recode treatment from numeric 2,3 to character 
-#'  asthma$treat<- ifelse(asthma$treat==2,"placebo","active")
-#'  # reference arm placebo
-#'  impJ2Rridge<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-#'      method="J2R",reference="placebo",delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior="ridge")      
-#'  fitJ2Rridge<-with(data=as.mids(subset(impJ2Rridge,time==12)),lm(fev~treat+base))
-#'  summary(pool(fitJ2Rridge))    
-#' }     
 "asthma"
 
 
@@ -54,24 +39,6 @@
 #'  \item{methodcol}{individual-specific method}
 #'  \item{referencecol}{individual-specific reference arm}
 #'  }
-#' @examples
-#' \donttest{
-#'  # Run with  covariates "basval" and "PATIENT.SEX" using columns within data to specify
-#'  # method and reference indivdually specified columns 
-#'  impIndiv <- RefBasedMI(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
-#'      treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-#'      timevar=VISIT.NUMBER,methodvar="methodcol",referencevar="referencecol",M=5,seed=54321)        
-#'  library(mice)
-#'  fit<-with(data= as.mids(subset(impIndiv,VISIT.NUMBER==7)),
-#'                lm(HAMD17.TOTAL~TREATMENT.NAME+basval+PATIENT.SEX))
-#'  summary(pool(fit))  
-#'  impantdep <- RefBasedMI(data=antidepressant,covar=c(basval,PATIENT.SEX),depvar=HAMD17.TOTAL,
-#'          treatvar=TREATMENT.NAME,idvar=PATIENT.NUMBER,
-#'          timevar=VISIT.NUMBER,method="J2R",reference=1,M=5,seed=54321)
-#'  fitdep21<-with(data= as.mids(subset(impantdep,VISIT.NUMBER==7)),
-#'               lm(HAMD17.TOTAL~TREATMENT.NAME+basval))
-#'  summary(pool(fitdep21)) 
-#' }
 "antidepressant"
 
 
@@ -96,15 +63,6 @@
 #'  \item{head}{outcome variable}
 #'  \item{withdrawal_reason}{}
 #'  }
-#' @examples 
-#' \donttest{
-#'  impCausalref1 <- RefBasedMI(data=acupuncture,covar=c(head_base),depvar=head,treatvar=treat,
-#'        idvar=id,timevar=time,
-#'        method="Causal",reference=1,K0=1,K1=0.5,M=5,seed=54321)
-#'  library(mice)         
-#'  fitacup<-with(as.mids(subset(impCausalref,time==12)), lm(head~treat+head_base+sex))
-#'  summary(pool(fitacup))    
-#' }
 "acupuncture"
 
 # eample output file 

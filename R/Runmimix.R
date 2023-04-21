@@ -20,7 +20,7 @@
 #' @param covar Baseline covariate(s): must be complete (no missing values)
 #' @param depvar Outcome variable
 #' @param treatvar Treatment group variable: can be numeric or character
-#' @param idvar Participant identifier variable
+#' @param idvar Participant identifiervariable
 #' @param timevar  Variable indicating time point for repeated measures
 #' @param method Reference-based imputation method: must be "J2R", "CR", "CIR", "MAR", "Causal" or "LMCF"
 #' @param reference  Reference group for "J2R", "CIR", "CR" methods, or control group for causal method: can be numeric or string
@@ -38,18 +38,16 @@
 #' @param mle Use with extreme caution: do improper imputation by drawing from the model using the maximum likelihood estimates. This does not allow for uncertainty in the MLEs and invalidates interval estimates from Rubin's rules.
 #' @return A data frame containing the original data stacked above the M imputed data sets. The original ID variable (idvar) is renamed as .id. A new variable .imp indicates the original data (.imp=0) or the imputed data sets (.imp=1,...,M).
 #' @examples
-#' \donttest{
 #' # Perform jump to reference imputation on asthma trial data, with reference arm 1 
-#' asthmaJ2R <- RefBasedMI(data=asthma, covar=c("base"), depvar=fev, treatvar=treat, 
+#' asthmaJ2R <- RefBasedMI(data=asthma, depvar=fev, treatvar=treat, 
 #'  idvar=id, timevar=time, method="J2R", reference=1, M=5, seed=54321)
 
 #' # Fit regression model to each imputed data set by treating output data frame as mids object
 #' library(mice)
-#' fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat) + base, subset=(time==12)))
+#' fit <- with(data = as.mids(asthmaJ2R), lm(fev ~ factor(treat), subset=(time==12)))
 
 #' # Find pooled treatment effects using Rubin's rules 
 #' summary(pool(fit))
-#' }
 
 # v0.2.0
 # @param mle logical option to Use maximum likelihood parameter estimates instead of MCMC draw parameters

@@ -21,20 +21,4 @@ asthma
 A data set containing  asthma trial data as used in the Stata mimix help file
 The primary outcome variable is fev, measured at 2,4,8,12 weeks
 }
-\examples{
-\donttest{
- impJ2R<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-    method="J2R",reference=3,M=5,seed=101,burnin=1000)
- library(mice)    
- fitJ2R<-with(data=as.mids(subset(impJ2R,time==12)),lm(fev~treat+base))
- summary(pool(fitJ2R))
- # recode treatment from numeric 2,3 to character 
- asthma$treat<- ifelse(asthma$treat==2,"placebo","active")
- # reference arm placebo
- impJ2Rridge<-(RefBasedMI(data=asthma,covar=c(base),depvar=fev,treatvar=treat,idvar=id,timevar=time,
-     method="J2R",reference="placebo",delta=c(0.5,0.5,1,1 ),M=5,seed=101,prior="ridge")      
- fitJ2Rridge<-with(data=as.mids(subset(impJ2Rridge,time==12)),lm(fev~treat+base))
- summary(pool(fitJ2Rridge))    
-}     
-}
 \keyword{datasets}
