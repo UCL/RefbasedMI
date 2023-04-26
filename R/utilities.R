@@ -87,8 +87,8 @@ Causal_loop <- function(c_mata_miss, mata_Means, MeansC, K0, K1) {
 
 analyselist <- function(id, datlist, varlist) {
   datano <- subset(datlist, id == datlist$.id)
-  cat(paste0("\ncase = ", id))
-  cat(paste0("\n treatarm = ", subset(datano$treat, datano$.imp == 0), "\n"))
+  message(paste0("\ncase = ", id))
+  message(paste0("\n treatarm = ", subset(datano$treat, datano$.imp == 0), "\n"))
   # numbers denote the descriptive stats to display
   t(round(pastecs::stat.desc(datano)[, varlist], 8)[c(1, 9, 13, 4, 8, 5), ])
 }
@@ -136,7 +136,7 @@ AddDelta <- function(vec_tst, covar, mata_imp, delta, dlag) {
 
   # need report after final call
   if (sum(is.na(mata_imp)) != 0) {
-    cat(paste0("\nWARNING!!! unimputed data values, possibly due to mis-specified delta"))
+    warning(paste0("\nUnimputed data values, possibly due to mis-specified delta"))
   }
 
   return(mata_imp)

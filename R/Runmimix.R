@@ -344,7 +344,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
   cumiter<-0
 
-  cat(paste0("\nFitting multivariate normal model by ",treatvar,":\n ") )
+  message(paste0("\nFitting multivariate normal model by ",treatvar,":\n ") )
 
   for (val in 1:length(ntreat)) {
 
@@ -354,7 +354,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
     # want to use respective  treat level
 
-    cat(paste0("\n",treatvar," = ", (initial_levels_treat)[val],"\nperforming mcmcNorm for m = 1 to ",M,"\n") )
+    message(paste0("\n",treatvar," = ", (initial_levels_treat)[val],"\nperforming mcmcNorm for m = 1 to ",M,"\n") )
     for(m in 1:M) {
 
       # suppress warnings regarding solution  near boundary, see norm2 user guide, also mimix about this problem
@@ -413,7 +413,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       paramBiglist[[ cumiter]] <- mcmcResultT$param
       assign(paste0("paramBiglist",val,"_",m), mcmcResultT$param)
     }
-    cat(paste0("\nmcmcNorm Loop finished.\n"))
+    message(paste0("\nmcmcNorm Loop finished.\n"))
   }
 
   #store paraBiglist in a single structure
@@ -424,15 +424,15 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   ############################################ start big loop #########################################
   # now loop over the lookup table mg, looping over every pattern - make sure mata_Obs sorted same way!
 
-  cat(paste0("\n\nNumber of original missing values = ", sum(is.na(mata_Obs)), "\n"))
+  message(paste0("\n\nNumber of original missing values = ", sum(is.na(mata_Obs)), "\n"))
   # declare iterate for saving data
 
   # not for indiv-specific
   if (flag_indiv==0) {
-   cat("\nImputing interim missing values under MAR:\n\n")
+   message("\nImputing interim missing values under MAR:\n\n")
   } 
   else {
-    cat("\nImputing missing values using individual-specific method:\n\n")
+    message("\nImputing missing values using individual-specific method:\n\n")
   }
 
 
@@ -466,15 +466,15 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
     trtgp<- mg[i,treatvar]
 
     pattern <- mg$patt[i]
-    #cat("\ntrtgp = ", trtgp)
+    #message("\ntrtgp = ", trtgp)
 
     if  (!is.null(method) ) {
       # only print imputed case, ie interims
-      #cat("\n",treatvar ," = ", trtgp,"patt = ",pattern,"number cases = ", cnt)
+      #message("\n",treatvar ," = ", trtgp,"patt = ",pattern,"number cases = ", cnt)
     } 
     else if(!is.null(methodvar) ) {
-      cat(treatvar ," = ",trtgp,methodvar," = ",sprintf("%-10s",as.character(mg[i,methodvar])))
-      cat(referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n")
+      message(treatvar ," = ",trtgp,methodvar," = ",sprintf("%-10s",as.character(mg[i,methodvar])))
+      message(referencevar," = ",as.character(mg[i,referencevar]),"pattern = ",pattern,"number patients = ", cnt,"\n")
     }
 
     trtgpindex<-which(trtgp==ntreat)
@@ -580,9 +580,9 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
               deplen<- length(mata_means)-length(covar)
               if ( length(setdiff(c(c_mata_miss[1]:deplen),c_mata_miss)) != 0 ) {
                 interim<-1
-                #note there is another cat line
+                #note there is another message line
                 if (m==1) {
-                  cat(treatvar," = ",initial_levels_treat[trtgp],"pattern = ",pattern,"number patients = ", cnt,"\n")
+                  message(treatvar," = ",initial_levels_treat[trtgp],"pattern = ",pattern,"number patients = ", cnt,"\n")
                 }
 
               } #if
@@ -844,7 +844,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
   else {
     # also run report on na's
     
-    cat(paste0("\nNumber of final na values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
+    message(paste0("\nNumber of final na values = ", sum(is.na(subset(impdataset,impdataset$.imp>0)))))
     
     # return long data set
     varyingnames<-names((impdataset)[,grepl(paste0(depvar,"\\."),colnames(impdataset))])
@@ -985,7 +985,7 @@ getimpdatasets <- function(varlist){
 
   # report and check number na's
 
-  if (sum(is.na(subset(impdatasets,impdatasets$.imp>0))) !=0 ) { cat(paste0("\nWARNING! unimputed data values")) }
+  if (sum(is.na(subset(impdatasets,impdatasets$.imp>0))) !=0 ) { warning(paste0("\nUnimputed data values")) }
   # write which model processed
   # but not when indiv method used
   if (length(method) !=0 ) {
@@ -1021,8 +1021,8 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
   if (length(nrow(nrow(Imp_Interims))>0)) {
     No_ints_Impd <- sum(is.na(subset(Imp_Interims,.imp==0)))-sum(is.na(subset(Imp_Interims,.imp==1)))
   }
-  cat(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
-  cat(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
+  message(paste0("\nNumber of post-discontinuation missing values = ",sum(is.na(mata_Obs)),"\n"))
+  message(paste0("\nImputing post-discontinuation missing values under ",model,":\n\n"))
 
   m_mg_iter<-0
   #  create a dup col to preserve original numeric levels
@@ -1062,10 +1062,10 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
 
       #try this converting factor to numeric to ensure correct ordering
       mg[,treatvar]<-sort(as.numeric(as.character(mg[,treatvar])))
-      cat(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) 
+      message(paste(treatvar," = ", mg[i,treatvar],"pattern = ",pattern,"number patients = ",cnt,"\n")) 
     } 
     else if(!is.null(methodvar) ) {
-      cat(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),
+      message(treatvar," = ",trtgp,methodvar," = ",as.character(mg[i,methodvar]),
           referencevar," = ",as.character(mg[i,referencevar]),
           "pattern = ",pattern,"number patients = ", cnt,"\n\n")
     }
@@ -1450,7 +1450,7 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
 
   } 
   #  if nrow(Imp_interims)
-  cat(paste0("\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0))), "\nEnd of RefBasedMI\n"))
+  message(paste0("\nNumber of final missing values = ", sum(is.na(subset(impdataset,impdataset$.imp>0))), "\nEnd of RefBasedMI\n"))
 
   # does it have to be ordered!? yes purpose to put on labels
   impdataset[,ncol(impdataset)-1] <- ordered(impdataset[,ncol(impdataset)-1],labels=levels(tmptreat))

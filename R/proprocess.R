@@ -1,5 +1,11 @@
 # RefBasedMI: functions to pre-process data
 
+# Function to print data using message
+print_in_message <- function(x)
+{
+  message(paste(capture.output(print(x)), collapse = "\n"))
+}
+
 # preprocess data for group method
 preprodata <-
   function(data,
@@ -173,7 +179,7 @@ preprodata <-
     # prefer to call pattern
     names(ex1s)[names(ex1s) == "patt"] <- "pattern"
 
-    cat(paste0("   ", "\n\nSummary of missing data pattern by ", treatvar, ":\n\n"))
+    message(paste0("   ", "\n\nSummary of missing data pattern by ", treatvar, ":\n\n"))
 
 
     # setting row names NULL automatically produces sequential index
@@ -188,7 +194,7 @@ preprodata <-
       sort(as.numeric(as.character(ex1s[, treatvar])))
     # above replaces below
 
-    print(ex1s)
+    print_in_message(ex1s)
 
 
     # so finaldatS is sorted by treat,patt  data
@@ -358,7 +364,7 @@ preproIndivdata <-
 
     ex1s$exid <- NULL
 
-    cat(paste0("Summary missing pattern:\n\n"))
+    message(paste0("Summary missing pattern:\n\n"))
 
 
     # changing to patients has knock on effect in mg so leave as cases
@@ -370,7 +376,7 @@ preproIndivdata <-
     names(ex1s)[names(ex1s) == "patt"] <- "pattern"
 
     # prints out the summay table
-    print(ex1s)
+    print_in_message(ex1s)
     # dont need finaldat,exlid
 
     # pattmat is just the missing dummies
