@@ -372,14 +372,13 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       if (mle==FALSE) {
         # WARN if not enough data
 
-        # warning("If not sufficient data then norm2 error- Cannot estimate variance; fewer than 2 cases")
-        # doesn't suppress msgs capture_condition(emResultT<-(norm2::emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
+        # doesn't suppress msgs capture_condition(emResultT<-(emNorm(prnormobj,prior = priorvar[1],prior.df=priorvar[2])) )
         # if error then want to print otherwise dont show
 
-        invisible(capture.output(emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
+        invisible(capture.output(emResultT<-(emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) ))
 
         # now test whether emResult created - if not need to see the error msg
-        if (is.null(emResultT)) {emResultT<-(norm2::emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
+        if (is.null(emResultT)) {emResultT<-(emNorm(prnormobj,prior = prior[1],prior.df=prior[2])) }
 
         if (length(grep("negative definite",emResultT$msg ))>0) {
           message((emResultT$msg))
@@ -387,7 +386,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
           # UNDECLARED()
         }
         mcmcResultT <- (
-            norm2::mcmcNorm(
+            mcmcNorm(
               emResultT,
               iter = burnin,
               multicycle = bbetween,
@@ -401,7 +400,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
       else {
         invisible(capture.output(emResultT <-
                                    (
-                                     norm2::emNorm(prnormobj, prior = prior[1], prior.df = prior[2])
+                                     emNorm(prnormobj, prior = prior[1], prior.df = prior[2])
                                    )))
         # for mle
         mcmcResultT <- emResultT
