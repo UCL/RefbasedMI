@@ -1,3 +1,4 @@
+useDynLib( norm2, .registration=TRUE )
 export(RefBasedMI)
 import(mice)
 importFrom("stats", "reshape")
