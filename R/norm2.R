@@ -206,7 +206,7 @@ emNorm.default <- function(obj, x=NULL, intercept=TRUE,
       msg.len.max = msg.len.max,
       msg.codes = msg.codes,
       msg.len.actual = integer(1),
-      PACKAGE="norm2"
+      PACKAGE="RefBasedMI"
       )
    #########################################
    tmp$startval.present <- startval.present
@@ -636,7 +636,7 @@ mcmcNorm.default <- function(obj, x=NULL, intercept=TRUE,
       msg.len.max = msg.len.max,
       msg.codes = msg.codes,
       msg.len.actual = integer(1),
-      PACKAGE="norm2"
+      PACKAGE="RefBasedMI"
       )
    #########################################
    tmp$save.all.series <- as.logical( tmp$save.all.series.int )
@@ -964,7 +964,7 @@ impNorm.default <- function(obj, x=NULL, intercept=TRUE, param,
          msg.len.max = msg.len.max,
          msg.codes = msg.codes,
          msg.len.actual = integer(1),
-         PACKAGE="norm2"
+         PACKAGE="RefBasedMI"
          )
       }
    else if( method == "predict" ){
@@ -983,7 +983,7 @@ impNorm.default <- function(obj, x=NULL, intercept=TRUE, param,
          msg.len.max = msg.len.max,
          msg.codes = msg.codes,
          msg.len.actual = integer(1),
-         PACKAGE="norm2"
+         PACKAGE="RefBasedMI"
          )
       }
    else{
@@ -1195,7 +1195,7 @@ logpostNorm.default <- function(obj, x=NULL, intercept=TRUE, param,
 	 msg.len.max = msg.len.max,
          msg.codes = msg.codes,
          msg.len.actual = integer(1),
-         PACKAGE="norm2"
+         PACKAGE="RefBasedMI"
          )
    #########################################
    # display message from Fortran
@@ -1375,7 +1375,7 @@ loglikNorm.default <- function(obj, x=NULL, intercept=TRUE,
          msg.len.max = msg.len.max,
          msg.codes = msg.codes,
          msg.len.actual = integer(1),
-         PACKAGE="norm2"
+         PACKAGE="RefBasedMI"
          )
    #########################################
    # display message from Fortran
