@@ -83,7 +83,7 @@ miInference <- function( est.list, std.err.list,
 print.miInference <- function( x, ... ){
    ############################################
    # check argument
-   if( class(x) != "miInference" )
+   if( !inherits(x, "miInference" ))
       stop("Argument should be of class \"miInference\".")
    ###############################################
    if( x$method == "scalar" ){

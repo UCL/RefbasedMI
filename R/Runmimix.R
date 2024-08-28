@@ -256,7 +256,7 @@ RefBasedMI<- function(data,covar=NULL,depvar,treatvar,idvar,timevar,method=NULL,
 
 
   if (!is.null(method) ) {
-    testlist<- RefBasedMI:::preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method, initial_levels_treat)
+    testlist<- preprodata(data,covar,depvar,treatvar,tmptreat,idvar,timevar,M,reference,method, initial_levels_treat)
         reference <- testlist[[7]]
     # need to recode meth
     method<-  ifelse( (  method=="J2R" |method=="J2"|method=="JR" ),3,
@@ -1236,7 +1236,7 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
 
             # might be better to copy mimix algoRITHM
 
-            mata_means<-RefBasedMI:::CIR_loop(c_mata_miss,mata_Means,MeansC)
+            mata_means<-CIR_loop(c_mata_miss,mata_Means,MeansC)
             #returns mata_means as single row
             # then duplicate over patt rows
 
@@ -1271,7 +1271,7 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
             mata_Means <- mata_Means[[1]]
             MeansC <-  paramBiglist[[M*(referindex-1)+m]][1]
 
-            mata_means<-RefBasedMI:::Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
+            mata_means<-Causal_loop(c_mata_miss,mata_Means,MeansC,K0,K1)
 
             SigmaRefer <- paramBiglist[[M*(referindex-1)+m]][2]
             # when reading in Stata sigmas
@@ -1415,7 +1415,7 @@ pass2Loop <- function(Imp_Interims,method,mg,ntreat,depvar,covar,treatvar,tmptre
             if (is.null(dlag)) {
               dlag <- rep(1,length(delta))
             }
-            mata_new <-  RefBasedMI:::AddDelta(tst2, covar,mata_new,delta,dlag)
+            mata_new <-  AddDelta(tst2, covar,mata_new,delta,dlag)
           }
           mata_all_newlist[[m_mg_iter]]=mata_new
         }

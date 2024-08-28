@@ -1,5 +1,5 @@
 useDynLib( RefBasedMI, .registration=TRUE )
 export(RefBasedMI)
-import(mice)
-importFrom("stats", "reshape")
+import("mice")
+importFrom( "stats", "as.ts", "median", "model.matrix", "model.response", "pt", "runif", "var", "reshape" )
 importFrom("utils", "capture.output")
