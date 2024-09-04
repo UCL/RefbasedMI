@@ -10,8 +10,7 @@ module random_generator
    public :: random_gendata
    ! list public functions and subroutines
    public :: ran_genchi, ran_gengam, ran_sgamma, ran_snorm, &
-        ran_sexp, ran_genunf, ran_setall, ran_phrsd, ran_timeseed, &
-        ran_seed, ran_seed_is_set
+        ran_sexp, ran_genunf, ran_setall, ran_phrsd, ran_timeseed
    ! private parameter defining size of generator arrays
    integer(kind=our_int), parameter, private :: NUM_GEN = 32
    ! private module parameters formerly stored in a common block
@@ -817,20 +816,6 @@ contains
       return
    end function ran_phrsd
    !####################################################################
-   integer(kind=our_int) function ran_seed()
-      !	Returns a positive-valued, randomly generated, 31-bit seed value
-      !   by calling the intrinsic function random_seed
-      implicit none
-      integer, dimension(:), allocatable :: theseed
-      integer :: idim
-      call random_seed()
-      call random_seed( size = idim )
-      allocate (theseed(idim))
-      call random_seed( get = theseed(1:idim) )
-      ran_seed = theseed(1)
-      deallocate (theseed)
-   end function ran_seed
-   !####################################################################
    logical function is_leap_year(iyear)
       !	Returns .true. if iyear is a leap year.  Should work for the
       !	next several centuries.
@@ -840,13 +825,5 @@ contains
            .and. (mod(iyear,100) /= 0) &
            .or. (mod(iyear,400) == 0))
    end function is_leap_year
-   !####################################################################
-   logical function ran_seed_is_set(gendata)
-      ! Returns .true. if random generator seed values have been set
-      implicit none
-      type(random_gendata) :: gendata
-      ran_seed_is_set = gendata%qqssd
-   end function ran_seed_is_set
-   !####################################################################
 end module random_generator
 !#######################################################################

@@ -1,0 +1,9 @@
+The Fortran code in the src folder was adapted from the code for the previously available R package norm2, which has now been archived. 
+The following applies to that code: 
+
+“International copyright, 2016, U.S. Census Bureau, U.S. Government”. 
+The author and the Census Bureau assume no
+responsibility whatsoever for the use of this work by other parties, and makes no guarantees,
+expressed or implied, about its quality, reliability, or any other characteristic. The author and
+the Census Bureau are not obligated to assist users or to fix reported problems with this work.
+For additional information, refer to GNU General Public License Version 3 (GPLv3).
